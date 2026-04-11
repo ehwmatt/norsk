@@ -1,0 +1,1730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🇳🇴 Norsk Vocab Trainer</title>
+  <style>
+    :root {
+      --bg:#0d1b2a;--card:#1b2a3b;--accent:#ef4135;--accent2:#003087;
+      --text:#e8edf2;--muted:#7a8fa6;--success:#2ecc71;--gold:#ffd700;--radius:14px;
+      --p1:#e74c3c;--p2:#e67e22;--p3:#f1c40f;--p4:#2ecc71;--p5:#3498db;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:24px 16px;}
+    header{text-align:center;margin-bottom:28px;}
+    header h1{font-size:2rem;font-weight:700;letter-spacing:1px;}
+    header p{color:var(--muted);font-size:.9rem;margin-top:4px;}
+    .container{max-width:740px;margin:0 auto;display:flex;flex-direction:column;gap:20px;}
+    .legend{background:var(--card);border-radius:var(--radius);padding:14px 18px;}
+    .legend h3{font-size:.8rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px;}
+    .legend-grid{display:flex;flex-wrap:wrap;gap:8px;}
+    .pos-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:99px;font-size:.75rem;font-weight:700;}
+    .pos-p1{background:rgba(231,76,60,.2);border:1px solid var(--p1);color:var(--p1);}
+    .pos-p2{background:rgba(230,126,34,.2);border:1px solid var(--p2);color:var(--p2);}
+    .pos-p3{background:rgba(241,196,15,.2);border:1px solid var(--p3);color:var(--p3);}
+    .pos-p4{background:rgba(46,204,113,.2);border:1px solid var(--p4);color:var(--p4);}
+    .pos-p5{background:rgba(52,152,219,.2);border:1px solid var(--p5);color:var(--p5);}
+    .legend-item{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--muted);}
+    .wotd-section{background:linear-gradient(135deg,var(--accent2),#005cbf);border-radius:var(--radius);padding:20px;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+    .wotd-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+    .wotd-label{font-size:.75rem;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.7);}
+    .wotd-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+    .wotd-controls label{font-size:.82rem;color:rgba(255,255,255,.8);}
+    .wotd-controls select{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:5px 10px;border-radius:8px;font-size:.82rem;cursor:pointer;}
+    .wotd-controls select option{background:#1b2a3b;color:#fff;}
+    .wotd-cards{display:flex;flex-direction:column;gap:10px;}
+    .wotd-card{background:rgba(0,0,0,.25);border-radius:10px;padding:14px 16px;border-left:4px solid transparent;}
+    .wotd-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+    .wotd-card-badges{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+    .wotd-english{font-size:1.25rem;font-weight:700;margin-bottom:4px;}
+    .wotd-norwegian{color:var(--gold);font-size:1.05rem;font-style:italic;display:none;}
+    .wotd-grammar-note{font-size:.75rem;color:rgba(255,255,255,.55);margin-top:5px;font-style:italic;display:none;}
+    .rank-badge{font-size:.65rem;padding:2px 7px;border-radius:99px;font-weight:700;}
+    .rank-top100{background:#ffd700;color:#000;}
+    .rank-top200{background:#c0c0c0;color:#000;}
+    .rank-top1000{background:#cd7f32;color:#fff;}
+    .wotd-reveal-btn{display:block;margin:14px auto 0;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:8px 24px;border-radius:8px;cursor:pointer;font-size:.9rem;transition:background .2s;}
+    .wotd-reveal-btn:hover{background:rgba(255,255,255,.25);}
+    .progress-section{background:var(--card);border-radius:var(--radius);padding:16px 20px;}
+    .progress-header{display:flex;justify-content:space-between;margin-bottom:10px;font-size:.9rem;}
+    .progress-bar-bg{background:rgba(255,255,255,.08);border-radius:99px;height:10px;overflow:hidden;}
+    .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--success));border-radius:99px;transition:width .5s ease;}
+    .tier-progress{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;}
+    .tier-stat{flex:1;min-width:80px;background:rgba(255,255,255,.04);border-radius:8px;padding:8px 10px;text-align:center;}
+    .tier-stat-num{font-size:1.2rem;font-weight:700;}
+    .tier-stat-label{font-size:.7rem;color:var(--muted);margin-top:2px;}
+    .study-section{background:var(--card);border-radius:var(--radius);padding:20px;}
+    .study-section h2{font-size:1rem;color:var(--muted);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px;}
+    .study-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+    .flashcard{perspective:1000px;height:180px;cursor:pointer;margin-bottom:14px;}
+    .flashcard-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.2,.9,.3,1);}
+    .flashcard.flipped .flashcard-inner{transform:rotateY(180deg);}
+    .flashcard-front,.flashcard-back{position:absolute;inset:0;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;backface-visibility:hidden;padding:20px;}
+    .flashcard-front{background:linear-gradient(135deg,#1e3a5f,#2a5298);}
+    .flashcard-back{background:linear-gradient(135deg,#1a3a1a,#2d7a2d);transform:rotateY(180deg);}
+    .card-word{font-size:1.5rem;font-weight:600;}
+    .card-no{font-size:1.4rem;font-weight:600;color:#a8f0a8;}
+    .card-hint{font-size:.72rem;color:rgba(255,255,255,.45);margin-top:6px;}
+    .card-pos-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;justify-content:center;}
+    .card-grammar{font-size:.75rem;color:rgba(255,255,255,.55);margin-top:6px;font-style:italic;text-align:center;}
+    .study-controls{display:flex;gap:8px;flex-wrap:wrap;}
+    .study-counter{margin-left:auto;font-size:.82rem;color:var(--muted);align-self:center;}
+    .btn{padding:9px 16px;border:none;border-radius:8px;cursor:pointer;font-size:.88rem;font-weight:600;transition:opacity .2s,transform .1s;}
+    .btn:hover{opacity:.85;}
+    .btn:active{transform:scale(.97);}
+    .btn-primary{background:var(--accent2);color:#fff;}
+    .btn-success{background:var(--success);color:#fff;}
+    .btn-ghost{background:rgba(255,255,255,.08);color:var(--text);border:1px solid rgba(255,255,255,.1);}
+    .add-section{background:var(--card);border-radius:var(--radius);padding:20px;}
+    .add-section h2{font-size:1rem;color:var(--muted);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px;}
+    .add-form{display:flex;gap:8px;flex-wrap:wrap;}
+    .add-form input,.add-form select{flex:1;min-width:110px;padding:9px 12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:var(--text);font-size:.9rem;outline:none;transition:border-color .2s;}
+    .add-form input:focus,.add-form select:focus{border-color:var(--accent2);}
+    .add-form input::placeholder{color:var(--muted);}
+    .add-form select option{background:#1b2a3b;}
+    .wordlist-section{background:var(--card);border-radius:var(--radius);padding:20px;}
+    .wordlist-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+    .wordlist-header h2{font-size:1rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+    .filter-tabs{display:flex;gap:5px;flex-wrap:wrap;}
+    .tab-btn{padding:4px 11px;border-radius:99px;border:1px solid rgba(255,255,255,.15);background:transparent;color:var(--muted);font-size:.78rem;cursor:pointer;transition:all .2s;}
+    .tab-btn.active{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+    .search-bar{width:100%;padding:8px 12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:var(--text);font-size:.88rem;outline:none;margin-bottom:10px;}
+    .search-bar:focus{border-color:var(--accent2);}
+    .search-bar::placeholder{color:var(--muted);}
+    .word-list{display:flex;flex-direction:column;gap:7px;max-height:360px;overflow-y:auto;}
+    .word-item{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.04);border-radius:8px;padding:10px 13px;border-left:3px solid transparent;}
+    .word-item.learned{border-left-color:var(--success);opacity:.65;}
+    .word-item-text{flex:1;}
+    .word-en{font-weight:600;font-size:.93rem;}
+    .word-no{color:var(--gold);font-size:.82rem;margin-top:2px;font-style:italic;}
+    .word-meta{display:flex;gap:5px;margin-top:4px;flex-wrap:wrap;align-items:center;}
+    .word-grammar{font-size:.7rem;color:var(--muted);font-style:italic;}
+    .word-actions{display:flex;gap:5px;}
+    .icon-btn{background:none;border:none;cursor:pointer;font-size:1rem;padding:4px;border-radius:6px;transition:background .2s;line-height:1;}
+    .icon-btn:hover{background:rgba(255,255,255,.1);}
+    .empty-state{text-align:center;color:var(--muted);padding:30px;font-style:italic;}
+    .toast{position:fixed;bottom:24px;right:24px;background:var(--success);color:#fff;padding:11px 18px;border-radius:10px;font-weight:600;font-size:.88rem;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;z-index:999;}
+    .toast.show{opacity:1;transform:translateY(0);}
+    @media(max-width:480px){
+      header h1{font-size:1.5rem;}
+      .flashcard{height:150px;}
+      .card-word,.card-no{font-size:1.2rem;}
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🇳🇴 Norsk Vocab Trainer</h1>
+  <p>Frequency-ranked · Grammar-aware · Sentence-building first</p>
+</header>
+
+<div class="container">
+
+  <div class="legend">
+    <h3>🏷️ Word Type Priority Guide</h3>
+    <div class="legend-grid">
+      <div class="legend-item"><span class="pos-badge pos-p1">🔴 P1</span> Sentence Glue — prepositions, conjunctions, pronouns, articles</div>
+      <div class="legend-item"><span class="pos-badge pos-p2">🟠 P2</span> Core Verbs — essential action & state words</div>
+      <div class="legend-item"><span class="pos-badge pos-p3">🟡 P3</span> Key Adjectives & Adverbs — modifiers</div>
+      <div class="legend-item"><span class="pos-badge pos-p4">🟢 P4</span> Core Nouns — people, time, place</div>
+      <div class="legend-item"><span class="pos-badge pos-p5">🔵 P5</span> Extended Vocab — numerals, domain words</div>
+    </div>
+  </div>
+
+  <div class="wotd-section">
+    <div class="wotd-top">
+      <div class="wotd-label">📅 Words of the Day</div>
+      <div class="wotd-controls">
+        <label>Words/day:</label>
+        <select id="wotdCount" onchange="saveSettings();renderWotd()">
+          <option value="1">1</option>
+          <option value="3" selected>3</option>
+          <option value="5">5</option>
+          <option value="10">10</option>
+        </select>
+        <label>From top:</label>
+        <select id="wotdPool" onchange="saveSettings();renderWotd()">
+          <option value="100">100</option>
+          <option value="200">200</option>
+          <option value="1000" selected>1000</option>
+        </select>
+      </div>
+    </div>
+    <div class="wotd-cards" id="wotdCards"></div>
+    <button class="wotd-reveal-btn" id="wotdRevealBtn" onclick="toggleWotdReveal()">Reveal Norwegian →</button>
+  </div>
+
+  <div class="progress-section">
+    <div class="progress-header">
+      <span>📈 Overall Progress</span>
+      <span id="progressText">0 / 0 words learned</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+    </div>
+    <div class="tier-progress">
+      <div class="tier-stat"><div class="tier-stat-num" id="statP1">0</div><div class="tier-stat-label">🔴 Glue</div></div>
+      <div class="tier-stat"><div class="tier-stat-num" id="statP2">0</div><div class="tier-stat-label">🟠 Verbs</div></div>
+      <div class="tier-stat"><div class="tier-stat-num" id="statP3">0</div><div class="tier-stat-label">🟡 Modifiers</div></div>
+      <div class="tier-stat"><div class="tier-stat-num" id="statP4">0</div><div class="tier-stat-label">🟢 Nouns</div></div>
+      <div class="tier-stat"><div class="tier-stat-num" id="statP5">0</div><div class="tier-stat-label">🔵 Extended</div></div>
+    </div>
+  </div>
+
+  <div class="study-section">
+    <h2>🃏 Study Mode</h2>
+    <div class="study-filter" id="studyFilterBtns">
+      <button class="tab-btn active" onclick="setStudyFilter('all',this)">All</button>
+      <button class="tab-btn" onclick="setStudyFilter('p1',this)">🔴 Glue</button>
+      <button class="tab-btn" onclick="setStudyFilter('p2',this)">🟠 Verbs</button>
+      <button class="tab-btn" onclick="setStudyFilter('p3',this)">🟡 Modifiers</button>
+      <button class="tab-btn" onclick="setStudyFilter('p4',this)">🟢 Nouns</button>
+      <button class="tab-btn" onclick="setStudyFilter('unlearned',this)">📚 Unlearned</button>
+    </div>
+    <div class="flashcard" id="studyCard" onclick="flipStudyCard()">
+      <div class="flashcard-inner">
+        <div class="flashcard-front">
+          <span class="card-word" id="studyFront">Loading...</span>
+          <div class="card-pos-row" id="studyFrontBadges"></div>
+          <span class="card-hint">Click to flip</span>
+        </div>
+        <div class="flashcard-back">
+          <span class="card-no" id="studyBack">—</span>
+          <div class="card-pos-row" id="studyBackBadges"></div>
+          <span class="card-grammar" id="studyGrammar"></span>
+          <span class="card-hint">Norwegian</span>
+        </div>
+      </div>
+    </div>
+    <div class="study-controls">
+      <button class="btn btn-ghost" onclick="prevCard()">⬅ Prev</button>
+      <button class="btn btn-ghost" onclick="nextCard()">Next ➡</button>
+      <button class="btn btn-success" onclick="markLearned()">✅ Learned</button>
+      <button class="btn btn-ghost" onclick="shuffleCards()">🔀 Shuffle</button>
+      <span class="study-counter" id="studyCounter">0 / 0</span>
+    </div>
+  </div>
+
+  <div class="add-section">
+    <h2>➕ Add Custom Word</h2>
+    <div class="add-form">
+      <input type="text" id="inputEnglish"   placeholder="English"/>
+      <input type="text" id="inputNorwegian" placeholder="Norsk"/>
+      <select id="inputPos">
+        <option value="p1">🔴 P1 – Glue</option>
+        <option value="p2">🟠 P2 – Verb</option>
+        <option value="p3">🟡 P3 – Modifier</option>
+        <option value="p4" selected>🟢 P4 – Noun</option>
+        <option value="p5">🔵 P5 – Extended</option>
+      </select>
+      <input type="text" id="inputGrammar" placeholder="Grammar note (optional)"/>
+      <button class="btn btn-primary" onclick="addWord()">Add</button>
+    </div>
+  </div>
+
+  <div class="wordlist-section">
+    <div class="wordlist-header">
+      <h2>📚 Word Bank</h2>
+      <div class="filter-tabs">
+        <button class="tab-btn active" onclick="setFilter('all',this)">All</button>
+        <button class="tab-btn" onclick="setFilter('p1',this)">🔴</button>
+        <button class="tab-btn" onclick="setFilter('p2',this)">🟠</button>
+        <button class="tab-btn" onclick="setFilter('p3',this)">🟡</button>
+        <button class="tab-btn" onclick="setFilter('p4',this)">🟢</button>
+        <button class="tab-btn" onclick="setFilter('p5',this)">🔵</button>
+        <button class="tab-btn" onclick="setFilter('learned',this)">✅ Learned</button>
+      </div>
+    </div>
+    <input class="search-bar" id="searchBar" placeholder="🔍 Search words..." oninput="renderWordList()"/>
+    <div class="word-list" id="wordList"></div>
+  </div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//  WORD DATABASE
+// ══════════════════════════════════════════════
+
+const WORD_DB = [
+
+  // ── TOP 20: Pure sentence glue ──
+  {rank:1,   en:"in / at",            no:"i",           pos:"p1", type:"preposition",  grammar:"Most common preposition. 'Jeg bor i Oslo' = I live in Oslo"},
+  {rank:2,   en:"and",                no:"og",          pos:"p1", type:"conjunction",  grammar:"Joins words/clauses. 'epler og appelsiner' = apples and oranges"},
+  {rank:3,   en:"to be",              no:"være",        pos:"p2", type:"verb",         grammar:"Infinitive of 'er' (is). Core linking verb"},
+  {rank:4,   en:"a / an",             no:"en",          pos:"p1", type:"article",      grammar:"Indefinite article (masculine). 'en mann' = a man"},
+  {rank:5,   en:"that / it",          no:"det",         pos:"p1", type:"pronoun",      grammar:"Neuter pronoun + dummy subject. 'Det er kaldt' = It is cold"},
+  {rank:6,   en:"on / at",            no:"på",          pos:"p1", type:"preposition",  grammar:"Location & time. 'på bordet' = on the table"},
+  {rank:7,   en:"to have",            no:"ha",          pos:"p2", type:"verb",         grammar:"Infinitive of 'har'. 'Jeg har en hund' = I have a dog"},
+  {rank:8,   en:"to (infinitive)",    no:"å",           pos:"p1", type:"particle",     grammar:"Infinitive marker. 'Jeg vil å spise' = I want to eat"},
+  {rank:9,   en:"to / towards",       no:"til",         pos:"p1", type:"preposition",  grammar:"Direction & purpose. 'Jeg går til skolen' = I go to school"},
+  {rank:10,  en:"which / that",       no:"som",         pos:"p1", type:"pronoun",      grammar:"Relative pronoun. 'Mannen som bor her' = The man who lives here"},
+  {rank:11,  en:"for / because",      no:"for",         pos:"p1", type:"preposition",  grammar:"Purpose & cause. 'for deg' = for you"},
+  {rank:12,  en:"of / by",            no:"av",          pos:"p1", type:"preposition",  grammar:"Possession & agent. 'laget av tre' = made of wood"},
+  {rank:13,  en:"with",               no:"med",         pos:"p1", type:"preposition",  grammar:"Accompaniment. 'med meg' = with me"},
+  {rank:14,  en:"that (conj.)",       no:"at",          pos:"p1", type:"conjunction",  grammar:"Subordinating conjunction. 'Jeg tror at...' = I think that..."},
+  {rank:15,  en:"they / those",       no:"de",          pos:"p1", type:"pronoun",      grammar:"3rd person plural. 'De er her' = They are here"},
+  {rank:16,  en:"not",                no:"ikke",        pos:"p1", type:"particle",     grammar:"Negation. 'Jeg er ikke trøtt' = I am not tired"},
+  {rank:17,  en:"to become",          no:"bli",         pos:"p2", type:"verb",         grammar:"Become/stay. 'Det blir kaldt' = It will become cold"},
+  {rank:18,  en:"we",                 no:"vi",          pos:"p1", type:"pronoun",      grammar:"1st person plural. 'Vi spiser' = We eat"},
+  {rank:19,  en:"about / around",     no:"om",          pos:"p1", type:"preposition",  grammar:"Topic & time. 'om sommeren' = in summer"},
+  {rank:20,  en:"I",                  no:"jeg",         pos:"p1", type:"pronoun",      grammar:"1st person singular. Always lowercase in Norwegian"},
+
+  // ── 21–50 ──
+  {rank:21,  en:"could / can",        no:"kunne",       pos:"p2", type:"verb",         grammar:"Modal verb. 'Jeg kan snakke norsk' = I can speak Norwegian"},
+  {rank:22,  en:"the (it)",           no:"den",         pos:"p1", type:"determiner",   grammar:"Definite article (masc/fem). 'den bilen' = the car"},
+  {rank:23,  en:"you",                no:"du",          pos:"p1", type:"pronoun",      grammar:"2nd person singular informal. 'Hva gjør du?' = What are you doing?"},
+  {rank:24,  en:"to get / receive",   no:"få",          pos:"p2", type:"verb",         grammar:"Also means 'be allowed to'. Very versatile verb"},
+  {rank:25,  en:"from",               no:"fra",         pos:"p1", type:"preposition",  grammar:"Origin. 'Jeg er fra England' = I am from England"},
+  {rank:26,  en:"he",                 no:"han",         pos:"p1", type:"pronoun",      grammar:"3rd person singular masculine"},
+  {rank:27,  en:"but",                no:"men",         pos:"p1", type:"conjunction",  grammar:"Contrast. 'god men dyr' = good but expensive"},
+  {rank:28,  en:"should / would",     no:"skulle",      pos:"p2", type:"verb",         grammar:"Modal. Future/obligation. 'Jeg skal gå' = I am going to go"},
+  {rank:29,  en:"to say",             no:"si",          pos:"p2", type:"verb",         grammar:"'Hva sa du?' = What did you say?"},
+  {rank:30,  en:"will / would",       no:"ville",       pos:"p2", type:"verb",         grammar:"Modal. Desire/future. 'Jeg vil ha kaffe' = I want coffee"},
+  {rank:31,  en:"oneself",            no:"seg",         pos:"p1", type:"pronoun",      grammar:"Reflexive pronoun. 'Han vasker seg' = He washes himself"},
+  {rank:32,  en:"a lot / much",       no:"mye",         pos:"p3", type:"adverb",       grammar:"Quantity. 'mye mat' = a lot of food"},
+  {rank:33,  en:"many",               no:"mange",       pos:"p3", type:"adjective",    grammar:"Plural quantity. 'mange bøker' = many books"},
+  {rank:34,  en:"good",               no:"god",         pos:"p3", type:"adjective",    grammar:"'god mat' = good food. Neuter: godt. Plural: gode"},
+  {rank:35,  en:"so / then",          no:"så",          pos:"p3", type:"adverb",       grammar:"Result/degree. 'så bra!' = so good!"},
+  {rank:36,  en:"also / too",         no:"også",        pos:"p3", type:"adverb",       grammar:"'Jeg også' = me too"},
+  {rank:37,  en:"after",              no:"etter",       pos:"p1", type:"preposition",  grammar:"Time & sequence. 'etter middag' = after dinner"},
+  {rank:38,  en:"this (neuter)",      no:"dette",       pos:"p1", type:"pronoun",      grammar:"Neuter demonstrative. 'Hva er dette?' = What is this?"},
+  {rank:39,  en:"year",               no:"år",          pos:"p4", type:"noun",         grammar:"Neuter noun. 'i år' = this year. 'hvert år' = every year"},
+  {rank:40,  en:"to take",            no:"ta",          pos:"p2", type:"verb",         grammar:"'Ta det med ro' = Take it easy"},
+  {rank:41,  en:"other / another",    no:"annen",       pos:"p1", type:"determiner",   grammar:"'en annen dag' = another day"},
+  {rank:42,  en:"or",                 no:"eller",       pos:"p1", type:"conjunction",  grammar:"Alternative. 'te eller kaffe?' = tea or coffee?"},
+  {rank:43,  en:"to come",            no:"komme",       pos:"p2", type:"verb",         grammar:"'Kan du komme?' = Can you come?"},
+  {rank:44,  en:"to do / make",       no:"gjøre",       pos:"p2", type:"verb",         grammar:"'Hva gjør du?' = What are you doing?"},
+  {rank:45,  en:"out / outside",      no:"ut",          pos:"p1", type:"preposition",  grammar:"Direction outward. 'gå ut' = go out"},
+  {rank:46,  en:"to see",             no:"se",          pos:"p2", type:"verb",         grammar:"'Jeg ser deg' = I see you"},
+  {rank:47,  en:"now",                no:"nå",          pos:"p3", type:"adverb",       grammar:"Present time. 'Hva skjer nå?' = What's happening now?"},
+  {rank:48,  en:"must / had to",      no:"måtte",       pos:"p2", type:"verb",         grammar:"Modal necessity. 'Jeg må gå' = I must go"},
+  {rank:49,  en:"big / great",        no:"stor",        pos:"p3", type:"adjective",    grammar:"'en stor by' = a big city. Neuter: stort"},
+  {rank:50,  en:"his / her (own)",    no:"sin",         pos:"p1", type:"pronoun",      grammar:"Reflexive possessive. 'Han elsker sin hund' = He loves his (own) dog"},
+
+  // ── 51–100 ──
+  {rank:51,  en:"new",                no:"ny",          pos:"p3", type:"adjective",    grammar:"'en ny bil' = a new car. Neuter: nytt"},
+  {rank:52,  en:"someone / some",     no:"noen",        pos:"p1", type:"determiner",   grammar:"'noen ganger' = sometimes"},
+  {rank:53,  en:"to go",              no:"gå",          pos:"p2", type:"verb",         grammar:"'Jeg går til butikken' = I walk to the shop"},
+  {rank:54,  en:"by / near",          no:"ved",         pos:"p1", type:"preposition",  grammar:"Location. 'ved siden av' = next to"},
+  {rank:55,  en:"then / at that time",no:"da",          pos:"p3", type:"adverb",       grammar:"Past time reference. 'Da jeg var ung' = When I was young"},
+  {rank:56,  en:"day",                no:"dag",         pos:"p4", type:"noun",         grammar:"Masculine. 'i dag' = today. 'hver dag' = every day"},
+  {rank:57,  en:"she",                no:"hun",         pos:"p1", type:"pronoun",      grammar:"3rd person singular feminine"},
+  {rank:58,  en:"whole / entire",     no:"hel",         pos:"p3", type:"adjective",    grammar:"'hele dagen' = the whole day"},
+  {rank:59,  en:"above / over",       no:"over",        pos:"p1", type:"preposition",  grammar:"'over bordet' = above the table"},
+  {rank:60,  en:"up / upward",        no:"opp",         pos:"p1", type:"preposition",  grammar:"Direction. 'gå opp' = go up"},
+  {rank:61,  en:"when",               no:"når",         pos:"p1", type:"conjunction",  grammar:"Time clause. 'Når kommer du?' = When are you coming?"},
+  {rank:62,  en:"one / people",       no:"man",         pos:"p1", type:"pronoun",      grammar:"Impersonal pronoun. 'Man kan ikke...' = One cannot..."},
+  {rank:63,  en:"to give",            no:"gi",          pos:"p2", type:"verb",         grammar:"'Gi meg det' = Give me that"},
+  {rank:64,  en:"against / towards",  no:"mot",         pos:"p1", type:"preposition",  grammar:"'mot nord' = towards north"},
+  {rank:65,  en:"this (masc.)",       no:"denne",       pos:"p1", type:"determiner",   grammar:"Masc/fem demonstrative. 'denne boken' = this book"},
+  {rank:66,  en:"all / every",        no:"all",         pos:"p1", type:"determiner",   grammar:"'all mat' = all food. Plural: alle"},
+  {rank:67,  en:"in / inside",        no:"inn",         pos:"p1", type:"preposition",  grammar:"Direction inward. 'kom inn' = come in"},
+  {rank:68,  en:"here",               no:"her",         pos:"p3", type:"adverb",       grammar:"'Jeg er her' = I am here"},
+  {rank:69,  en:"two",                no:"to",          pos:"p5", type:"numeral",      grammar:"Cardinal number. 'to biler' = two cars"},
+  {rank:70,  en:"before",             no:"før",         pos:"p1", type:"preposition",  grammar:"'før middag' = before dinner"},
+  {rank:71,  en:"oneself / even",     no:"selv",        pos:"p3", type:"adverb",       grammar:"'Jeg gjør det selv' = I do it myself"},
+  {rank:72,  en:"to use",             no:"bruke",       pos:"p2", type:"verb",         grammar:"'Jeg bruker norsk' = I use Norwegian"},
+  {rank:73,  en:"than",               no:"enn",         pos:"p1", type:"preposition",  grammar:"Comparison. 'bedre enn' = better than"},
+  {rank:74,  en:"our",                no:"vår",         pos:"p1", type:"pronoun",      grammar:"1st person plural possessive. 'vårt hus' = our house"},
+  {rank:75,  en:"like this / such",   no:"slik",        pos:"p3", type:"adverb",       grammar:"'slik som' = such as"},
+  {rank:76,  en:"only / just",        no:"bare",        pos:"p3", type:"adverb",       grammar:"Restriction. 'bare litt' = just a little"},
+  {rank:77,  en:"there",              no:"der",         pos:"p3", type:"adverb",       grammar:"'der borte' = over there"},
+  {rank:78,  en:"what",               no:"hva",         pos:"p1", type:"pronoun",      grammar:"Question word. 'Hva heter du?' = What is your name?"},
+  {rank:79,  en:"small / little",     no:"liten",       pos:"p3", type:"adjective",    grammar:"'en liten hund' = a small dog. Neuter: lite"},
+  {rank:80,  en:"time",               no:"tid",         pos:"p4", type:"noun",         grammar:"Feminine. 'på tide' = about time. 'lang tid' = long time"},
+  {rank:81,  en:"to mean / think",    no:"mene",        pos:"p2", type:"verb",         grammar:"'Hva mener du?' = What do you mean?"},
+  {rank:82,  en:"where",              no:"hvor",        pos:"p3", type:"adverb",       grammar:"'Hvor er du?' = Where are you?"},
+  {rank:83,  en:"something",          no:"noe",         pos:"p1", type:"pronoun",      grammar:"'noe å spise' = something to eat"},
+  {rank:84,  en:"a little",           no:"litt",        pos:"p3", type:"adverb",       grammar:"'litt norsk' = a little Norwegian"},
+  {rank:85,  en:"to find",            no:"finne",       pos:"p2", type:"verb",         grammar:"'Jeg finner ikke nøkkelen' = I can't find the key"},
+  {rank:86,  en:"under / below",      no:"under",       pos:"p1", type:"preposition",  grammar:"'under bordet' = under the table"},
+  {rank:87,  en:"both",               no:"både",        pos:"p1", type:"conjunction",  grammar:"'både...og' = both...and"},
+  {rank:88,  en:"to show",            no:"vise",        pos:"p2", type:"verb",         grammar:"'Kan du vise meg?' = Can you show me?"},
+  {rank:89,  en:"to wish",            no:"ønske",       pos:"p2", type:"verb",         grammar:"'Jeg ønsker deg lykke til' = I wish you good luck"},
+  {rank:90,  en:"child",              no:"barn",        pos:"p4", type:"noun",         grammar:"Neuter. Plural: barn (same). 'barna' = the children"},
+  {rank:91,  en:"to stand",           no:"stå",         pos:"p2", type:"verb",         grammar:"'Jeg står her' = I am standing here"},
+  {rank:92,  en:"important",          no:"viktig",      pos:"p3", type:"adjective",    grammar:"'Det er viktig' = It is important"},
+  {rank:93,  en:"early",              no:"tidlig",      pos:"p3", type:"adjective",    grammar:"'tidlig morgen' = early morning"},
+  {rank:94,  en:"your (singular)",    no:"din",         pos:"p1", type:"pronoun",      grammar:"Masc possessive. 'din bil' = your car. Neuter: ditt"},
+  {rank:95,  en:"long",               no:"lang",        pos:"p3", type:"adjective",    grammar:"'en lang vei' = a long road"},
+  {rank:96,  en:"first",              no:"første",      pos:"p3", type:"adjective",    grammar:"Ordinal. 'den første dagen' = the first day"},
+  {rank:97,  en:"man",                no:"mann",        pos:"p4", type:"noun",         grammar:"Masculine. Plural: menn. 'en gammel mann' = an old man"},
+  {rank:98,  en:"to set / put",       no:"sette",       pos:"p2", type:"verb",         grammar:"'Sett det på bordet' = Put it on the table"},
+  {rank:99,  en:"to believe",         no:"tro",         pos:"p2", type:"verb",         grammar:"'Jeg tror det' = I believe so"},
+  {rank:100, en:"between",            no:"mellom",      pos:"p1", type:"preposition",  grammar:"'mellom oss' = between us"},
+
+  // ── 101–150 ──
+  {rank:101, en:"since / ago",        no:"siden",       pos:"p1", type:"conjunction",  grammar:"'siden i går' = since yesterday"},
+  {rank:102, en:"to write",           no:"skrive",      pos:"p2", type:"verb",         grammar:"'Jeg skriver en epost' = I am writing an email"},
+  {rank:103, en:"how",                no:"hvordan",     pos:"p3", type:"adverb",       grammar:"'Hvordan har du det?' = How are you?"},
+  {rank:104, en:"part / share",       no:"del",         pos:"p4", type:"noun",         grammar:"Masculine. 'en del av' = a part of"},
+  {rank:105, en:"own",                no:"egen",        pos:"p1", type:"determiner",   grammar:"'mitt eget hus' = my own house"},
+  {rank:106, en:"among",              no:"blant",       pos:"p1", type:"preposition",  grammar:"'blant venner' = among friends"},
+  {rank:107, en:"right / correct",    no:"rett",        pos:"p3", type:"adjective",    grammar:"'Du har rett' = You are right"},
+  {rank:108, en:"country / land",     no:"land",        pos:"p4", type:"noun",         grammar:"Neuter. 'et fremmed land' = a foreign country"},
+  {rank:109, en:"each / every",       no:"hver",        pos:"p1", type:"determiner",   grammar:"'hver dag' = every day"},
+  {rank:110, en:"again",              no:"igjen",       pos:"p3", type:"adverb",       grammar:"'si det igjen' = say it again"},
+  {rank:111, en:"without",            no:"uten",        pos:"p1", type:"preposition",  grammar:"'uten deg' = without you"},
+  {rank:112, en:"very / really",      no:"veldig",      pos:"p3", type:"adverb",       grammar:"Intensifier. 'veldig bra' = very good"},
+  {rank:113, en:"to tell",            no:"fortelle",    pos:"p2", type:"verb",         grammar:"'Fortell meg mer' = Tell me more"},
+  {rank:114, en:"if",                 no:"hvis",        pos:"p1", type:"conjunction",  grammar:"Conditional. 'Hvis du vil...' = If you want..."},
+  {rank:115, en:"nobody / no one",    no:"ingen",       pos:"p1", type:"pronoun",      grammar:"'Ingen er perfekt' = Nobody is perfect"},
+  {rank:116, en:"around",             no:"rundt",       pos:"p1", type:"preposition",  grammar:"'rundt bordet' = around the table"},
+  {rank:117, en:"together",           no:"sammen",      pos:"p3", type:"adverb",       grammar:"'Vi gjør det sammen' = We do it together"},
+  {rank:118, en:"week",               no:"uke",         pos:"p4", type:"noun",         grammar:"Feminine. 'denne uken' = this week"},
+  {rank:119, en:"through",            no:"gjennom",     pos:"p1", type:"preposition",  grammar:"'gjennom skogen' = through the forest"},
+  {rank:120, en:"enough",             no:"nok",         pos:"p3", type:"adverb",       grammar:"'nok mat' = enough food"},
+  {rank:121, en:"to hold / keep",     no:"holde",       pos:"p2", type:"verb",         grammar:"'holde på' = to be doing something"},
+  {rank:122, en:"to meet",            no:"møte",        pos:"p2", type:"verb",         grammar:"'Kan vi møtes?' = Can we meet?"},
+  {rank:123, en:"to lie / situated",  no:"ligge",       pos:"p2", type:"verb",         grammar:"'Boken ligger på bordet' = The book is on the table"},
+  {rank:124, en:"my / mine",          no:"min",         pos:"p1", type:"pronoun",      grammar:"Masc possessive. 'min venn' = my friend. Neuter: mitt"},
+  {rank:125, en:"to know (facts)",    no:"vite",        pos:"p2", type:"verb",         grammar:"'Jeg vet ikke' = I don't know"},
+  {rank:126, en:"equally / just as",  no:"like",        pos:"p3", type:"adverb",       grammar:"'like bra' = just as good"},
+  {rank:127, en:"to happen",          no:"skje",        pos:"p2", type:"verb",         grammar:"'Hva skjedde?' = What happened?"},
+  {rank:128, en:"place",              no:"sted",        pos:"p4", type:"noun",         grammar:"Neuter. 'et godt sted' = a good place"},
+  {rank:129, en:"same",               no:"samme",       pos:"p1", type:"determiner",   grammar:"'den samme dagen' = the same day"},
+  {rank:130, en:"to follow",          no:"følge",       pos:"p2", type:"verb",         grammar:"'Følg med!' = Pay attention!"},
+  {rank:131, en:"therefore",          no:"derfor",      pos:"p3", type:"adverb",       grammar:"'Derfor er jeg her' = That's why I'm here"},
+  {rank:132, en:"high / tall",        no:"høy",         pos:"p3", type:"adjective",    grammar:"'et høyt hus' = a tall building"},
+  {rank:133, en:"to work",            no:"jobbe",       pos:"p2", type:"verb",         grammar:"Informal. 'Jeg jobber i Oslo' = I work in Oslo"},
+  {rank:134, en:"person",             no:"person",      pos:"p4", type:"noun",         grammar:"Masculine. 'en hyggelig person' = a nice person"},
+  {rank:135, en:"to read",            no:"lese",        pos:"p2", type:"verb",         grammar:"'Jeg leser en bok' = I am reading a book"},
+  {rank:136, en:"old",                no:"gammel",      pos:"p3", type:"adjective",    grammar:"'en gammel mann' = an old man. Neuter: gammelt"},
+  {rank:137, en:"car",                no:"bil",         pos:"p4", type:"noun",         grammar:"Masculine. 'en rød bil' = a red car"},
+  {rank:138, en:"road / way",         no:"vei",         pos:"p4", type:"noun",         grammar:"Masculine. 'på veien' = on the way"},
+  {rank:139, en:"everything",         no:"alt",         pos:"p1", type:"pronoun",      grammar:"'Alt er bra' = Everything is fine"},
+  {rank:140, en:"people / folk",      no:"folk",        pos:"p4", type:"noun",         grammar:"Neuter. 'mange folk' = many people"},
+  {rank:141, en:"possible",           no:"mulig",       pos:"p3", type:"adjective",    grammar:"'Er det mulig?' = Is it possible?"},
+  {rank:142, en:"while",              no:"mens",        pos:"p1", type:"conjunction",  grammar:"Simultaneous. 'mens jeg sover' = while I sleep"},
+  {rank:143, en:"because",            no:"fordi",       pos:"p1", type:"conjunction",  grammar:"Cause. 'fordi jeg vil' = because I want to"},
+  {rank:144, en:"maybe / perhaps",    no:"kanskje",     pos:"p3", type:"adverb",       grammar:"'Kanskje i morgen' = Maybe tomorrow"},
+  {rank:145, en:"woman",              no:"kvinne",      pos:"p4", type:"noun",         grammar:"Feminine. 'en ung kvinne' = a young woman"},
+  {rank:146, en:"to need",            no:"trenge",      pos:"p2", type:"verb",         grammar:"'Jeg trenger hjelp' = I need help"},
+  {rank:147, en:"everyone / all",     no:"alle",        pos:"p1", type:"pronoun",      grammar:"'Alle vet det' = Everyone knows it"},
+  {rank:148, en:"to start",           no:"starte",      pos:"p2", type:"verb",         grammar:"'La oss starte' = Let's start"},
+  {rank:149, en:"school",             no:"skole",       pos:"p4", type:"noun",         grammar:"Masculine. 'på skolen' = at school"},
+  {rank:150, en:"to think",           no:"tenke",       pos:"p2", type:"verb",         grammar:"'Jeg tenker på deg' = I am thinking of you"},
+
+  // ── 151–200 ──
+  {rank:151, en:"never",              no:"aldri",       pos:"p3", type:"adverb",       grammar:"'Jeg har aldri vært der' = I have never been there"},
+  {rank:152, en:"behind",             no:"bak",         pos:"p1", type:"preposition",  grammar:"'bak huset' = behind the house"},
+  {rank:153, en:"full",               no:"full",        pos:"p3", type:"adjective",    grammar:"'fullt hus' = full house"},
+  {rank:154, en:"to try",             no:"prøve",       pos:"p2", type:"verb",         grammar:"'Prøv igjen' = Try again"},
+  {rank:155, en:"world",              no:"verden",      pos:"p4", type:"noun",         grammar:"Masculine. 'hele verden' = the whole world"},
+  {rank:156, en:"human being",        no:"menneske",    pos:"p4", type:"noun",         grammar:"Neuter. 'et godt menneske' = a good person"},
+  {rank:157, en:"strong",             no:"sterk",       pos:"p3", type:"adjective",    grammar:"'en sterk mann' = a strong man"},
+  {rank:158, en:"relationship",       no:"forhold",     pos:"p4", type:"noun",         grammar:"Neuter. 'i forhold til' = in relation to"},
+  {rank:159, en:"work (noun)",        no:"arbeid",      pos:"p4", type:"noun",         grammar:"Neuter. 'hardt arbeid' = hard work"},
+  {rank:160, en:"often",              no:"ofte",        pos:"p3", type:"adverb",       grammar:"'Jeg spiser ofte pizza' = I often eat pizza"},
+  {rank:161, en:"already",            no:"allerede",    pos:"p3", type:"adverb",       grammar:"'Jeg har allerede spist' = I have already eaten"},
+  {rank:162, en:"question",           no:"spørsmål",    pos:"p4", type:"noun",         grammar:"Neuter. 'et godt spørsmål' = a good question"},
+  {rank:163, en:"easy / light",       no:"lett",        pos:"p3", type:"adjective",    grammar:"'Det er lett' = It is easy"},
+  {rank:164, en:"difficult",          no:"vanskelig",   pos:"p3", type:"adjective",    grammar:"'Det er vanskelig' = It is difficult"},
+  {rank:165, en:"fine / nice",        no:"fin",         pos:"p3", type:"adjective",    grammar:"'en fin dag' = a nice day"},
+  {rank:166, en:"to begin",           no:"begynne",     pos:"p2", type:"verb",         grammar:"'Når begynner filmen?' = When does the film start?"},
+  {rank:167, en:"thing",              no:"ting",        pos:"p4", type:"noun",         grammar:"Neuter. Plural: ting. 'mange ting' = many things"},
+  {rank:168, en:"rather / instead",   no:"heller",      pos:"p3", type:"adverb",       grammar:"'heller ikke' = not either / nor"},
+  {rank:169, en:"only (formal)",      no:"kun",         pos:"p3", type:"adverb",       grammar:"Formal 'bare'. 'kun for deg' = only for you"},
+  {rank:170, en:"nevertheless",       no:"likevel",     pos:"p3", type:"adverb",       grammar:"'Jeg gjør det likevel' = I'll do it anyway"},
+  {rank:171, en:"to talk",            no:"snakke",      pos:"p2", type:"verb",         grammar:"'Kan vi snakke?' = Can we talk?"},
+  {rank:172, en:"to buy",             no:"kjøpe",       pos:"p2", type:"verb",         grammar:"'Jeg vil kjøpe det' = I want to buy it"},
+  {rank:173, en:"price",              no:"pris",        pos:"p4", type:"noun",         grammar:"Masculine. 'Hva er prisen?' = What is the price?"},
+  {rank:174, en:"always",             no:"alltid",      pos:"p3", type:"adverb",       grammar:"'Jeg er alltid her' = I am always here"},
+  {rank:175, en:"month",              no:"måned",       pos:"p4", type:"noun",         grammar:"Masculine. 'denne måneden' = this month"},
+  {rank:176, en:"to help",            no:"hjelpe",      pos:"p2", type:"verb",         grammar:"'Kan du hjelpe meg?' = Can you help me?"},
+  {rank:177, en:"to hope",            no:"håpe",        pos:"p2", type:"verb",         grammar:"'Jeg håper det' = I hope so"},
+  {rank:178, en:"bad",                no:"dårlig",      pos:"p3", type:"adjective",    grammar:"'dårlig vær' = bad weather"},
+  {rank:179, en:"short",              no:"kort",        pos:"p3", type:"adjective",    grammar:"'en kort pause' = a short break"},
+  {rank:180, en:"young",              no:"ung",         pos:"p3", type:"adjective",    grammar:"'en ung mann' = a young man"},
+  {rank:181, en:"fast / quick",       no:"rask",        pos:"p3", type:"adjective",    grammar:"'en rask løsning' = a quick solution"},
+  {rank:182, en:"trip / turn",        no:"tur",         pos:"p4", type:"noun",         grammar:"Masculine. 'en lang tur' = a long trip. 'på tur' = on a hike"},
+  {rank:183, en:"to continue",        no:"fortsette",   pos:"p2", type:"verb",         grammar:"'La oss fortsette' = Let's continue"},
+  {rank:184, en:"to feel / know",     no:"kjenne",      pos:"p2", type:"verb",         grammar:"'Jeg kjenner ham' = I know him (personally)"},
+  {rank:185, en:"to mean",            no:"bety",        pos:"p2", type:"verb",         grammar:"'Hva betyr det?' = What does it mean?"},
+  {rank:186, en:"simple / easy",      no:"enkel",       pos:"p3", type:"adjective",    grammar:"'en enkel løsning' = a simple solution"},
+  {rank:187, en:"still / yet",        no:"fortsatt",    pos:"p3", type:"adverb",       grammar:"'Jeg er fortsatt her' = I am still here"},
+  {rank:188, en:"area / region",      no:"område",      pos:"p4", type:"noun",         grammar:"Neuter. 'i dette området' = in this area"},
+  {rank:189, en:"you (plural)",       no:"dere",        pos:"p1", type:"pronoun",      grammar:"2nd person plural. 'Hva gjør dere?' = What are you (all) doing?"},
+  {rank:190, en:"good (informal)",    no:"bra",         pos:"p3", type:"adjective",    grammar:"Informal 'god'. 'Det er bra' = That's good"},
+  {rank:191, en:"life",               no:"liv",         pos:"p4", type:"noun",         grammar:"Neuter. 'et godt liv' = a good life"},
+  {rank:192, en:"four",               no:"fire",        pos:"p5", type:"numeral",      grammar:"Cardinal. 'fire dager' = four days"},
+  {rank:193, en:"near / close",       no:"nær",         pos:"p3", type:"adjective",    grammar:"'nær deg' = close to you"},
+  {rank:194, en:"to sit",             no:"sitte",       pos:"p2", type:"verb",         grammar:"'Jeg sitter her' = I am sitting here"},
+  {rank:195, en:"to understand",      no:"forstå",      pos:"p2", type:"verb",         grammar:"'Jeg forstår ikke' = I don't understand"},
+  {rank:196, en:"to ask",             no:"spørre",      pos:"p2", type:"verb",         grammar:"'Kan jeg spørre deg noe?' = Can I ask you something?"},
+  {rank:197, en:"food",               no:"mat",         pos:"p4", type:"noun",         grammar:"Masculine. 'god mat' = good food"},
+  {rank:198, en:"house",              no:"hus",         pos:"p4", type:"noun",         grammar:"Neuter. 'et stort hus' = a big house"},
+  {rank:199, en:"who",                no:"hvem",        pos:"p1", type:"pronoun",      grammar:"'Hvem er du?' = Who are you?"},
+  {rank:200, en:"their",              no:"deres",       pos:"p1", type:"pronoun",      grammar:"3rd person plural possessive. 'deres hus' = their house"},
+
+  // ── 201–300 ──
+  {rank:201, en:"to live (reside)",   no:"bo",          pos:"p2", type:"verb",         grammar:"'Jeg bor i Bergen' = I live in Bergen"},
+  {rank:202, en:"to share / divide",  no:"dele",        pos:"p2", type:"verb",         grammar:"'Del det med meg' = Share it with me"},
+  {rank:203, en:"to learn",           no:"lære",        pos:"p2", type:"verb",         grammar:"'Jeg lærer norsk' = I am learning Norwegian"},
+  {rank:204, en:"usual / normal",     no:"vanlig",      pos:"p3", type:"adjective",    grammar:"'som vanlig' = as usual"},
+  {rank:205, en:"help (noun)",        no:"hjelp",       pos:"p4", type:"noun",         grammar:"Feminine. 'Jeg trenger hjelp' = I need help"},
+  {rank:206, en:"solution",           no:"løsning",     pos:"p4", type:"noun",         grammar:"Feminine. 'en god løsning' = a good solution"},
+  {rank:207, en:"however",            no:"imidlertid",  pos:"p3", type:"adverb",       grammar:"Formal contrast. 'Det er imidlertid...' = However..."},
+  {rank:208, en:"to let / allow",     no:"la",          pos:"p2", type:"verb",         grammar:"'La meg prøve' = Let me try"},
+  {rank:209, en:"to hear",            no:"høre",        pos:"p2", type:"verb",         grammar:"'Jeg hører musikk' = I hear music"},
+  {rank:210, en:"to offer",           no:"tilby",       pos:"p2", type:"verb",         grammar:"'Jeg kan tilby deg...' = I can offer you..."},
+  {rank:211, en:"plan",               no:"plan",        pos:"p4", type:"noun",         grammar:"Masculine. 'Hva er planen?' = What is the plan?"},
+  {rank:212, en:"summer",             no:"sommer",      pos:"p4", type:"noun",         grammar:"Masculine. 'om sommeren' = in summer"},
+  {rank:213, en:"correct / right",    no:"riktig",      pos:"p3", type:"adjective",    grammar:"'Det er riktig' = That is correct"},
+  {rank:214, en:"to wait",            no:"vente",       pos:"p2", type:"verb",         grammar:"'Vent litt' = Wait a moment"},
+  {rank:215, en:"night",              no:"natt",        pos:"p4", type:"noun",         grammar:"Feminine. 'god natt' = good night"},
+  {rank:216, en:"to feel",            no:"føle",        pos:"p2", type:"verb",         grammar:"'Jeg føler meg bra' = I feel good"},
+  {rank:217, en:"to consider",        no:"vurdere",     pos:"p2", type:"verb",         grammar:"'Jeg vurderer det' = I am considering it"},
+  {rank:218, en:"family",             no:"familie",     pos:"p4", type:"noun",         grammar:"Masculine. 'min familie' = my family"},
+  {rank:219, en:"almost",             no:"nesten",      pos:"p3", type:"adverb",       grammar:"'nesten ferdig' = almost done"},
+  {rank:220, en:"result",             no:"resultat",    pos:"p4", type:"noun",         grammar:"Neuter. 'et godt resultat' = a good result"},
+  {rank:221, en:"to open",            no:"åpne",        pos:"p2", type:"verb",         grammar:"'Åpne døren' = Open the door"},
+  {rank:222, en:"to sell",            no:"selge",       pos:"p2", type:"verb",         grammar:"'Jeg selger bilen' = I am selling the car"},
+  {rank:223, en:"to develop",         no:"utvikle",     pos:"p2", type:"verb",         grammar:"'Vi utvikler appen' = We are developing the app"},
+  {rank:224, en:"low",                no:"lav",         pos:"p3", type:"adjective",    grammar:"'lav pris' = low price"},
+  {rank:225, en:"choice / election",  no:"valg",        pos:"p4", type:"noun",         grammar:"Neuter. 'et vanskelig valg' = a difficult choice"},
+  {rank:226, en:"shape / form",       no:"form",        pos:"p4", type:"noun",         grammar:"Masculine. 'i god form' = in good shape"},
+  {rank:227, en:"to shop",            no:"handle",      pos:"p2", type:"verb",         grammar:"'Jeg handler mat' = I am shopping for food"},
+  {rank:228, en:"water",              no:"vann",        pos:"p4", type:"noun",         grammar:"Neuter. 'et glass vann' = a glass of water"},
+  {rank:229, en:"morning",            no:"morgen",      pos:"p4", type:"noun",         grammar:"Masculine. 'god morgen' = good morning. 'i morgen' = tomorrow"},
+  {rank:230, en:"open (adj.)",        no:"åpen",        pos:"p3", type:"adjective",    grammar:"'butikken er åpen' = the shop is open"},
+  {rank:231, en:"to function",        no:"fungere",     pos:"p2", type:"verb",         grammar:"'Det fungerer ikke' = It doesn't work"},
+  {rank:232, en:"to explain",         no:"forklare",    pos:"p2", type:"verb",         grammar:"'Kan du forklare det?' = Can you explain it?"},
+  {rank:233, en:"history / story",    no:"historie",    pos:"p4", type:"noun",         grammar:"Masculine. 'en lang historie' = a long story"},
+  {rank:234, en:"to decide",          no:"bestemme",    pos:"p2", type:"verb",         grammar:"'Du bestemmer' = You decide"},
+  {rank:235, en:"exciting",           no:"spennende",   pos:"p3", type:"adjective",    grammar:"'en spennende bok' = an exciting book"},
+  {rank:236, en:"satisfied",          no:"fornøyd",     pos:"p3", type:"adjective",    grammar:"'Jeg er fornøyd' = I am satisfied"},
+  {rank:237, en:"to live (life)",     no:"leve",        pos:"p2", type:"verb",         grammar:"'Leve livet!' = Live life!"},
+  {rank:238, en:"name",               no:"navn",        pos:"p4", type:"noun",         grammar:"Neuter. 'Hva er navnet ditt?' = What is your name?"},
+  {rank:239, en:"to remember",        no:"huske",       pos:"p2", type:"verb",         grammar:"'Husker du meg?' = Do you remember me?"},
+  {rank:240, en:"happy",              no:"glad",        pos:"p3", type:"adjective",    grammar:"'Jeg er glad' = I am happy. 'glad i deg' = fond of you"},
+  {rank:241, en:"to eat",             no:"spise",       pos:"p2", type:"verb",         grammar:"'Hva vil du spise?' = What do you want to eat?"},
+  {rank:242, en:"to build",           no:"bygge",       pos:"p2", type:"verb",         grammar:"'Vi bygger et hus' = We are building a house"},
+  {rank:243, en:"free / available",   no:"fri",         pos:"p3", type:"adjective",    grammar:"'Er du fri i kveld?' = Are you free tonight?"},
+  {rank:244, en:"to stop",            no:"stoppe",      pos:"p2", type:"verb",         grammar:"'Stopp!' = Stop!"},
+  {rank:245, en:"mother",             no:"mor",         pos:"p4", type:"noun",         grammar:"Feminine. 'min mor' = my mother"},
+  {rank:246, en:"doctor",             no:"lege",        pos:"p4", type:"noun",         grammar:"Masculine. 'gå til legen' = go to the doctor"},
+  {rank:247, en:"environment",        no:"miljø",       pos:"p4", type:"noun",         grammar:"Neuter. 'ta vare på miljøet' = take care of the environment"},
+  {rank:248, en:"finally / at last",  no:"endelig",     pos:"p3", type:"adverb",       grammar:"'Endelig!' = Finally!"},
+  {rank:249, en:"boat",               no:"båt",         pos:"p4", type:"noun",         grammar:"Masculine. 'en liten båt' = a small boat"},
+  {rank:250, en:"light",              no:"lys",         pos:"p4", type:"noun",         grammar:"Neuter. 'slå på lyset' = turn on the light"},
+
+  // ── 251–300 ──
+  {rank:251, en:"to die",             no:"dø",          pos:"p2", type:"verb",         grammar:"'Han døde i går' = He died yesterday"},
+  {rank:252, en:"father",             no:"far",         pos:"p4", type:"noun",         grammar:"Masculine. 'min far' = my father"},
+  {rank:253, en:"feeling",            no:"følelse",     pos:"p4", type:"noun",         grammar:"Masculine. 'en sterk følelse' = a strong feeling"},
+  {rank:254, en:"difference",         no:"forskjell",   pos:"p4", type:"noun",         grammar:"Masculine. 'gjøre en forskjell' = make a difference"},
+  {rank:255, en:"to suggest",         no:"foreslå",     pos:"p2", type:"verb",         grammar:"'Jeg foreslår at...' = I suggest that..."},
+  {rank:256, en:"health",             no:"helse",       pos:"p4", type:"noun",         grammar:"Masculine. 'god helse' = good health"},
+  {rank:257, en:"future",             no:"fremtid",     pos:"p4", type:"noun",         grammar:"Feminine. 'i fremtiden' = in the future"},
+  {rank:258, en:"color",              no:"farge",       pos:"p4", type:"noun",         grammar:"Masculine. 'hvilken farge?' = what color?"},
+  {rank:259, en:"heavy",              no:"tung",        pos:"p3", type:"adjective",    grammar:"'en tung boks' = a heavy box"},
+  {rank:260, en:"clean",              no:"ren",         pos:"p3", type:"adjective",    grammar:"'rent vann' = clean water"},
+  {rank:261, en:"half",               no:"halv",        pos:"p3", type:"adjective",    grammar:"'en halv time' = half an hour"},
+  {rank:262, en:"music",              no:"musikk",      pos:"p4", type:"noun",         grammar:"Masculine. 'høre på musikk' = listen to music"},
+  {rank:263, en:"to run",             no:"løpe",        pos:"p2", type:"verb",         grammar:"'Jeg løper hver dag' = I run every day"},
+  {rank:264, en:"table",              no:"bord",        pos:"p4", type:"noun",         grammar:"Neuter. 'ved bordet' = at the table"},
+  {rank:265, en:"winter",             no:"vinter",      pos:"p4", type:"noun",         grammar:"Masculine. 'om vinteren' = in winter"},
+  {rank:266, en:"door",               no:"dør",         pos:"p4", type:"noun",         grammar:"Feminine. 'lukk døren' = close the door"},
+  {rank:267, en:"unfortunately",      no:"dessverre",   pos:"p3", type:"adverb",       grammar:"'Dessverre kan jeg ikke' = Unfortunately I can't"},
+  {rank:268, en:"uncertain",          no:"usikker",     pos:"p3", type:"adjective",    grammar:"'Jeg er usikker' = I am uncertain"},
+  {rank:269, en:"warm",               no:"varm",        pos:"p3", type:"adjective",    grammar:"'varmt vær' = warm weather"},
+  {rank:270, en:"education",          no:"utdanning",   pos:"p4", type:"noun",         grammar:"Masculine. 'høyere utdanning' = higher education"},
+  {rank:271, en:"culture",            no:"kultur",      pos:"p4", type:"noun",         grammar:"Masculine. 'norsk kultur' = Norwegian culture"},
+  {rank:272, en:"to discuss",         no:"diskutere",   pos:"p2", type:"verb",         grammar:"'La oss diskutere det' = Let's discuss it"},
+  {rank:273, en:"thank you",          no:"takk",        pos:"p4", type:"noun",         grammar:"'Mange takk' = Many thanks. 'Takk for maten' = Thanks for the food"},
+  {rank:274, en:"nothing",            no:"ingenting",   pos:"p1", type:"pronoun",      grammar:"'Det betyr ingenting' = It means nothing"},
+  {rank:275, en:"fish",               no:"fisk",        pos:"p4", type:"noun",         grammar:"Masculine. 'fersk fisk' = fresh fish"},
+  {rank:276, en:"letter",             no:"brev",        pos:"p4", type:"noun",         grammar:"Neuter. 'skrive et brev' = write a letter"},
+  {rank:277, en:"modern",             no:"moderne",     pos:"p3", type:"adjective",    grammar:"'et moderne hus' = a modern house"},
+  {rank:278, en:"unique",             no:"unik",        pos:"p3", type:"adjective",    grammar:"'en unik mulighet' = a unique opportunity"},
+  {rank:279, en:"to save",            no:"spare",       pos:"p2", type:"verb",         grammar:"'spare penger' = save money"},
+  {rank:280, en:"red",                no:"rød",         pos:"p3", type:"adjective",    grammar:"'en rød bil' = a red car. Neuter: rødt"},
+
+  // ── 281–350 ──
+  {rank:281, en:"snow",               no:"snø",         pos:"p4", type:"noun",         grammar:"Masculine. 'mye snø' = a lot of snow"},
+  {rank:282, en:"beautiful",          no:"vakker",      pos:"p3", type:"adjective",    grammar:"'et vakkert land' = a beautiful country"},
+  {rank:283, en:"to forget",          no:"glemme",      pos:"p2", type:"verb",         grammar:"'Ikke glem det!' = Don't forget it!"},
+  {rank:284, en:"cold",               no:"kald",        pos:"p3", type:"adjective",    grammar:"'kaldt vær' = cold weather"},
+  {rank:285, en:"nice / pleasant",    no:"hyggelig",    pos:"p3", type:"adjective",    grammar:"'en hyggelig kveld' = a pleasant evening"},
+  {rank:286, en:"welcome",            no:"velkommen",   pos:"p3", type:"adjective",    grammar:"'Velkommen til Norge!' = Welcome to Norway!"},
+  {rank:287, en:"language",           no:"språk",       pos:"p4", type:"noun",         grammar:"Neuter. 'norsk språk' = Norwegian language"},
+  {rank:288, en:"horse",              no:"hest",        pos:"p4", type:"noun",         grammar:"Masculine. 'en stor hest' = a big horse"},
+  {rank:289, en:"to change",          no:"endre",       pos:"p2", type:"verb",         grammar:"'Endre passord' = Change password"},
+  {rank:290, en:"to choose",          no:"velge",       pos:"p2", type:"verb",         grammar:"'Velg et alternativ' = Choose an option"},
+  {rank:291, en:"number",             no:"nummer",      pos:"p4", type:"noun",         grammar:"Neuter. 'hva er nummeret ditt?' = what is your number?"},
+  {rank:292, en:"evening",            no:"kveld",       pos:"p4", type:"noun",         grammar:"Masculine. 'god kveld' = good evening"},
+  {rank:293, en:"to receive",         no:"motta",       pos:"p2", type:"verb",         grammar:"'Jeg mottok pakken' = I received the package"},
+  {rank:294, en:"to travel",          no:"reise",       pos:"p2", type:"verb",         grammar:"'Jeg reiser til Oslo' = I am travelling to Oslo"},
+  {rank:295, en:"city / town",        no:"by",          pos:"p4", type:"noun",         grammar:"Masculine. 'en stor by' = a big city"},
+  {rank:296, en:"to play",            no:"spille",      pos:"p2", type:"verb",         grammar:"'Jeg spiller gitar' = I play guitar"},
+  {rank:297, en:"to lose",            no:"miste",       pos:"p2", type:"verb",         grammar:"'Jeg mistet nøkkelen' = I lost the key"},
+  {rank:298, en:"book",               no:"bok",         pos:"p4", type:"noun",         grammar:"Feminine. 'en god bok' = a good book"},
+  {rank:299, en:"to pay",             no:"betale",      pos:"p2", type:"verb",         grammar:"'Kan jeg betale med kort?' = Can I pay by card?"},
+  {rank:300, en:"friend",             no:"venn",        pos:"p4", type:"noun",         grammar:"Masculine. 'min beste venn' = my best friend"},
+
+  // ── 301–400 ──
+  {rank:301, en:"to send",            no:"sende",       pos:"p2", type:"verb",         grammar:"'Send meg en melding' = Send me a message"},
+  {rank:302, en:"to answer",          no:"svare",       pos:"p2", type:"verb",         grammar:"'Svar på spørsmålet' = Answer the question"},
+  {rank:303, en:"to smile",           no:"smile",       pos:"p2", type:"verb",         grammar:"'Hun smiler alltid' = She always smiles"},
+  {rank:304, en:"to laugh",           no:"le",          pos:"p2", type:"verb",         grammar:"'Vi lo mye' = We laughed a lot"},
+  {rank:305, en:"to cry",             no:"gråte",       pos:"p2", type:"verb",         grammar:"'Ikke gråt' = Don't cry"},
+  {rank:306, en:"to sleep",           no:"sove",        pos:"p2", type:"verb",         grammar:"'Jeg sover godt' = I sleep well"},
+  {rank:307, en:"to wake up",         no:"våkne",       pos:"p2", type:"verb",         grammar:"'Jeg våkner tidlig' = I wake up early"},
+  {rank:308, en:"to drink",           no:"drikke",      pos:"p2", type:"verb",         grammar:"'Vil du drikke noe?' = Do you want to drink something?"},
+  {rank:309, en:"to cook",            no:"lage mat",    pos:"p2", type:"verb",         grammar:"'Jeg lager mat' = I am cooking"},
+  {rank:310, en:"to clean",           no:"rydde",       pos:"p2", type:"verb",         grammar:"'Rydd rommet ditt' = Clean your room"},
+  {rank:311, en:"three",              no:"tre",         pos:"p5", type:"numeral",      grammar:"Cardinal. 'tre dager' = three days"},
+  {rank:312, en:"five",               no:"fem",         pos:"p5", type:"numeral",      grammar:"Cardinal. 'fem minutter' = five minutes"},
+  {rank:313, en:"ten",                no:"ti",          pos:"p5", type:"numeral",      grammar:"Cardinal. 'ti kroner' = ten kroner"},
+  {rank:314, en:"hundred",            no:"hundre",      pos:"p5", type:"numeral",      grammar:"Cardinal. 'ett hundre' = one hundred"},
+  {rank:315, en:"thousand",           no:"tusen",       pos:"p5", type:"numeral",      grammar:"Cardinal. 'ett tusen' = one thousand"},
+  {rank:316, en:"Monday",             no:"mandag",      pos:"p4", type:"noun",         grammar:"'på mandag' = on Monday"},
+  {rank:317, en:"Tuesday",            no:"tirsdag",     pos:"p4", type:"noun",         grammar:"'på tirsdag' = on Tuesday"},
+  {rank:318, en:"Wednesday",          no:"onsdag",      pos:"p4", type:"noun",         grammar:"'på onsdag' = on Wednesday"},
+  {rank:319, en:"Thursday",           no:"torsdag",     pos:"p4", type:"noun",         grammar:"'på torsdag' = on Thursday"},
+  {rank:320, en:"Friday",             no:"fredag",      pos:"p4", type:"noun",         grammar:"'på fredag' = on Friday"},
+  {rank:321, en:"Saturday",           no:"lørdag",      pos:"p4", type:"noun",         grammar:"'på lørdag' = on Saturday"},
+  {rank:322, en:"Sunday",             no:"søndag",      pos:"p4", type:"noun",         grammar:"'på søndag' = on Sunday"},
+  {rank:323, en:"January",            no:"januar",      pos:"p4", type:"noun",         grammar:"'i januar' = in January"},
+  {rank:324, en:"February",           no:"februar",     pos:"p4", type:"noun",         grammar:"'i februar' = in February"},
+  {rank:325, en:"March",              no:"mars",        pos:"p4", type:"noun",         grammar:"'i mars' = in March"},
+  {rank:326, en:"April",              no:"april",       pos:"p4", type:"noun",         grammar:"'i april' = in April"},
+  {rank:327, en:"May",                no:"mai",         pos:"p4", type:"noun",         grammar:"'i mai' = in May. Also Norway's national day month"},
+  {rank:328, en:"June",               no:"juni",        pos:"p4", type:"noun",         grammar:"'i juni' = in June"},
+  {rank:329, en:"July",               no:"juli",        pos:"p4", type:"noun",         grammar:"'i juli' = in July"},
+  {rank:330, en:"August",             no:"august",      pos:"p4", type:"noun",         grammar:"'i august' = in August"},
+  {rank:331, en:"September",          no:"september",   pos:"p4", type:"noun",         grammar:"'i september' = in September"},
+  {rank:332, en:"October",            no:"oktober",     pos:"p4", type:"noun",         grammar:"'i oktober' = in October"},
+  {rank:333, en:"November",           no:"november",    pos:"p4", type:"noun",         grammar:"'i november' = in November"},
+  {rank:334, en:"December",           no:"desember",    pos:"p4", type:"noun",         grammar:"'i desember' = in December"},
+  {rank:335, en:"spring",             no:"vår",         pos:"p4", type:"noun",         grammar:"Masculine. 'om våren' = in spring"},
+  {rank:336, en:"autumn / fall",      no:"høst",        pos:"p4", type:"noun",         grammar:"Masculine. 'om høsten' = in autumn"},
+  {rank:337, en:"weather",            no:"vær",         pos:"p4", type:"noun",         grammar:"Neuter. 'godt vær' = good weather"},
+  {rank:338, en:"rain",               no:"regn",        pos:"p4", type:"noun",         grammar:"Neuter. 'mye regn' = a lot of rain"},
+  {rank:339, en:"sun",                no:"sol",         pos:"p4", type:"noun",         grammar:"Feminine. 'solen skinner' = the sun is shining"},
+  {rank:340, en:"wind",               no:"vind",        pos:"p4", type:"noun",         grammar:"Masculine. 'sterk vind' = strong wind"},
+  {rank:341, en:"sky",                no:"himmel",      pos:"p4", type:"noun",         grammar:"Masculine. 'blå himmel' = blue sky"},
+  {rank:342, en:"mountain",           no:"fjell",       pos:"p4", type:"noun",         grammar:"Neuter. 'høyt fjell' = high mountain"},
+  {rank:343, en:"forest",             no:"skog",        pos:"p4", type:"noun",         grammar:"Masculine. 'tett skog' = dense forest"},
+  {rank:344, en:"sea / ocean",        no:"hav",         pos:"p4", type:"noun",         grammar:"Neuter. 'det åpne hav' = the open sea"},
+  {rank:345, en:"river",              no:"elv",         pos:"p4", type:"noun",         grammar:"Feminine. 'bred elv' = wide river"},
+  {rank:346, en:"lake",               no:"innsjø",      pos:"p4", type:"noun",         grammar:"Masculine. 'en stor innsjø' = a large lake"},
+  {rank:347, en:"island",             no:"øy",          pos:"p4", type:"noun",         grammar:"Feminine. 'en liten øy' = a small island"},
+  {rank:348, en:"north",              no:"nord",        pos:"p4", type:"noun",         grammar:"'i nord' = in the north"},
+  {rank:349, en:"south",              no:"sør",         pos:"p4", type:"noun",         grammar:"'i sør' = in the south"},
+  {rank:350, en:"east",               no:"øst",         pos:"p4", type:"noun",         grammar:"'i øst' = in the east"},
+
+  // ── 351–450 ──
+  {rank:351, en:"west",               no:"vest",        pos:"p4", type:"noun",         grammar:"'i vest' = in the west"},
+  {rank:352, en:"street",             no:"gate",        pos:"p4", type:"noun",         grammar:"Feminine. 'i gaten' = in the street"},
+  {rank:353, en:"shop / store",       no:"butikk",      pos:"p4", type:"noun",         grammar:"Masculine. 'gå i butikken' = go to the shop"},
+  {rank:354, en:"hospital",           no:"sykehus",     pos:"p4", type:"noun",         grammar:"Neuter. 'på sykehuset' = at the hospital"},
+  {rank:355, en:"airport",            no:"flyplass",    pos:"p4", type:"noun",         grammar:"Masculine. 'på flyplassen' = at the airport"},
+  {rank:356, en:"train",              no:"tog",         pos:"p4", type:"noun",         grammar:"Neuter. 'ta toget' = take the train"},
+  {rank:357, en:"bus",                no:"buss",        pos:"p4", type:"noun",         grammar:"Masculine. 'ta bussen' = take the bus"},
+  {rank:358, en:"plane",              no:"fly",         pos:"p4", type:"noun",         grammar:"Neuter. 'ta flyet' = take the plane"},
+  {rank:359, en:"ticket",             no:"billett",     pos:"p4", type:"noun",         grammar:"Masculine. 'kjøpe billett' = buy a ticket"},
+  {rank:360, en:"money",              no:"penger",      pos:"p4", type:"noun",         grammar:"Plural noun. 'mye penger' = a lot of money"},
+  {rank:361, en:"work (job)",         no:"jobb",        pos:"p4", type:"noun",         grammar:"Masculine. 'god jobb!' = good job!"},
+  {rank:362, en:"office",             no:"kontor",      pos:"p4", type:"noun",         grammar:"Neuter. 'på kontoret' = at the office"},
+  {rank:363, en:"meeting",            no:"møte",        pos:"p4", type:"noun",         grammar:"Neuter. 'ha et møte' = have a meeting"},
+  {rank:364, en:"phone",              no:"telefon",     pos:"p4", type:"noun",         grammar:"Masculine. 'ringe på telefon' = call by phone"},
+  {rank:365, en:"computer",           no:"datamaskin",  pos:"p4", type:"noun",         grammar:"Masculine. 'bruke datamaskin' = use a computer"},
+  {rank:366, en:"internet",           no:"internett",   pos:"p4", type:"noun",         grammar:"Neuter. 'på internett' = on the internet"},
+  {rank:367, en:"email",              no:"epost",       pos:"p4", type:"noun",         grammar:"Masculine. 'sende en epost' = send an email"},
+  {rank:368, en:"message",            no:"melding",     pos:"p4", type:"noun",         grammar:"Feminine. 'sende en melding' = send a message"},
+  {rank:369, en:"problem",            no:"problem",     pos:"p4", type:"noun",         grammar:"Neuter. 'løse et problem' = solve a problem"},
+  {rank:370, en:"idea",               no:"idé",         pos:"p4", type:"noun",         grammar:"Masculine. 'en god idé' = a good idea"},
+  {rank:371, en:"information",        no:"informasjon", pos:"p4", type:"noun",         grammar:"Masculine. 'mer informasjon' = more information"},
+  {rank:372, en:"example",            no:"eksempel",    pos:"p4", type:"noun",         grammar:"Neuter. 'for eksempel' = for example"},
+  {rank:373, en:"opportunity",        no:"mulighet",    pos:"p4", type:"noun",         grammar:"Feminine. 'en god mulighet' = a good opportunity"},
+  {rank:374, en:"experience",         no:"erfaring",    pos:"p4", type:"noun",         grammar:"Feminine. 'mye erfaring' = a lot of experience"},
+  {rank:375, en:"knowledge",          no:"kunnskap",    pos:"p4", type:"noun",         grammar:"Masculine. 'bred kunnskap' = broad knowledge"},
+  {rank:376, en:"society",            no:"samfunn",     pos:"p4", type:"noun",         grammar:"Neuter. 'det norske samfunnet' = Norwegian society"},
+  {rank:377, en:"government",         no:"regjering",   pos:"p4", type:"noun",         grammar:"Feminine. 'den norske regjeringen' = the Norwegian government"},
+  {rank:378, en:"law",                no:"lov",         pos:"p4", type:"noun",         grammar:"Masculine. 'følge loven' = follow the law"},
+  {rank:379, en:"right (entitlement)",no:"rett",        pos:"p4", type:"noun",         grammar:"Masculine. 'ha rett til' = have the right to"},
+  {rank:380, en:"power / strength",   no:"kraft",       pos:"p4", type:"noun",         grammar:"Feminine. 'full kraft' = full power"},
+  {rank:381, en:"energy",             no:"energi",      pos:"p4", type:"noun",         grammar:"Masculine. 'fornybar energi' = renewable energy"},
+  {rank:382, en:"oil",                no:"olje",        pos:"p4", type:"noun",         grammar:"Feminine. 'norsk olje' = Norwegian oil"},
+  {rank:383, en:"nature",             no:"natur",       pos:"p4", type:"noun",         grammar:"Masculine. 'vakker natur' = beautiful nature"},
+  {rank:384, en:"animal",             no:"dyr",         pos:"p4", type:"noun",         grammar:"Neuter. 'ville dyr' = wild animals"},
+  {rank:385, en:"dog",                no:"hund",        pos:"p4", type:"noun",         grammar:"Masculine. 'en snill hund' = a kind dog"},
+  {rank:386, en:"cat",                no:"katt",        pos:"p4", type:"noun",         grammar:"Masculine. 'en søt katt' = a cute cat"},
+  {rank:387, en:"bird",               no:"fugl",        pos:"p4", type:"noun",         grammar:"Masculine. 'en vakker fugl' = a beautiful bird"},
+  {rank:388, en:"apple",              no:"eple",        pos:"p4", type:"noun",         grammar:"Neuter. 'et rødt eple' = a red apple"},
+  {rank:389, en:"bread",              no:"brød",        pos:"p4", type:"noun",         grammar:"Neuter. 'ferskt brød' = fresh bread"},
+  {rank:390, en:"milk",               no:"melk",        pos:"p4", type:"noun",         grammar:"Masculine. 'et glass melk' = a glass of milk"},
+  {rank:391, en:"coffee",             no:"kaffe",       pos:"p4", type:"noun",         grammar:"Masculine. 'en kopp kaffe' = a cup of coffee"},
+  {rank:392, en:"tea",                no:"te",          pos:"p4", type:"noun",         grammar:"Masculine. 'en kopp te' = a cup of tea"},
+  {rank:393, en:"beer",               no:"øl",          pos:"p4", type:"noun",         grammar:"Neuter. 'et glass øl' = a glass of beer"},
+  {rank:394, en:"wine",               no:"vin",         pos:"p4", type:"noun",         grammar:"Masculine. 'et glass vin' = a glass of wine"},
+  {rank:395, en:"cheese",             no:"ost",         pos:"p4", type:"noun",         grammar:"Masculine. 'norsk ost' = Norwegian cheese"},
+  {rank:396, en:"egg",                no:"egg",         pos:"p4", type:"noun",         grammar:"Neuter. 'to egg' = two eggs"},
+  {rank:397, en:"butter",             no:"smør",        pos:"p4", type:"noun",         grammar:"Neuter. 'smør på brødet' = butter on the bread"},
+  {rank:398, en:"sugar",              no:"sukker",      pos:"p4", type:"noun",         grammar:"Neuter. 'uten sukker' = without sugar"},
+  {rank:399, en:"salt",               no:"salt",        pos:"p4", type:"noun",         grammar:"Neuter. 'litt salt' = a little salt"},
+  {rank:400, en:"potato",             no:"potet",       pos:"p4", type:"noun",         grammar:"Masculine. 'kokte poteter' = boiled potatoes"},
+
+  // ── 401–500 ──
+  {rank:401, en:"head",               no:"hode",        pos:"p4", type:"noun",         grammar:"Neuter. 'vondt i hodet' = headache"},
+  {rank:402, en:"hand",               no:"hånd",        pos:"p4", type:"noun",         grammar:"Feminine. 'gi hånden' = shake hands"},
+  {rank:403, en:"eye",                no:"øye",         pos:"p4", type:"noun",         grammar:"Neuter. Plural: øyne. 'blå øyne' = blue eyes"},
+  {rank:404, en:"mouth",              no:"munn",        pos:"p4", type:"noun",         grammar:"Masculine. 'åpne munnen' = open your mouth"},
+  {rank:405, en:"heart",              no:"hjerte",      pos:"p4", type:"noun",         grammar:"Neuter. 'mitt hjerte' = my heart"},
+  {rank:406, en:"back",               no:"rygg",        pos:"p4", type:"noun",         grammar:"Masculine. 'vondt i ryggen' = back pain"},
+  {rank:407, en:"leg",                no:"bein",        pos:"p4", type:"noun",         grammar:"Neuter. 'brukket bein' = broken leg"},
+  {rank:408, en:"arm",                no:"arm",         pos:"p4", type:"noun",         grammar:"Masculine. 'løfte armen' = raise your arm"},
+  {rank:409, en:"face",               no:"ansikt",      pos:"p4", type:"noun",         grammar:"Neuter. 'et vennlig ansikt' = a friendly face"},
+  {rank:410, en:"hair",               no:"hår",         pos:"p4", type:"noun",         grammar:"Neuter. 'langt hår' = long hair"},
+  {rank:411, en:"sick / ill",         no:"syk",         pos:"p3", type:"adjective",    grammar:"'Jeg er syk' = I am sick"},
+  {rank:412, en:"tired",              no:"trøtt",       pos:"p3", type:"adjective",    grammar:"'Jeg er trøtt' = I am tired"},
+  {rank:413, en:"hungry",             no:"sulten",      pos:"p3", type:"adjective",    grammar:"'Jeg er sulten' = I am hungry"},
+  {rank:414, en:"thirsty",            no:"tørst",       pos:"p3", type:"adjective",    grammar:"'Jeg er tørst' = I am thirsty"},
+  {rank:415, en:"afraid",             no:"redd",        pos:"p3", type:"adjective",    grammar:"'Jeg er redd' = I am afraid"},
+  {rank:416, en:"angry",              no:"sint",        pos:"p3", type:"adjective",    grammar:"'Jeg er sint' = I am angry"},
+  {rank:417, en:"surprised",          no:"overrasket",  pos:"p3", type:"adjective",    grammar:"'Jeg er overrasket' = I am surprised"},
+  {rank:418, en:"bored",              no:"kjed",        pos:"p3", type:"adjective",    grammar:"'Jeg kjeder meg' = I am bored"},
+  {rank:419, en:"ready",              no:"klar",        pos:"p3", type:"adjective",    grammar:"'Er du klar?' = Are you ready?"},
+  {rank:420, en:"busy",               no:"opptatt",     pos:"p3", type:"adjective",    grammar:"'Jeg er opptatt' = I am busy"},
+  {rank:421, en:"alone",              no:"alene",       pos:"p3", type:"adjective",    grammar:"'Jeg er alene' = I am alone"},
+  {rank:422, en:"together",           no:"sammen",      pos:"p3", type:"adjective",    grammar:"'Vi er sammen' = We are together"},
+  {rank:423, en:"safe",               no:"trygg",       pos:"p3", type:"adjective",    grammar:"'Jeg føler meg trygg' = I feel safe"},
+  {rank:424, en:"dangerous",          no:"farlig",      pos:"p3", type:"adjective",    grammar:"'Det er farlig' = It is dangerous"},
+  {rank:425, en:"funny / strange",    no:"morsom",      pos:"p3", type:"adjective",    grammar:"'en morsom film' = a funny film"},
+  {rank:426, en:"interesting",        no:"interessant", pos:"p3", type:"adjective",    grammar:"'en interessant bok' = an interesting book"},
+  {rank:427, en:"boring",             no:"kjedelig",    pos:"p3", type:"adjective",    grammar:"'en kjedelig film' = a boring film"},
+  {rank:428, en:"expensive",          no:"dyr",         pos:"p3", type:"adjective",    grammar:"'det er dyrt' = it is expensive"},
+  {rank:429, en:"cheap",              no:"billig",      pos:"p3", type:"adjective",    grammar:"'billig mat' = cheap food"},
+  {rank:430, en:"dark",               no:"mørk",        pos:"p3", type:"adjective",    grammar:"'mørk natt' = dark night"},
+  {rank:431, en:"bright / light",     no:"lys",         pos:"p3", type:"adjective",    grammar:"'et lyst rom' = a bright room"},
+  {rank:432, en:"quiet",              no:"stille",      pos:"p3", type:"adjective",    grammar:"'vær stille' = be quiet"},
+  {rank:433, en:"loud / noisy",       no:"høy",         pos:"p3", type:"adjective",    grammar:"'høy musikk' = loud music"},
+  {rank:434, en:"soft",               no:"myk",         pos:"p3", type:"adjective",    grammar:"'mykt brød' = soft bread"},
+  {rank:435, en:"hard",               no:"hard",        pos:"p3", type:"adjective",    grammar:"'hardt arbeid' = hard work"},
+  {rank:436, en:"wide",               no:"bred",        pos:"p3", type:"adjective",    grammar:"'en bred gate' = a wide street"},
+  {rank:437, en:"narrow",             no:"smal",        pos:"p3", type:"adjective",    grammar:"'en smal vei' = a narrow road"},
+  {rank:438, en:"deep",               no:"dyp",         pos:"p3", type:"adjective",    grammar:"'et dypt hav' = a deep ocean"},
+  {rank:439, en:"shallow",            no:"grunn",       pos:"p3", type:"adjective",    grammar:"'grunt vann' = shallow water"},
+  {rank:440, en:"round",              no:"rund",        pos:"p3", type:"adjective",    grammar:"'et rundt bord' = a round table"},
+  {rank:441, en:"flat",               no:"flat",        pos:"p3", type:"adjective",    grammar:"'flat mark' = flat ground"},
+  {rank:442, en:"empty",              no:"tom",         pos:"p3", type:"adjective",    grammar:"'et tomt glass' = an empty glass"},
+  {rank:443, en:"white",              no:"hvit",        pos:"p3", type:"adjective",    grammar:"'hvit snø' = white snow"},
+  {rank:444, en:"black",              no:"svart",       pos:"p3", type:"adjective",    grammar:"'svart kaffe' = black coffee"},
+  {rank:445, en:"blue",               no:"blå",         pos:"p3", type:"adjective",    grammar:"'blå himmel' = blue sky"},
+  {rank:446, en:"green",              no:"grønn",       pos:"p3", type:"adjective",    grammar:"'grønt gress' = green grass"},
+  {rank:447, en:"yellow",             no:"gul",         pos:"p3", type:"adjective",    grammar:"'gul banan' = yellow banana"},
+  {rank:448, en:"brown",              no:"brun",        pos:"p3", type:"adjective",    grammar:"'brunt hår' = brown hair"},
+  {rank:449, en:"grey",               no:"grå",         pos:"p3", type:"adjective",    grammar:"'grå himmel' = grey sky"},
+  {rank:450, en:"pink",               no:"rosa",        pos:"p3", type:"adjective",    grammar:"'rosa blomst' = pink flower"},
+
+  // ── 451–550 ──
+  {rank:451, en:"orange (color)",     no:"oransje",     pos:"p3", type:"adjective",    grammar:"'oransje solnedgang' = orange sunset"},
+  {rank:452, en:"purple",             no:"lilla",       pos:"p3", type:"adjective",    grammar:"'lilla blomst' = purple flower"},
+  {rank:453, en:"to walk",            no:"gå",          pos:"p2", type:"verb",         grammar:"'Jeg går en tur' = I am going for a walk"},
+  {rank:454, en:"to swim",            no:"svømme",      pos:"p2", type:"verb",         grammar:"'Jeg svømmer i havet' = I swim in the sea"},
+  {rank:455, en:"to drive",           no:"kjøre",       pos:"p2", type:"verb",         grammar:"'Jeg kjører bil' = I drive a car"},
+  {rank:456, en:"to fly",             no:"fly",         pos:"p2", type:"verb",         grammar:"'Vi flyr til London' = We are flying to London"},
+  {rank:457, en:"to climb",           no:"klatre",      pos:"p2", type:"verb",         grammar:"'klatre i fjellet' = climb in the mountains"},
+  {rank:458, en:"to fall",            no:"falle",       pos:"p2", type:"verb",         grammar:"'Ikke fall!' = Don't fall!"},
+  {rank:459, en:"to jump",            no:"hoppe",       pos:"p2", type:"verb",         grammar:"'Hopp!' = Jump!"},
+  {rank:460, en:"to dance",           no:"danse",       pos:"p2", type:"verb",         grammar:"'Vil du danse?' = Do you want to dance?"},
+  {rank:461, en:"to sing",            no:"synge",       pos:"p2", type:"verb",         grammar:"'Hun synger vakkert' = She sings beautifully"},
+  {rank:462, en:"to draw",            no:"tegne",       pos:"p2", type:"verb",         grammar:"'Jeg tegner et hus' = I am drawing a house"},
+  {rank:463, en:"to paint",           no:"male",        pos:"p2", type:"verb",         grammar:"'male et bilde' = paint a picture"},
+  {rank:464, en:"to photograph",      no:"fotografere", pos:"p2", type:"verb",         grammar:"'fotografere naturen' = photograph nature"},
+  {rank:465, en:"to watch",           no:"se på",       pos:"p2", type:"verb",         grammar:"'se på TV' = watch TV"},
+  {rank:466, en:"to listen",          no:"lytte",       pos:"p2", type:"verb",         grammar:"'lytte til musikk' = listen to music"},
+  {rank:467, en:"to speak",           no:"snakke",      pos:"p2", type:"verb",         grammar:"'snakke norsk' = speak Norwegian"},
+  {rank:468, en:"to translate",       no:"oversette",   pos:"p2", type:"verb",         grammar:"'oversette til norsk' = translate to Norwegian"},
+  {rank:469, en:"to study",           no:"studere",     pos:"p2", type:"verb",         grammar:"'studere norsk' = study Norwegian"},
+  {rank:470, en:"to practice",        no:"øve",         pos:"p2", type:"verb",         grammar:"'øve på norsk' = practice Norwegian"},
+  {rank:471, en:"to improve",         no:"forbedre",    pos:"p2", type:"verb",         grammar:"'forbedre seg' = improve oneself"},
+  {rank:472, en:"to succeed",         no:"lykkes",      pos:"p2", type:"verb",         grammar:"'Jeg lykkes!' = I succeeded!"},
+  {rank:473, en:"to fail",            no:"mislykkes",   pos:"p2", type:"verb",         grammar:"'Ikke gi opp hvis du mislykkes' = Don't give up if you fail"},
+  {rank:474, en:"to give up",         no:"gi opp",      pos:"p2", type:"verb",         grammar:"'Ikke gi opp!' = Don't give up!"},
+  {rank:475, en:"to try again",       no:"prøve igjen", pos:"p2", type:"verb",         grammar:"'Prøv igjen!' = Try again!"},
+  {rank:476, en:"to arrive",          no:"ankomme",     pos:"p2", type:"verb",         grammar:"'Når ankommer du?' = When do you arrive?"},
+  {rank:477, en:"to leave",           no:"dra",         pos:"p2", type:"verb",         grammar:"'Jeg drar nå' = I am leaving now"},
+  {rank:478, en:"to return",          no:"komme tilbake",pos:"p2",type:"verb",         grammar:"'Jeg kommer tilbake' = I will come back"},
+  {rank:479, en:"to visit",           no:"besøke",      pos:"p2", type:"verb",         grammar:"'besøke familie' = visit family"},
+  {rank:480, en:"to invite",          no:"invitere",    pos:"p2", type:"verb",         grammar:"'invitere til fest' = invite to a party"},
+  {rank:481, en:"to celebrate",       no:"feire",       pos:"p2", type:"verb",         grammar:"'feire bursdag' = celebrate a birthday"},
+  {rank:482, en:"to congratulate",    no:"gratulere",   pos:"p2", type:"verb",         grammar:"'Gratulerer med dagen!' = Happy birthday!"},
+  {rank:483, en:"to apologize",       no:"beklage",     pos:"p2", type:"verb",         grammar:"'Jeg beklager' = I am sorry"},
+  {rank:484, en:"to forgive",         no:"tilgi",       pos:"p2", type:"verb",         grammar:"'Kan du tilgi meg?' = Can you forgive me?"},
+  {rank:485, en:"to promise",         no:"love",        pos:"p2", type:"verb",         grammar:"'Jeg lover' = I promise"},
+  {rank:486, en:"to agree",           no:"være enig",   pos:"p2", type:"verb",         grammar:"'Jeg er enig' = I agree"},
+  {rank:487, en:"to disagree",        no:"være uenig",  pos:"p2", type:"verb",         grammar:"'Jeg er uenig' = I disagree"},
+  {rank:488, en:"to complain",        no:"klage",       pos:"p2", type:"verb",         grammar:"'klage på maten' = complain about the food"},
+  {rank:489, en:"to recommend",       no:"anbefale",    pos:"p2", type:"verb",         grammar:"'Jeg anbefaler det' = I recommend it"},
+  {rank:490, en:"to prefer",          no:"foretrekke",  pos:"p2", type:"verb",         grammar:"'Jeg foretrekker kaffe' = I prefer coffee"},
+  {rank:491, en:"to compare",         no:"sammenligne", pos:"p2", type:"verb",         grammar:"'sammenligne priser' = compare prices"},
+  {rank:492, en:"to choose",          no:"velge",       pos:"p2", type:"verb",         grammar:"'velge mellom to' = choose between two"},
+  {rank:493, en:"to order",           no:"bestille",    pos:"p2", type:"verb",         grammar:"'bestille mat' = order food"},
+  {rank:494, en:"to reserve",         no:"reservere",   pos:"p2", type:"verb",         grammar:"'reservere bord' = reserve a table"},
+  {rank:495, en:"to cancel",          no:"avlyse",      pos:"p2", type:"verb",         grammar:"'avlyse møtet' = cancel the meeting"},
+  {rank:496, en:"to plan",            no:"planlegge",   pos:"p2", type:"verb",         grammar:"'planlegge ferien' = plan the holiday"},
+  {rank:497, en:"to organize",        no:"organisere",  pos:"p2", type:"verb",         grammar:"'organisere en fest' = organize a party"},
+  {rank:498, en:"to prepare",         no:"forberede",   pos:"p2", type:"verb",         grammar:"'forberede seg' = prepare oneself"},
+  {rank:499, en:"to finish",          no:"fullføre",    pos:"p2", type:"verb",         grammar:"'fullføre oppgaven' = finish the task"},
+  {rank:500, en:"to check",           no:"sjekke",      pos:"p2", type:"verb",         grammar:"'sjekke inn' = check in"},
+
+  // ── 501–600 ──
+  {rank:501, en:"to search",          no:"søke",        pos:"p2", type:"verb",         grammar:"'søke etter jobb' = search for a job"},
+  {rank:502, en:"to find out",        no:"finne ut",    pos:"p2", type:"verb",         grammar:"'finne ut av det' = figure it out"},
+  {rank:503, en:"to call",            no:"ringe",       pos:"p2", type:"verb",         grammar:"'ringe noen' = call someone"},
+  {rank:504, en:"to text",            no:"sende melding",pos:"p2",type:"verb",         grammar:"'sende melding til' = send a message to"},
+  {rank:505, en:"to connect",         no:"koble til",   pos:"p2", type:"verb",         grammar:"'koble til internett' = connect to internet"},
+  {rank:506, en:"to download",        no:"laste ned",   pos:"p2", type:"verb",         grammar:"'laste ned appen' = download the app"},
+  {rank:507, en:"to upload",          no:"laste opp",   pos:"p2", type:"verb",         grammar:"'laste opp bilder' = upload pictures"},
+  {rank:508, en:"to share",           no:"dele",        pos:"p2", type:"verb",         grammar:"'dele på sosiale medier' = share on social media"},
+  {rank:509, en:"to log in",          no:"logge inn",   pos:"p2", type:"verb",         grammar:"'logge inn på konto' = log in to account"},
+  {rank:510, en:"to log out",         no:"logge ut",    pos:"p2", type:"verb",         grammar:"'logge ut av konto' = log out of account"},
+  {rank:511, en:"password",           no:"passord",     pos:"p4", type:"noun",         grammar:"Neuter. 'bytte passord' = change password"},
+  {rank:512, en:"account",            no:"konto",       pos:"p4", type:"noun",         grammar:"Feminine. 'bankkonto' = bank account"},
+  {rank:513, en:"app",                no:"app",         pos:"p4", type:"noun",         grammar:"Masculine. 'laste ned appen' = download the app"},
+  {rank:514, en:"screen",             no:"skjerm",      pos:"p4", type:"noun",         grammar:"Masculine. 'stor skjerm' = big screen"},
+  {rank:515, en:"camera",             no:"kamera",      pos:"p4", type:"noun",         grammar:"Neuter. 'ta bilde med kamera' = take photo with camera"},
+  {rank:516, en:"photo / picture",    no:"bilde",       pos:"p4", type:"noun",         grammar:"Neuter. 'ta et bilde' = take a photo"},
+  {rank:517, en:"video",              no:"video",       pos:"p4", type:"noun",         grammar:"Masculine. 'se en video' = watch a video"},
+  {rank:518, en:"film / movie",       no:"film",        pos:"p4", type:"noun",         grammar:"Masculine. 'se en film' = watch a film"},
+  {rank:519, en:"game",               no:"spill",       pos:"p4", type:"noun",         grammar:"Neuter. 'spille et spill' = play a game"},
+  {rank:520, en:"sport",              no:"sport",       pos:"p4", type:"noun",         grammar:"Masculine. 'drive med sport' = do sport"},
+  {rank:521, en:"football / soccer",  no:"fotball",     pos:"p4", type:"noun",         grammar:"Masculine. 'spille fotball' = play football"},
+  {rank:522, en:"skiing",             no:"ski",         pos:"p4", type:"noun",         grammar:"Masculine. 'gå på ski' = go skiing"},
+  {rank:523, en:"hiking",             no:"fotturer",    pos:"p4", type:"noun",         grammar:"Plural. 'gå fotturer' = go hiking"},
+  {rank:524, en:"holiday / vacation", no:"ferie",       pos:"p4", type:"noun",         grammar:"Masculine. 'på ferie' = on holiday"},
+  {rank:525, en:"birthday",           no:"bursdag",     pos:"p4", type:"noun",         grammar:"Masculine. 'Gratulerer med bursdagen!' = Happy birthday!"},
+  {rank:526, en:"party",              no:"fest",        pos:"p4", type:"noun",         grammar:"Masculine. 'ha en fest' = have a party"},
+  {rank:527, en:"gift / present",     no:"gave",        pos:"p4", type:"noun",         grammar:"Feminine. 'gi en gave' = give a gift"},
+  {rank:528, en:"wedding",            no:"bryllup",     pos:"p4", type:"noun",         grammar:"Neuter. 'et vakkert bryllup' = a beautiful wedding"},
+  {rank:529, en:"Christmas",          no:"jul",         pos:"p4", type:"noun",         grammar:"Masculine. 'God jul!' = Merry Christmas!"},
+  {rank:530, en:"Easter",             no:"påske",       pos:"p4", type:"noun",         grammar:"Masculine. 'God påske!' = Happy Easter!"},
+  {rank:531, en:"Norway",             no:"Norge",       pos:"p4", type:"noun",         grammar:"Proper noun. 'Jeg bor i Norge' = I live in Norway"},
+  {rank:532, en:"Norwegian (person)", no:"nordmann",    pos:"p4", type:"noun",         grammar:"Masculine. 'en typisk nordmann' = a typical Norwegian"},
+  {rank:533, en:"Norwegian (lang.)",  no:"norsk",       pos:"p4", type:"noun",         grammar:"'snakke norsk' = speak Norwegian"},
+  {rank:534, en:"Oslo",               no:"Oslo",        pos:"p4", type:"noun",         grammar:"Capital of Norway. 'i Oslo' = in Oslo"},
+  {rank:535, en:"Bergen",             no:"Bergen",      pos:"p4", type:"noun",         grammar:"Second largest city. 'i Bergen' = in Bergen"},
+  {rank:536, en:"fjord",              no:"fjord",       pos:"p4", type:"noun",         grammar:"Masculine. 'vakker fjord' = beautiful fjord"},
+  {rank:537, en:"cabin / cottage",    no:"hytte",       pos:"p4", type:"noun",         grammar:"Feminine. 'på hytta' = at the cabin"},
+  {rank:538, en:"midnight sun",       no:"midnattssol", pos:"p4", type:"noun",         grammar:"Masculine. Unique to northern Norway"},
+  {rank:539, en:"northern lights",    no:"nordlys",     pos:"p4", type:"noun",         grammar:"Neuter. 'se nordlyset' = see the northern lights"},
+  {rank:540, en:"constitution day",   no:"syttende mai",pos:"p4", type:"noun",         grammar:"Norway's national day. May 17th"},
+  {rank:541, en:"hello",              no:"hei",         pos:"p1", type:"interjection", grammar:"Informal greeting. 'Hei!' = Hi!"},
+  {rank:542, en:"goodbye",            no:"ha det",      pos:"p1", type:"interjection", grammar:"Informal farewell. 'Ha det bra!' = Take care!"},
+  {rank:543, en:"good morning",       no:"god morgen",  pos:"p1", type:"interjection", grammar:"Morning greeting"},
+  {rank:544, en:"good night",         no:"god natt",    pos:"p1", type:"interjection", grammar:"Bedtime farewell"},
+  {rank:545, en:"excuse me",          no:"unnskyld",    pos:"p1", type:"interjection", grammar:"Apology & attention. 'Unnskyld meg' = Excuse me"},
+  {rank:546, en:"sorry",              no:"beklager",    pos:"p1", type:"interjection", grammar:"Formal apology. 'Jeg beklager' = I am sorry"},
+  {rank:547, en:"please",             no:"vær så snill",pos:"p1", type:"interjection", grammar:"Polite request. Literally 'be so kind'"},
+  {rank:548, en:"cheers!",            no:"skål!",       pos:"p1", type:"interjection", grammar:"Toast when drinking. 'Skål!' = Cheers!"},
+  {rank:549, en:"welcome",            no:"velkommen",   pos:"p1", type:"interjection", grammar:"'Velkommen hit!' = Welcome here!"},
+  {rank:550, en:"good luck",          no:"lykke til",   pos:"p1", type:"interjection", grammar:"'Lykke til!' = Good luck!"},
+
+  // ── 551–650 ──
+  {rank:551, en:"of course",          no:"selvfølgelig",pos:"p3", type:"adverb",       grammar:"'Selvfølgelig!' = Of course!"},
+  {rank:552, en:"exactly",            no:"akkurat",     pos:"p3", type:"adverb",       grammar:"'Akkurat!' = Exactly!"},
+  {rank:553, en:"perhaps",            no:"kanskje",     pos:"p3", type:"adverb",       grammar:"'Kanskje det' = Perhaps so"},
+  {rank:554, en:"suddenly",           no:"plutselig",   pos:"p3", type:"adverb",       grammar:"'Plutselig skjedde det' = Suddenly it happened"},
+  {rank:555, en:"slowly",             no:"sakte",       pos:"p3", type:"adverb",       grammar:"'Snakk sakte' = Speak slowly"},
+  {rank:556, en:"quickly",            no:"raskt",       pos:"p3", type:"adverb",       grammar:"'Gjør det raskt' = Do it quickly"},
+  {rank:557, en:"loudly",             no:"høyt",        pos:"p3", type:"adverb",       grammar:"'Snakk høyt' = Speak loudly"},
+  {rank:558, en:"quietly",            no:"stille",      pos:"p3", type:"adverb",       grammar:"'Snakk stille' = Speak quietly"},
+  {rank:559, en:"carefully",          no:"forsiktig",   pos:"p3", type:"adverb",       grammar:"'Gjør det forsiktig' = Do it carefully"},
+  {rank:560, en:"together",           no:"sammen",      pos:"p3", type:"adverb",       grammar:"'La oss gjøre det sammen' = Let's do it together"},
+  {rank:561, en:"separately",         no:"separat",     pos:"p3", type:"adverb",       grammar:"'betale separat' = pay separately"},
+  {rank:562, en:"immediately",        no:"umiddelbart", pos:"p3", type:"adverb",       grammar:"'Gjør det umiddelbart' = Do it immediately"},
+  {rank:563, en:"recently",           no:"nylig",       pos:"p3", type:"adverb",       grammar:"'Jeg har nylig lært norsk' = I recently learned Norwegian"},
+  {rank:564, en:"soon",               no:"snart",       pos:"p3", type:"adverb",       grammar:"'Vi er snart fremme' = We are almost there"},
+  {rank:565, en:"later",              no:"senere",      pos:"p3", type:"adverb",       grammar:"'Vi snakkes senere' = We'll talk later"},
+  {rank:566, en:"yesterday",          no:"i går",       pos:"p3", type:"adverb",       grammar:"'Jeg var der i går' = I was there yesterday"},
+  {rank:567, en:"today",              no:"i dag",       pos:"p3", type:"adverb",       grammar:"'Hva gjør du i dag?' = What are you doing today?"},
+  {rank:568, en:"tomorrow",           no:"i morgen",    pos:"p3", type:"adverb",       grammar:"'Vi ses i morgen' = See you tomorrow"},
+  {rank:569, en:"last week",          no:"forrige uke", pos:"p3", type:"adverb",       grammar:"'forrige uke var travel' = last week was busy"},
+  {rank:570, en:"next week",          no:"neste uke",   pos:"p3", type:"adverb",       grammar:"'neste uke er bedre' = next week is better"},
+  {rank:571, en:"last year",          no:"i fjor",      pos:"p3", type:"adverb",       grammar:"'i fjor sommer' = last summer"},
+  {rank:572, en:"next year",          no:"neste år",    pos:"p3", type:"adverb",       grammar:"'neste år reiser vi' = next year we travel"},
+  {rank:573, en:"in the morning",     no:"om morgenen", pos:"p3", type:"adverb",       grammar:"'om morgenen spiser jeg' = in the morning I eat"},
+  {rank:574, en:"in the evening",     no:"om kvelden",  pos:"p3", type:"adverb",       grammar:"'om kvelden ser jeg TV' = in the evening I watch TV"},
+  {rank:575, en:"at night",           no:"om natten",   pos:"p3", type:"adverb",       grammar:"'om natten sover jeg' = at night I sleep"},
+  {rank:576, en:"every day",          no:"hver dag",    pos:"p3", type:"adverb",       grammar:"'Jeg øver hver dag' = I practice every day"},
+  {rank:577, en:"sometimes",          no:"noen ganger", pos:"p3", type:"adverb",       grammar:"'noen ganger er det vanskelig' = sometimes it is difficult"},
+  {rank:578, en:"usually",            no:"vanligvis",   pos:"p3", type:"adverb",       grammar:"'Jeg vanligvis spiser tidlig' = I usually eat early"},
+  {rank:579, en:"generally",          no:"generelt",    pos:"p3", type:"adverb",       grammar:"'generelt sett' = generally speaking"},
+  {rank:580, en:"especially",         no:"spesielt",    pos:"p3", type:"adverb",       grammar:"'spesielt viktig' = especially important"},
+  {rank:581, en:"particularly",       no:"særlig",      pos:"p3", type:"adverb",       grammar:"'særlig interessant' = particularly interesting"},
+  {rank:582, en:"approximately",      no:"omtrent",     pos:"p3", type:"adverb",       grammar:"'omtrent ti minutter' = approximately ten minutes"},
+  {rank:583, en:"exactly",            no:"nøyaktig",    pos:"p3", type:"adverb",       grammar:"'nøyaktig klokken tre' = exactly at three o'clock"},
+  {rank:584, en:"at least",           no:"minst",       pos:"p3", type:"adverb",       grammar:"'minst en time' = at least one hour"},
+  {rank:585, en:"at most",            no:"høyst",       pos:"p3", type:"adverb",       grammar:"'høyst ti minutter' = at most ten minutes"},
+  {rank:586, en:"more",               no:"mer",         pos:"p3", type:"adverb",       grammar:"'mer mat' = more food"},
+  {rank:587, en:"less",               no:"mindre",      pos:"p3", type:"adverb",       grammar:"'mindre sukker' = less sugar"},
+  {rank:588, en:"too much",           no:"for mye",     pos:"p3", type:"adverb",       grammar:"'for mye mat' = too much food"},
+  {rank:589, en:"too little",         no:"for lite",    pos:"p3", type:"adverb",       grammar:"'for lite søvn' = too little sleep"},
+  {rank:590, en:"as well",            no:"i tillegg",   pos:"p3", type:"adverb",       grammar:"'i tillegg til' = in addition to"},
+  {rank:591, en:"instead",            no:"i stedet",    pos:"p3", type:"adverb",       grammar:"'i stedet for' = instead of"},
+  {rank:592, en:"otherwise",          no:"ellers",      pos:"p3", type:"adverb",       grammar:"'ellers er alt bra' = otherwise everything is fine"},
+  {rank:593, en:"anyway",             no:"uansett",     pos:"p3", type:"adverb",       grammar:"'Jeg gjør det uansett' = I'll do it anyway"},
+  {rank:594, en:"meanwhile",          no:"i mellomtiden",pos:"p3",type:"adverb",       grammar:"'i mellomtiden' = in the meantime"},
+  {rank:595, en:"afterwards",         no:"etterpå",     pos:"p3", type:"adverb",       grammar:"'etterpå spiser vi' = afterwards we eat"},
+  {rank:596, en:"beforehand",         no:"på forhånd",  pos:"p3", type:"adverb",       grammar:"'bestille på forhånd' = book in advance"},
+  {rank:597, en:"in total",           no:"totalt",      pos:"p3", type:"adverb",       grammar:"'totalt sett' = in total"},
+  {rank:598, en:"in fact",            no:"faktisk",     pos:"p3", type:"adverb",       grammar:"'Det er faktisk sant' = It is actually true"},
+  {rank:599, en:"really",             no:"virkelig",    pos:"p3", type:"adverb",       grammar:"'Er det virkelig sant?' = Is it really true?"},
+  {rank:600, en:"truly",              no:"sannelig",    pos:"p3", type:"adverb",       grammar:"'Sannelig!' = Truly! / Indeed!"},
+
+  // ── 601–700 ──
+  {rank:601, en:"six",                no:"seks",        pos:"p5", type:"numeral",      grammar:"Cardinal. 'seks dager' = six days"},
+  {rank:602, en:"seven",              no:"syv",         pos:"p5", type:"numeral",      grammar:"Cardinal. 'syv netter' = seven nights"},
+  {rank:603, en:"eight",              no:"åtte",        pos:"p5", type:"numeral",      grammar:"Cardinal. 'åtte timer' = eight hours"},
+  {rank:604, en:"nine",               no:"ni",          pos:"p5", type:"numeral",      grammar:"Cardinal. 'ni måneder' = nine months"},
+  {rank:605, en:"eleven",             no:"elleve",      pos:"p5", type:"numeral",      grammar:"Cardinal. 'elleve spillere' = eleven players"},
+  {rank:606, en:"twelve",             no:"tolv",        pos:"p5", type:"numeral",      grammar:"Cardinal. 'tolv måneder' = twelve months"},
+  {rank:607, en:"twenty",             no:"tjue",        pos:"p5", type:"numeral",      grammar:"Cardinal. 'tjue år' = twenty years"},
+  {rank:608, en:"thirty",             no:"tretti",      pos:"p5", type:"numeral",      grammar:"Cardinal. 'tretti minutter' = thirty minutes"},
+  {rank:609, en:"fifty",              no:"femti",       pos:"p5", type:"numeral",      grammar:"Cardinal. 'femti prosent' = fifty percent"},
+  {rank:610, en:"second (ordinal)",   no:"andre",       pos:"p5", type:"numeral",      grammar:"Ordinal. 'den andre dagen' = the second day"},
+  {rank:611, en:"third",              no:"tredje",      pos:"p5", type:"numeral",      grammar:"Ordinal. 'den tredje etasjen' = the third floor"},
+  {rank:612, en:"last",               no:"siste",       pos:"p3", type:"adjective",    grammar:"'den siste bussen' = the last bus"},
+  {rank:613, en:"next",               no:"neste",       pos:"p3", type:"adjective",    grammar:"'neste stasjon' = next station"},
+  {rank:614, en:"previous",           no:"forrige",     pos:"p3", type:"adjective",    grammar:"'forrige gang' = last time"},
+  {rank:615, en:"current",            no:"nåværende",   pos:"p3", type:"adjective",    grammar:"'den nåværende situasjonen' = the current situation"},
+  {rank:616, en:"future (adj.)",      no:"fremtidig",   pos:"p3", type:"adjective",    grammar:"'fremtidige planer' = future plans"},
+  {rank:617, en:"past",               no:"fortid",      pos:"p4", type:"noun",         grammar:"Feminine. 'i fortiden' = in the past"},
+  {rank:618, en:"present (time)",     no:"nåtid",       pos:"p4", type:"noun",         grammar:"Feminine. 'i nåtiden' = in the present"},
+  {rank:619, en:"hour",               no:"time",        pos:"p4", type:"noun",         grammar:"Masculine. 'en time' = one hour / one lesson"},
+  {rank:620, en:"minute",             no:"minutt",      pos:"p4", type:"noun",         grammar:"Neuter. 'fem minutter' = five minutes"},
+  {rank:621, en:"second (time)",      no:"sekund",      pos:"p4", type:"noun",         grammar:"Neuter. 'ti sekunder' = ten seconds"},
+  {rank:622, en:"clock / watch",      no:"klokke",      pos:"p4", type:"noun",         grammar:"Feminine. 'Hva er klokken?' = What time is it?"},
+  {rank:623, en:"half past",          no:"halv",        pos:"p5", type:"numeral",      grammar:"'halv tre' = half past two (2:30)"},
+  {rank:624, en:"quarter past",       no:"kvart over",  pos:"p5", type:"numeral",      grammar:"'kvart over tre' = quarter past three"},
+  {rank:625, en:"quarter to",         no:"kvart på",    pos:"p5", type:"numeral",      grammar:"'kvart på fire' = quarter to four"},
+  {rank:626, en:"midnight",           no:"midnatt",     pos:"p4", type:"noun",         grammar:"Masculine. 'klokken midnatt' = at midnight"},
+  {rank:627, en:"noon",               no:"middag",      pos:"p4", type:"noun",         grammar:"Masculine. 'klokken tolv' = noon. Also means 'dinner'"},
+  {rank:628, en:"size",               no:"størrelse",   pos:"p4", type:"noun",         grammar:"Masculine. 'hvilken størrelse?' = what size?"},
+  {rank:629, en:"weight",             no:"vekt",        pos:"p4", type:"noun",         grammar:"Feminine. 'hva er vekten?' = what is the weight?"},
+  {rank:630, en:"height",             no:"høyde",       pos:"p4", type:"noun",         grammar:"Masculine. 'hva er høyden?' = what is the height?"},
+  {rank:631, en:"distance",           no:"avstand",     pos:"p4", type:"noun",         grammar:"Masculine. 'lang avstand' = long distance"},
+  {rank:632, en:"speed",              no:"fart",        pos:"p4", type:"noun",         grammar:"Masculine. 'høy fart' = high speed"},
+  {rank:633, en:"direction",          no:"retning",     pos:"p4", type:"noun",         grammar:"Feminine. 'hvilken retning?' = which direction?"},
+  {rank:634, en:"left",               no:"venstre",     pos:"p3", type:"adjective",    grammar:"'til venstre' = to the left"},
+  {rank:635, en:"right",              no:"høyre",       pos:"p3", type:"adjective",    grammar:"'til høyre' = to the right"},
+  {rank:636, en:"straight ahead",     no:"rett frem",   pos:"p3", type:"adverb",       grammar:"'Gå rett frem' = Go straight ahead"},
+  {rank:637, en:"map",                no:"kart",        pos:"p4", type:"noun",         grammar:"Neuter. 'se på kartet' = look at the map"},
+  {rank:638, en:"address",            no:"adresse",     pos:"p4", type:"noun",         grammar:"Masculine. 'hva er adressen?' = what is the address?"},
+  {rank:639, en:"postcode",           no:"postnummer",  pos:"p4", type:"noun",         grammar:"Neuter. 'hva er postnummeret?' = what is the postcode?"},
+  {rank:640, en:"country (nation)",   no:"nasjon",      pos:"p4", type:"noun",         grammar:"Masculine. 'en stolt nasjon' = a proud nation"},
+  {rank:641, en:"citizen",            no:"borger",      pos:"p4", type:"noun",         grammar:"Masculine. 'norsk borger' = Norwegian citizen"},
+  {rank:642, en:"passport",           no:"pass",        pos:"p4", type:"noun",         grammar:"Neuter. 'vise passet' = show the passport"},
+  {rank:643, en:"visa",               no:"visum",       pos:"p4", type:"noun",         grammar:"Neuter. 'søke om visum' = apply for a visa"},
+  {rank:644, en:"border",             no:"grense",      pos:"p4", type:"noun",         grammar:"Feminine. 'krysse grensen' = cross the border"},
+  {rank:645, en:"tax",                no:"skatt",       pos:"p4", type:"noun",         grammar:"Masculine. 'betale skatt' = pay tax"},
+  {rank:646, en:"bank (financial)",   no:"bank",        pos:"p4", type:"noun",         grammar:"Masculine. 'gå i banken' = go to the bank"},
+  {rank:647, en:"card (payment)",     no:"kort",        pos:"p4", type:"noun",         grammar:"Neuter. 'betale med kort' = pay by card"},
+  {rank:648, en:"cash",               no:"kontanter",   pos:"p4", type:"noun",         grammar:"Plural. 'betale med kontanter' = pay with cash"},
+  {rank:649, en:"receipt",            no:"kvittering",  pos:"p4", type:"noun",         grammar:"Feminine. 'kan jeg få kvittering?' = can I have a receipt?"},
+  {rank:650, en:"invoice",            no:"faktura",     pos:"p4", type:"noun",         grammar:"Masculine. 'sende faktura' = send an invoice"},
+
+  // ── 651–750 ──
+  {rank:651, en:"contract",           no:"kontrakt",    pos:"p4", type:"noun",         grammar:"Masculine. 'skrive under kontrakt' = sign a contract"},
+  {rank:652, en:"meeting (formal)",   no:"møte",        pos:"p4", type:"noun",         grammar:"Neuter. 'delta i møtet' = attend the meeting"},
+  {rank:653, en:"deadline",           no:"frist",       pos:"p4", type:"noun",         grammar:"Masculine. 'overholde fristen' = meet the deadline"},
+  {rank:654, en:"project",            no:"prosjekt",    pos:"p4", type:"noun",         grammar:"Neuter. 'jobbe med prosjekt' = work on a project"},
+  {rank:655, en:"team",               no:"team",        pos:"p4", type:"noun",         grammar:"Neuter. 'jobbe i team' = work in a team"},
+  {rank:656, en:"colleague",          no:"kollega",     pos:"p4", type:"noun",         grammar:"Masculine. 'en god kollega' = a good colleague"},
+  {rank:657, en:"boss / manager",     no:"sjef",        pos:"p4", type:"noun",         grammar:"Masculine. 'min sjef' = my boss"},
+  {rank:658, en:"employee",           no:"ansatt",      pos:"p4", type:"noun",         grammar:"Masculine. 'en god ansatt' = a good employee"},
+  {rank:659, en:"salary",             no:"lønn",        pos:"p4", type:"noun",         grammar:"Feminine. 'god lønn' = good salary"},
+  {rank:660, en:"interview (job)",    no:"jobbintervju",pos:"p4", type:"noun",         grammar:"Neuter. 'ha jobbintervju' = have a job interview"},
+  {rank:661, en:"application",        no:"søknad",      pos:"p4", type:"noun",         grammar:"Masculine. 'sende søknad' = send an application"},
+  {rank:662, en:"CV / resume",        no:"CV",          pos:"p4", type:"noun",         grammar:"Masculine. 'oppdatere CV-en' = update the CV"},
+  {rank:663, en:"university",         no:"universitet", pos:"p4", type:"noun",         grammar:"Neuter. 'studere ved universitetet' = study at university"},
+  {rank:664, en:"student",            no:"student",     pos:"p4", type:"noun",         grammar:"Masculine. 'en flink student' = a clever student"},
+  {rank:665, en:"teacher",            no:"lærer",       pos:"p4", type:"noun",         grammar:"Masculine. 'en god lærer' = a good teacher"},
+  {rank:666, en:"lesson / class",     no:"time",        pos:"p4", type:"noun",         grammar:"Masculine. 'norsktime' = Norwegian lesson"},
+  {rank:667, en:"homework",           no:"lekser",      pos:"p4", type:"noun",         grammar:"Plural. 'gjøre lekser' = do homework"},
+  {rank:668, en:"exam",               no:"eksamen",     pos:"p4", type:"noun",         grammar:"Masculine. 'bestå eksamen' = pass an exam"},
+  {rank:669, en:"grade / mark",       no:"karakter",    pos:"p4", type:"noun",         grammar:"Masculine. 'god karakter' = good grade"},
+  {rank:670, en:"library",            no:"bibliotek",   pos:"p4", type:"noun",         grammar:"Neuter. 'gå på biblioteket' = go to the library"},
+  {rank:671, en:"newspaper",          no:"avis",        pos:"p4", type:"noun",         grammar:"Feminine. 'lese avisen' = read the newspaper"},
+  {rank:672, en:"magazine",           no:"blad",        pos:"p4", type:"noun",         grammar:"Neuter. 'lese et blad' = read a magazine"},
+  {rank:673, en:"radio",              no:"radio",       pos:"p4", type:"noun",         grammar:"Masculine. 'høre på radio' = listen to the radio"},
+  {rank:674, en:"television",         no:"TV",          pos:"p4", type:"noun",         grammar:"Masculine. 'se på TV' = watch TV"},
+  {rank:675, en:"news",               no:"nyheter",     pos:"p4", type:"noun",         grammar:"Plural. 'se nyhetene' = watch the news"},
+  {rank:676, en:"advertisement",      no:"reklame",     pos:"p4", type:"noun",         grammar:"Masculine. 'se reklame' = watch an advertisement"},
+  {rank:677, en:"social media",       no:"sosiale medier",pos:"p4",type:"noun",        grammar:"Plural. 'bruke sosiale medier' = use social media"},
+  {rank:678, en:"website",            no:"nettside",    pos:"p4", type:"noun",         grammar:"Feminine. 'besøke nettsiden' = visit the website"},
+  {rank:679, en:"search engine",      no:"søkemotor",   pos:"p4", type:"noun",         grammar:"Masculine. 'bruke søkemotor' = use a search engine"},
+  {rank:680, en:"artificial intelligence",no:"kunstig intelligens",pos:"p4",type:"noun",grammar:"Masculine. 'KI er fremtiden' = AI is the future"},
+  {rank:681, en:"climate",            no:"klima",       pos:"p4", type:"noun",         grammar:"Neuter. 'klimaendringer' = climate change"},
+  {rank:682, en:"pollution",          no:"forurensning",pos:"p4", type:"noun",         grammar:"Feminine. 'luftforurensning' = air pollution"},
+  {rank:683, en:"recycling",          no:"resirkulering",pos:"p4",type:"noun",         grammar:"Feminine. 'kildesortering' = source separation / recycling"},
+  {rank:684, en:"electricity",        no:"strøm",       pos:"p4", type:"noun",         grammar:"Masculine. 'betale for strøm' = pay for electricity"},
+  {rank:685, en:"solar energy",       no:"solenergi",   pos:"p4", type:"noun",         grammar:"Masculine. 'bruke solenergi' = use solar energy"},
+  {rank:686, en:"hospital",           no:"sykehus",     pos:"p4", type:"noun",         grammar:"Neuter. 'innlagt på sykehus' = admitted to hospital"},
+  {rank:687, en:"medicine",           no:"medisin",     pos:"p4", type:"noun",         grammar:"Masculine. 'ta medisin' = take medicine"},
+  {rank:688, en:"pharmacy",           no:"apotek",      pos:"p4", type:"noun",         grammar:"Neuter. 'gå på apoteket' = go to the pharmacy"},
+  {rank:689, en:"dentist",            no:"tannlege",    pos:"p4", type:"noun",         grammar:"Masculine. 'gå til tannlegen' = go to the dentist"},
+  {rank:690, en:"nurse",              no:"sykepleier",  pos:"p4", type:"noun",         grammar:"Masculine. 'en flink sykepleier' = a skilled nurse"},
+  {rank:691, en:"pain",               no:"smerte",      pos:"p4", type:"noun",         grammar:"Feminine. 'ha smerter' = be in pain"},
+  {rank:692, en:"allergy",            no:"allergi",     pos:"p4", type:"noun",         grammar:"Masculine. 'ha allergi' = have an allergy"},
+  {rank:693, en:"cold (illness)",     no:"forkjølelse", pos:"p4", type:"noun",         grammar:"Masculine. 'ha forkjølelse' = have a cold"},
+  {rank:694, en:"fever",              no:"feber",       pos:"p4", type:"noun",         grammar:"Masculine. 'ha feber' = have a fever"},
+  {rank:695, en:"headache",           no:"hodepine",    pos:"p4", type:"noun",         grammar:"Feminine. 'ha hodepine' = have a headache"},
+  {rank:696, en:"stomach ache",       no:"magesmerter", pos:"p4", type:"noun",         grammar:"Plural. 'ha magesmerter' = have a stomach ache"},
+  {rank:697, en:"appointment",        no:"avtale",      pos:"p4", type:"noun",         grammar:"Masculine. 'ha en avtale' = have an appointment"},
+  {rank:698, en:"emergency",          no:"nødsituasjon",pos:"p4", type:"noun",         grammar:"Masculine. 'i en nødsituasjon' = in an emergency"},
+  {rank:699, en:"police",             no:"politi",      pos:"p4", type:"noun",         grammar:"Neuter. 'ringe politiet' = call the police"},
+  {rank:700, en:"fire brigade",       no:"brannvesen",  pos:"p4", type:"noun",         grammar:"Neuter. 'ringe brannvesenet' = call the fire brigade"},
+
+  // ── 701–800 ──
+  {rank:701, en:"ambulance",          no:"ambulanse",   pos:"p4", type:"noun",         grammar:"Masculine. 'ringe ambulanse' = call an ambulance"},
+  {rank:702, en:"help! (emergency)",  no:"hjelp!",      pos:"p1", type:"interjection", grammar:"Emergency call. 'Hjelp!' = Help!"},
+  {rank:703, en:"fire!",              no:"brann!",      pos:"p4", type:"noun",         grammar:"Masculine. 'Det er brann!' = There is a fire!"},
+  {rank:704, en:"danger",             no:"fare",        pos:"p4", type:"noun",         grammar:"Masculine. 'i fare' = in danger"},
+  {rank:705, en:"safe (adj.)",        no:"trygg",       pos:"p3", type:"adjective",    grammar:"'et trygt sted' = a safe place"},
+  {rank:706, en:"lost",               no:"bortkommet",  pos:"p3", type:"adjective",    grammar:"'Jeg er bortkommet' = I am lost"},
+  {rank:707, en:"to find the way",    no:"finne veien", pos:"p2", type:"verb",         grammar:"'Kan du hjelpe meg å finne veien?' = Can you help me find the way?"},
+  {rank:708, en:"to get help",        no:"få hjelp",    pos:"p2", type:"verb",         grammar:"'Jeg trenger å få hjelp' = I need to get help"},
+  {rank:709, en:"to call for help",   no:"rope om hjelp",pos:"p2",type:"verb",         grammar:"'rope om hjelp' = call for help"},
+  {rank:710, en:"apartment",          no:"leilighet",   pos:"p4", type:"noun",         grammar:"Feminine. 'leie leilighet' = rent an apartment"},
+  {rank:711, en:"room",               no:"rom",         pos:"p4", type:"noun",         grammar:"Neuter. 'et stort rom' = a large room"},
+  {rank:712, en:"kitchen",            no:"kjøkken",     pos:"p4", type:"noun",         grammar:"Neuter. 'lage mat på kjøkkenet' = cook in the kitchen"},
+  {rank:713, en:"bathroom",           no:"bad",         pos:"p4", type:"noun",         grammar:"Neuter. 'på badet' = in the bathroom"},
+  {rank:714, en:"bedroom",            no:"soverom",     pos:"p4", type:"noun",         grammar:"Neuter. 'på soverommet' = in the bedroom"},
+  {rank:715, en:"living room",        no:"stue",        pos:"p4", type:"noun",         grammar:"Feminine. 'i stuen' = in the living room"},
+  {rank:716, en:"garden",             no:"hage",        pos:"p4", type:"noun",         grammar:"Masculine. 'i hagen' = in the garden"},
+  {rank:717, en:"window",             no:"vindu",       pos:"p4", type:"noun",         grammar:"Neuter. 'åpne vinduet' = open the window"},
+  {rank:718, en:"floor",              no:"gulv",        pos:"p4", type:"noun",         grammar:"Neuter. 'på gulvet' = on the floor"},
+  {rank:719, en:"ceiling",            no:"tak",         pos:"p4", type:"noun",         grammar:"Neuter. 'høyt tak' = high ceiling. Also means 'roof'"},
+  {rank:720, en:"wall",               no:"vegg",        pos:"p4", type:"noun",         grammar:"Masculine. 'på veggen' = on the wall"},
+  {rank:721, en:"stairs",             no:"trapp",       pos:"p4", type:"noun",         grammar:"Feminine. 'gå i trappen' = go up the stairs"},
+  {rank:722, en:"lift / elevator",    no:"heis",        pos:"p4", type:"noun",         grammar:"Masculine. 'ta heisen' = take the lift"},
+  {rank:723, en:"key",                no:"nøkkel",      pos:"p4", type:"noun",         grammar:"Masculine. 'miste nøkkelen' = lose the key"},
+  {rank:724, en:"lock",               no:"lås",         pos:"p4", type:"noun",         grammar:"Masculine. 'låse døren' = lock the door"},
+  {rank:725, en:"furniture",          no:"møbler",      pos:"p4", type:"noun",         grammar:"Plural. 'kjøpe møbler' = buy furniture"},
+  {rank:726, en:"chair",              no:"stol",        pos:"p4", type:"noun",         grammar:"Masculine. 'sitte på stolen' = sit on the chair"},
+  {rank:727, en:"sofa",               no:"sofa",        pos:"p4", type:"noun",         grammar:"Masculine. 'sitte i sofaen' = sit in the sofa"},
+  {rank:728, en:"bed",                no:"seng",        pos:"p4", type:"noun",         grammar:"Feminine. 'gå til sengs' = go to bed"},
+  {rank:729, en:"lamp",               no:"lampe",       pos:"p4", type:"noun",         grammar:"Feminine. 'slå på lampen' = turn on the lamp"},
+  {rank:730, en:"shelf",              no:"hylle",       pos:"p4", type:"noun",         grammar:"Feminine. 'på hyllen' = on the shelf"},
+  {rank:731, en:"clothes",            no:"klær",        pos:"p4", type:"noun",         grammar:"Plural. 'kjøpe klær' = buy clothes"},
+  {rank:732, en:"shirt",              no:"skjorte",     pos:"p4", type:"noun",         grammar:"Feminine. 'hvit skjorte' = white shirt"},
+  {rank:733, en:"trousers / pants",   no:"bukse",       pos:"p4", type:"noun",         grammar:"Feminine. 'en ny bukse' = a new pair of trousers"},
+  {rank:734, en:"dress",              no:"kjole",       pos:"p4", type:"noun",         grammar:"Masculine. 'en vakker kjole' = a beautiful dress"},
+  {rank:735, en:"jacket",             no:"jakke",       pos:"p4", type:"noun",         grammar:"Feminine. 'ta på jakken' = put on the jacket"},
+  {rank:736, en:"shoes",              no:"sko",         pos:"p4", type:"noun",         grammar:"Plural. 'ta på skoene' = put on the shoes"},
+  {rank:737, en:"hat",                no:"lue",         pos:"p4", type:"noun",         grammar:"Feminine. 'ta på lua' = put on the hat"},
+  {rank:738, en:"gloves",             no:"hansker",     pos:"p4", type:"noun",         grammar:"Plural. 'ta på hanskene' = put on the gloves"},
+  {rank:739, en:"scarf",              no:"skjerf",      pos:"p4", type:"noun",         grammar:"Neuter. 'et varmt skjerf' = a warm scarf"},
+  {rank:740, en:"glasses",            no:"briller",     pos:"p4", type:"noun",         grammar:"Plural. 'bruke briller' = wear glasses"},
+  {rank:741, en:"bag",                no:"veske",       pos:"p4", type:"noun",         grammar:"Feminine. 'en stor veske' = a large bag"},
+  {rank:742, en:"backpack",           no:"ryggsekk",    pos:"p4", type:"noun",         grammar:"Masculine. 'bære ryggsekk' = carry a backpack"},
+  {rank:743, en:"umbrella",           no:"paraply",     pos:"p4", type:"noun",         grammar:"Masculine. 'ta med paraply' = bring an umbrella"},
+  {rank:744, en:"watch (wrist)",      no:"armbåndsur",  pos:"p4", type:"noun",         grammar:"Neuter. 'ha på armbåndsur' = wear a watch"},
+  {rank:745, en:"ring",               no:"ring",        pos:"p4", type:"noun",         grammar:"Masculine. 'gullring' = gold ring"},
+  {rank:746, en:"necklace",           no:"halskjede",   pos:"p4", type:"noun",         grammar:"Neuter. 'et vakkert halskjede' = a beautiful necklace"},
+  {rank:747, en:"to get dressed",     no:"kle på seg",  pos:"p2", type:"verb",         grammar:"'Kle på deg!' = Get dressed!"},
+  {rank:748, en:"to undress",         no:"kle av seg",  pos:"p2", type:"verb",         grammar:"'kle av seg' = take off clothes"},
+  {rank:749, en:"to wash",            no:"vaske",       pos:"p2", type:"verb",         grammar:"'vaske hendene' = wash hands"},
+  {rank:750, en:"to brush teeth",     no:"pusse tennene",pos:"p2",type:"verb",         grammar:"'pusse tennene' = brush teeth"},
+
+  // ── 751–850 ──
+  {rank:751, en:"to comb hair",       no:"gre håret",   pos:"p2", type:"verb",         grammar:"'gre håret' = comb hair"},
+  {rank:752, en:"to shave",           no:"barbere seg", pos:"p2", type:"verb",         grammar:"'barbere seg' = shave oneself"},
+  {rank:753, en:"to shower",          no:"dusje",       pos:"p2", type:"verb",         grammar:"'dusje om morgenen' = shower in the morning"},
+  {rank:754, en:"to bathe",           no:"bade",        pos:"p2", type:"verb",         grammar:"'bade i havet' = bathe in the sea"},
+  {rank:755, en:"to iron",            no:"stryke",      pos:"p2", type:"verb",         grammar:"'stryke klær' = iron clothes"},
+  {rank:756, en:"to sew",             no:"sy",          pos:"p2", type:"verb",         grammar:"'sy klær' = sew clothes"},
+  {rank:757, en:"to knit",            no:"strikke",     pos:"p2", type:"verb",         grammar:"'strikke en genser' = knit a sweater"},
+  {rank:758, en:"to bake",            no:"bake",        pos:"p2", type:"verb",         grammar:"'bake brød' = bake bread"},
+  {rank:759, en:"to fry",             no:"steke",       pos:"p2", type:"verb",         grammar:"'steke egg' = fry eggs"},
+  {rank:760, en:"to boil",            no:"koke",        pos:"p2", type:"verb",         grammar:"'koke vann' = boil water"},
+  {rank:761, en:"to cut",             no:"skjære",      pos:"p2", type:"verb",         grammar:"'skjære brød' = cut bread"},
+  {rank:762, en:"to mix",             no:"blande",      pos:"p2", type:"verb",         grammar:"'blande ingredienser' = mix ingredients"},
+  {rank:763, en:"to taste",           no:"smake",       pos:"p2", type:"verb",         grammar:"'smake på maten' = taste the food"},
+  {rank:764, en:"to serve",           no:"servere",     pos:"p2", type:"verb",         grammar:"'servere mat' = serve food"},
+  {rank:765, en:"to set the table",   no:"dekke bordet",pos:"p2", type:"verb",         grammar:"'dekke bordet' = set the table"},
+  {rank:766, en:"to clear the table", no:"rydde bordet",pos:"p2", type:"verb",         grammar:"'rydde bordet' = clear the table"},
+  {rank:767, en:"to wash up",         no:"vaske opp",   pos:"p2", type:"verb",         grammar:"'vaske opp' = wash the dishes"},
+  {rank:768, en:"to vacuum",          no:"støvsuge",    pos:"p2", type:"verb",         grammar:"'støvsuge gulvet' = vacuum the floor"},
+  {rank:769, en:"to mop",             no:"vaske gulv",  pos:"p2", type:"verb",         grammar:"'vaske gulvet' = mop the floor"},
+  {rank:770, en:"to repair",          no:"reparere",    pos:"p2", type:"verb",         grammar:"'reparere bilen' = repair the car"},
+  {rank:771, en:"to paint (walls)",   no:"male",        pos:"p2", type:"verb",         grammar:"'male veggen' = paint the wall"},
+  {rank:772, en:"to plant",           no:"plante",      pos:"p2", type:"verb",         grammar:"'plante blomster' = plant flowers"},
+  {rank:773, en:"to water (plants)",  no:"vanne",       pos:"p2", type:"verb",         grammar:"'vanne blomstene' = water the flowers"},
+  {rank:774, en:"to cut grass",       no:"klippe gress",pos:"p2", type:"verb",         grammar:"'klippe gresset' = cut the grass"},
+  {rank:775, en:"to throw away",      no:"kaste",       pos:"p2", type:"verb",         grammar:"'kaste søppel' = throw away rubbish"},
+  {rank:776, en:"to recycle",         no:"resirkulere", pos:"p2", type:"verb",         grammar:"'resirkulere papir' = recycle paper"},
+  {rank:777, en:"to sort waste",      no:"sortere søppel",pos:"p2",type:"verb",        grammar:"'sortere søppel' = sort waste"},
+  {rank:778, en:"to turn on",         no:"slå på",      pos:"p2", type:"verb",         grammar:"'slå på lyset' = turn on the light"},
+  {rank:779, en:"to turn off",        no:"slå av",      pos:"p2", type:"verb",         grammar:"'slå av TV-en' = turn off the TV"},
+  {rank:780, en:"to charge (device)", no:"lade",        pos:"p2", type:"verb",         grammar:"'lade telefonen' = charge the phone"},
+  {rank:781, en:"to print",           no:"skrive ut",   pos:"p2", type:"verb",         grammar:"'skrive ut dokumentet' = print the document"},
+  {rank:782, en:"to save (file)",     no:"lagre",       pos:"p2", type:"verb",         grammar:"'lagre filen' = save the file"},
+  {rank:783, en:"to delete",          no:"slette",      pos:"p2", type:"verb",         grammar:"'slette filen' = delete the file"},
+  {rank:784, en:"to copy",            no:"kopiere",     pos:"p2", type:"verb",         grammar:"'kopiere teksten' = copy the text"},
+  {rank:785, en:"to paste",           no:"lime inn",    pos:"p2", type:"verb",         grammar:"'lime inn teksten' = paste the text"},
+  {rank:786, en:"to type",            no:"skrive",      pos:"p2", type:"verb",         grammar:"'skrive på tastatur' = type on keyboard"},
+  {rank:787, en:"to click",           no:"klikke",      pos:"p2", type:"verb",         grammar:"'klikke på lenken' = click on the link"},
+  {rank:788, en:"to scroll",          no:"rulle",       pos:"p2", type:"verb",         grammar:"'rulle ned siden' = scroll down the page"},
+  {rank:789, en:"to zoom",            no:"zoome",       pos:"p2", type:"verb",         grammar:"'zoome inn' = zoom in"},
+  {rank:790, en:"to update",          no:"oppdatere",   pos:"p2", type:"verb",         grammar:"'oppdatere appen' = update the app"},
+  {rank:791, en:"to install",         no:"installere",  pos:"p2", type:"verb",         grammar:"'installere programvare' = install software"},
+  {rank:792, en:"to restart",         no:"starte på nytt",pos:"p2",type:"verb",        grammar:"'starte datamaskinen på nytt' = restart the computer"},
+  {rank:793, en:"to back up",         no:"sikkerhetskopiere",pos:"p2",type:"verb",     grammar:"'sikkerhetskopiere data' = back up data"},
+  {rank:794, en:"to encrypt",         no:"kryptere",    pos:"p2", type:"verb",         grammar:"'kryptere filen' = encrypt the file"},
+  {rank:795, en:"to hack",            no:"hacke",       pos:"p2", type:"verb",         grammar:"'hacke systemet' = hack the system"},
+  {rank:796, en:"software",           no:"programvare", pos:"p4", type:"noun",         grammar:"Feminine. 'oppdatere programvare' = update software"},
+  {rank:797, en:"hardware",           no:"maskinvare",  pos:"p4", type:"noun",         grammar:"Feminine. 'kjøpe maskinvare' = buy hardware"},
+  {rank:798, en:"keyboard",           no:"tastatur",    pos:"p4", type:"noun",         grammar:"Neuter. 'skrive på tastatur' = type on keyboard"},
+  {rank:799, en:"mouse (computer)",   no:"mus",         pos:"p4", type:"noun",         grammar:"Feminine. 'klikke med musa' = click with the mouse"},
+  {rank:800, en:"printer",            no:"skriver",     pos:"p4", type:"noun",         grammar:"Masculine. 'bruke skriveren' = use the printer"},
+
+  // ── 801–900 ──
+  {rank:801, en:"cable",              no:"kabel",       pos:"p4", type:"noun",         grammar:"Masculine. 'koble til kabel' = connect a cable"},
+  {rank:802, en:"battery",            no:"batteri",     pos:"p4", type:"noun",         grammar:"Neuter. 'lade batteriet' = charge the battery"},
+  {rank:803, en:"charger",            no:"lader",       pos:"p4", type:"noun",         grammar:"Masculine. 'glemte laderen' = forgot the charger"},
+  {rank:804, en:"headphones",         no:"hodetelefoner",pos:"p4",type:"noun",         grammar:"Plural. 'bruke hodetelefoner' = use headphones"},
+  {rank:805, en:"speaker",            no:"høyttaler",   pos:"p4", type:"noun",         grammar:"Masculine. 'koble til høyttaler' = connect a speaker"},
+  {rank:806, en:"microphone",         no:"mikrofon",    pos:"p4", type:"noun",         grammar:"Masculine. 'snakke i mikrofon' = speak into microphone"},
+  {rank:807, en:"cloud (computing)",  no:"sky",         pos:"p4", type:"noun",         grammar:"Feminine. 'lagre i skyen' = save to the cloud"},
+  {rank:808, en:"data",               no:"data",        pos:"p4", type:"noun",         grammar:"Neuter. 'behandle data' = process data"},
+  {rank:809, en:"network",            no:"nettverk",    pos:"p4", type:"noun",         grammar:"Neuter. 'koble til nettverk' = connect to network"},
+  {rank:810, en:"wifi",               no:"wifi",        pos:"p4", type:"noun",         grammar:"Neuter. 'koble til wifi' = connect to wifi"},
+  {rank:811, en:"to agree on",        no:"bli enig om", pos:"p2", type:"verb",         grammar:"'Vi ble enige om det' = We agreed on it"},
+  {rank:812, en:"to take care of",    no:"ta vare på",  pos:"p2", type:"verb",         grammar:"'Ta vare på deg selv' = Take care of yourself"},
+  {rank:813, en:"to look forward to", no:"glede seg til",pos:"p2",type:"verb",         grammar:"'Jeg gleder meg til det' = I look forward to it"},
+  {rank:814, en:"to be interested in",no:"være interessert i",pos:"p2",type:"verb",    grammar:"'Jeg er interessert i norsk' = I am interested in Norwegian"},
+  {rank:815, en:"to be good at",      no:"være flink til",pos:"p2",type:"verb",        grammar:"'Jeg er flink til å snakke' = I am good at speaking"},
+  {rank:816, en:"to be used to",      no:"være vant til",pos:"p2",type:"verb",         grammar:"'Jeg er vant til kulden' = I am used to the cold"},
+  {rank:817, en:"to be afraid of",    no:"være redd for",pos:"p2",type:"verb",         grammar:"'Jeg er redd for høyder' = I am afraid of heights"},
+  {rank:818, en:"to be proud of",     no:"være stolt av",pos:"p2",type:"verb",         grammar:"'Jeg er stolt av deg' = I am proud of you"},
+  {rank:819, en:"to be tired of",     no:"være lei av", pos:"p2", type:"verb",         grammar:"'Jeg er lei av det' = I am tired of it"},
+  {rank:820, en:"to be in a hurry",   no:"ha det travelt",pos:"p2",type:"verb",        grammar:"'Jeg har det travelt' = I am in a hurry"},
+  {rank:821, en:"to make a mistake",  no:"gjøre en feil",pos:"p2",type:"verb",         grammar:"'Jeg gjorde en feil' = I made a mistake"},
+  {rank:822, en:"to change one's mind",no:"ombestemme seg",pos:"p2",type:"verb",       grammar:"'Jeg ombestemte meg' = I changed my mind"},
+  {rank:823, en:"to make up one's mind",no:"bestemme seg",pos:"p2",type:"verb",        grammar:"'Bestem deg!' = Make up your mind!"},
+  {rank:824, en:"to keep in touch",   no:"holde kontakten",pos:"p2",type:"verb",       grammar:"'La oss holde kontakten' = Let's keep in touch"},
+  {rank:825, en:"to fall in love",    no:"bli forelsket",pos:"p2",type:"verb",         grammar:"'Jeg ble forelsket' = I fell in love"},
+  {rank:826, en:"to break up",        no:"gjøre det slutt",pos:"p2",type:"verb",       grammar:"'De gjorde det slutt' = They broke up"},
+  {rank:827, en:"to get married",     no:"gifte seg",   pos:"p2", type:"verb",         grammar:"'De giftet seg i sommer' = They got married this summer"},
+  {rank:828, en:"to get divorced",    no:"skille seg",  pos:"p2", type:"verb",         grammar:"'De skilte seg' = They got divorced"},
+  {rank:829, en:"to have children",   no:"få barn",     pos:"p2", type:"verb",         grammar:"'De fikk barn' = They had children"},
+  {rank:830, en:"to grow up",         no:"vokse opp",   pos:"p2", type:"verb",         grammar:"'Jeg vokste opp i Oslo' = I grew up in Oslo"},
+  {rank:831, en:"to retire",          no:"pensjonere seg",pos:"p2",type:"verb",        grammar:"'Han pensjonerte seg' = He retired"},
+  {rank:832, en:"to move (home)",     no:"flytte",      pos:"p2", type:"verb",         grammar:"'Vi flytter til Bergen' = We are moving to Bergen"},
+  {rank:833, en:"to rent",            no:"leie",        pos:"p2", type:"verb",         grammar:"'leie leilighet' = rent an apartment"},
+  {rank:834, en:"to own",             no:"eie",         pos:"p2", type:"verb",         grammar:"'eie hus' = own a house"},
+  {rank:835, en:"to borrow",          no:"låne",        pos:"p2", type:"verb",         grammar:"'låne penger' = borrow money"},
+  {rank:836, en:"to lend",            no:"låne ut",     pos:"p2", type:"verb",         grammar:"'låne ut boken' = lend the book"},
+  {rank:837, en:"to invest",          no:"investere",   pos:"p2", type:"verb",         grammar:"'investere i aksjer' = invest in stocks"},
+  {rank:838, en:"to earn",            no:"tjene",       pos:"p2", type:"verb",         grammar:"'tjene penger' = earn money"},
+  {rank:839, en:"to spend",           no:"bruke",       pos:"p2", type:"verb",         grammar:"'bruke penger' = spend money"},
+  {rank:840, en:"to afford",          no:"ha råd til",  pos:"p2", type:"verb",         grammar:"'Jeg har ikke råd til det' = I can't afford it"},
+  {rank:841, en:"to owe",             no:"skylde",      pos:"p2", type:"verb",         grammar:"'Jeg skylder deg penger' = I owe you money"},
+  {rank:842, en:"to donate",          no:"donere",      pos:"p2", type:"verb",         grammar:"'donere til veldedighet' = donate to charity"},
+  {rank:843, en:"to vote",            no:"stemme",      pos:"p2", type:"verb",         grammar:"'stemme ved valg' = vote in an election"},
+  {rank:844, en:"to protest",         no:"protestere",  pos:"p2", type:"verb",         grammar:"'protestere mot noe' = protest against something"},
+  {rank:845, en:"to demonstrate",     no:"demonstrere", pos:"p2", type:"verb",         grammar:"'demonstrere i gatene' = demonstrate in the streets"},
+  {rank:846, en:"to sign",            no:"skrive under",pos:"p2", type:"verb",         grammar:"'skrive under kontrakten' = sign the contract"},
+  {rank:847, en:"to apply (for)",     no:"søke",        pos:"p2", type:"verb",         grammar:"'søke om jobb' = apply for a job"},
+  {rank:848, en:"to accept",          no:"akseptere",   pos:"p2", type:"verb",         grammar:"'akseptere tilbudet' = accept the offer"},
+  {rank:849, en:"to reject",          no:"avslå",       pos:"p2", type:"verb",         grammar:"'avslå tilbudet' = reject the offer"},
+  {rank:850, en:"to negotiate",       no:"forhandle",   pos:"p2", type:"verb",         grammar:"'forhandle om lønn' = negotiate salary"},
+
+  // ── 851–950 ──
+  {rank:851, en:"to cooperate",       no:"samarbeide",  pos:"p2", type:"verb",         grammar:"'samarbeide med kolleger' = cooperate with colleagues"},
+  {rank:852, en:"to compete",         no:"konkurrere",  pos:"p2", type:"verb",         grammar:"'konkurrere om jobben' = compete for the job"},
+  {rank:853, en:"to win",             no:"vinne",       pos:"p2", type:"verb",         grammar:"'vinne konkurransen' = win the competition"},
+  {rank:854, en:"to lose (game)",     no:"tape",        pos:"p2", type:"verb",         grammar:"'tape kampen' = lose the match"},
+  {rank:855, en:"to score",           no:"score",       pos:"p2", type:"verb",         grammar:"'score mål' = score a goal"},
+  {rank:856, en:"to train",           no:"trene",       pos:"p2", type:"verb",         grammar:"'trene på gym' = train at the gym"},
+  {rank:857, en:"to stretch",         no:"strekke",     pos:"p2", type:"verb",         grammar:"'strekke seg' = stretch oneself"},
+  {rank:858, en:"to rest",            no:"hvile",       pos:"p2", type:"verb",         grammar:"'hvile seg' = rest oneself"},
+  {rank:859, en:"to relax",           no:"slappe av",   pos:"p2", type:"verb",         grammar:"'slappe av hjemme' = relax at home"},
+  {rank:860, en:"to meditate",        no:"meditere",    pos:"p2", type:"verb",         grammar:"'meditere daglig' = meditate daily"},
+  {rank:861, en:"to concentrate",     no:"konsentrere seg",pos:"p2",type:"verb",       grammar:"'konsentrere seg om oppgaven' = concentrate on the task"},
+  {rank:862, en:"to imagine",         no:"forestille seg",pos:"p2",type:"verb",        grammar:"'forestille seg fremtiden' = imagine the future"},
+  {rank:863, en:"to dream",           no:"drømme",      pos:"p2", type:"verb",         grammar:"'drømme om fremtiden' = dream about the future"},
+  {rank:864, en:"to plan ahead",      no:"planlegge fremover",pos:"p2",type:"verb",    grammar:"'planlegge fremover' = plan ahead"},
+  {rank:865, en:"to achieve",         no:"oppnå",       pos:"p2", type:"verb",         grammar:"'oppnå målet' = achieve the goal"},
+  {rank:866, en:"to challenge",       no:"utfordre",    pos:"p2", type:"verb",         grammar:"'utfordre seg selv' = challenge oneself"},
+  {rank:867, en:"to motivate",        no:"motivere",    pos:"p2", type:"verb",         grammar:"'motivere teamet' = motivate the team"},
+  {rank:868, en:"to inspire",         no:"inspirere",   pos:"p2", type:"verb",         grammar:"'inspirere andre' = inspire others"},
+  {rank:869, en:"to encourage",       no:"oppmuntre",   pos:"p2", type:"verb",         grammar:"'oppmuntre venner' = encourage friends"},
+  {rank:870, en:"to support",         no:"støtte",      pos:"p2", type:"verb",         grammar:"'støtte hverandre' = support each other"},
+  {rank:871, en:"to trust",           no:"stole på",    pos:"p2", type:"verb",         grammar:"'stole på noen' = trust someone"},
+  {rank:872, en:"to respect",         no:"respektere",  pos:"p2", type:"verb",         grammar:"'respektere hverandre' = respect each other"},
+  {rank:873, en:"to care about",      no:"bry seg om",  pos:"p2", type:"verb",         grammar:"'bry seg om andre' = care about others"},
+  {rank:874, en:"to miss (someone)",  no:"savne",       pos:"p2", type:"verb",         grammar:"'Jeg savner deg' = I miss you"},
+  {rank:875, en:"to love",            no:"elske",       pos:"p2", type:"verb",         grammar:"'Jeg elsker deg' = I love you"},
+  {rank:876, en:"to hate",            no:"hate",        pos:"p2", type:"verb",         grammar:"'Jeg hater det' = I hate it"},
+  {rank:877, en:"to like",            no:"like",        pos:"p2", type:"verb",         grammar:"'Jeg liker norsk mat' = I like Norwegian food"},
+  {rank:878, en:"to enjoy",           no:"nyte",        pos:"p2", type:"verb",         grammar:"'nyte livet' = enjoy life"},
+  {rank:879, en:"to prefer",          no:"foretrekke",  pos:"p2", type:"verb",         grammar:"'foretrekke kaffe' = prefer coffee"},
+  {rank:880, en:"to admire",          no:"beundre",     pos:"p2", type:"verb",         grammar:"'beundre naturen' = admire nature"},
+  {rank:881, en:"to envy",            no:"misunne",     pos:"p2", type:"verb",         grammar:"'misunne noen noe' = envy someone something"},
+  {rank:882, en:"to worry",           no:"bekymre seg", pos:"p2", type:"verb",         grammar:"'bekymre seg for fremtiden' = worry about the future"},
+  {rank:883, en:"to calm down",       no:"roe seg ned", pos:"p2", type:"verb",         grammar:"'Roe deg ned!' = Calm down!"},
+  {rank:884, en:"to cheer up",        no:"muntre opp",  pos:"p2", type:"verb",         grammar:"'muntre opp en venn' = cheer up a friend"},
+  {rank:885, en:"to comfort",         no:"trøste",      pos:"p2", type:"verb",         grammar:"'trøste noen' = comfort someone"},
+  {rank:886, en:"to tease",           no:"erte",        pos:"p2", type:"verb",         grammar:"'erte noen' = tease someone"},
+  {rank:887, en:"to argue",           no:"krangle",     pos:"p2", type:"verb",         grammar:"'krangle med noen' = argue with someone"},
+  {rank:888, en:"to reconcile",       no:"forsone seg", pos:"p2", type:"verb",         grammar:"'forsone seg med noen' = reconcile with someone"},
+  {rank:889, en:"to greet",           no:"hilse på",    pos:"p2", type:"verb",         grammar:"'hilse på noen' = greet someone"},
+  {rank:890, en:"to hug",             no:"klemme",      pos:"p2", type:"verb",         grammar:"'gi noen en klem' = give someone a hug"},
+  {rank:891, en:"to kiss",            no:"kysse",       pos:"p2", type:"verb",         grammar:"'kysse noen' = kiss someone"},
+  {rank:892, en:"to shake hands",     no:"håndhilse",   pos:"p2", type:"verb",         grammar:"'håndhilse på noen' = shake hands with someone"},
+  {rank:893, en:"to wave",            no:"vinke",       pos:"p2", type:"verb",         grammar:"'vinke til noen' = wave to someone"},
+  {rank:894, en:"to point",           no:"peke",        pos:"p2", type:"verb",         grammar:"'peke på noe' = point at something"},
+  {rank:895, en:"to nod",             no:"nikke",       pos:"p2", type:"verb",         grammar:"'nikke ja' = nod yes"},
+  {rank:896, en:"to shake head",      no:"riste på hodet",pos:"p2",type:"verb",        grammar:"'riste på hodet' = shake head"},
+  {rank:897, en:"to wink",            no:"blunke",      pos:"p2", type:"verb",         grammar:"'blunke til noen' = wink at someone"},
+  {rank:898, en:"to stare",           no:"stirre",      pos:"p2", type:"verb",         grammar:"'stirre på noen' = stare at someone"},
+  {rank:899, en:"to glance",          no:"se raskt på", pos:"p2", type:"verb",         grammar:"'se raskt på klokken' = glance at the clock"},
+  {rank:900, en:"to notice",          no:"legge merke til",pos:"p2",type:"verb",       grammar:"'legge merke til noe' = notice something"},
+
+  // ── 901–1000 ──
+  {rank:901, en:"to observe",         no:"observere",   pos:"p2", type:"verb",         grammar:"'observere naturen' = observe nature"},
+  {rank:902, en:"to examine",         no:"undersøke",   pos:"p2", type:"verb",         grammar:"'undersøke problemet' = examine the problem"},
+  {rank:903, en:"to measure",         no:"måle",        pos:"p2", type:"verb",         grammar:"'måle temperaturen' = measure the temperature"},
+  {rank:904, en:"to weigh",           no:"veie",        pos:"p2", type:"verb",         grammar:"'veie ingrediensene' = weigh the ingredients"},
+  {rank:905, en:"to count",           no:"telle",       pos:"p2", type:"verb",         grammar:"'telle til ti' = count to ten"},
+  {rank:906, en:"to calculate",       no:"beregne",     pos:"p2", type:"verb",         grammar:"'beregne kostnaden' = calculate the cost"},
+  {rank:907, en:"to estimate",        no:"anslå",       pos:"p2", type:"verb",         grammar:"'anslå prisen' = estimate the price"},
+  {rank:908, en:"to predict",         no:"forutsi",     pos:"p2", type:"verb",         grammar:"'forutsi fremtiden' = predict the future"},
+  {rank:909, en:"to prove",           no:"bevise",      pos:"p2", type:"verb",         grammar:"'bevise noe' = prove something"},
+  {rank:910, en:"to test",            no:"teste",       pos:"p2", type:"verb",         grammar:"'teste produktet' = test the product"},
+  {rank:911, en:"to experiment",      no:"eksperimentere",pos:"p2",type:"verb",        grammar:"'eksperimentere med ideer' = experiment with ideas"},
+  {rank:912, en:"to discover",        no:"oppdage",     pos:"p2", type:"verb",         grammar:"'oppdage noe nytt' = discover something new"},
+  {rank:913, en:"to invent",          no:"finne opp",   pos:"p2", type:"verb",         grammar:"'finne opp noe' = invent something"},
+  {rank:914, en:"to create",          no:"skape",       pos:"p2", type:"verb",         grammar:"'skape noe nytt' = create something new"},
+  {rank:915, en:"to design",          no:"designe",     pos:"p2", type:"verb",         grammar:"'designe en logo' = design a logo"},
+  {rank:916, en:"to program",         no:"programmere", pos:"p2", type:"verb",         grammar:"'programmere en app' = program an app"},
+  {rank:917, en:"to analyse",         no:"analysere",   pos:"p2", type:"verb",         grammar:"'analysere data' = analyse data"},
+  {rank:918, en:"to present",         no:"presentere",  pos:"p2", type:"verb",         grammar:"'presentere resultatene' = present the results"},
+  {rank:919, en:"to report",          no:"rapportere",  pos:"p2", type:"verb",         grammar:"'rapportere om fremgang' = report on progress"},
+  {rank:920, en:"to summarize",       no:"oppsummere",  pos:"p2", type:"verb",         grammar:"'oppsummere møtet' = summarize the meeting"},
+  {rank:921, en:"to conclude",        no:"konkludere",  pos:"p2", type:"verb",         grammar:"'konkludere med at...' = conclude that..."},
+  {rank:922, en:"to evaluate",        no:"evaluere",    pos:"p2", type:"verb",         grammar:"'evaluere resultatene' = evaluate the results"},
+  {rank:923, en:"to improve",         no:"forbedre",    pos:"p2", type:"verb",         grammar:"'forbedre kvaliteten' = improve the quality"},
+  {rank:924, en:"to optimize",        no:"optimalisere",pos:"p2", type:"verb",         grammar:"'optimalisere prosessen' = optimize the process"},
+  {rank:925, en:"to automate",        no:"automatisere",pos:"p2", type:"verb",         grammar:"'automatisere oppgaver' = automate tasks"},
+  {rank:926, en:"to integrate",       no:"integrere",   pos:"p2", type:"verb",         grammar:"'integrere systemer' = integrate systems"},
+  {rank:927, en:"to implement",       no:"implementere",pos:"p2", type:"verb",         grammar:"'implementere løsningen' = implement the solution"},
+  {rank:928, en:"to launch",          no:"lansere",     pos:"p2", type:"verb",         grammar:"'lansere produktet' = launch the product"},
+  {rank:929, en:"to promote",         no:"markedsføre", pos:"p2", type:"verb",         grammar:"'markedsføre produktet' = promote the product"},
+  {rank:930, en:"to advertise",       no:"annonsere",   pos:"p2", type:"verb",         grammar:"'annonsere stillingen' = advertise the position"},
+  {rank:931, en:"to hire",            no:"ansette",     pos:"p2", type:"verb",         grammar:"'ansette nye folk' = hire new people"},
+  {rank:932, en:"to fire / dismiss",  no:"si opp",      pos:"p2", type:"verb",         grammar:"'si opp noen' = fire someone"},
+  {rank:933, en:"to resign",          no:"si opp seg",  pos:"p2", type:"verb",         grammar:"'si opp seg fra jobben' = resign from the job"},
+  {rank:934, en:"to promote (career)",no:"forfremme",   pos:"p2", type:"verb",         grammar:"'bli forfremmet' = get promoted"},
+  {rank:935, en:"to transfer",        no:"overføre",    pos:"p2", type:"verb",         grammar:"'overføre penger' = transfer money"},
+  {rank:936, en:"to export",          no:"eksportere",  pos:"p2", type:"verb",         grammar:"'eksportere varer' = export goods"},
+  {rank:937, en:"to import",          no:"importere",   pos:"p2", type:"verb",         grammar:"'importere varer' = import goods"},
+  {rank:938, en:"to produce",         no:"produsere",   pos:"p2", type:"verb",         grammar:"'produsere varer' = produce goods"},
+  {rank:939, en:"to manufacture",     no:"fremstille",  pos:"p2", type:"verb",         grammar:"'fremstille produkter' = manufacture products"},
+  {rank:940, en:"to distribute",      no:"distribuere", pos:"p2", type:"verb",         grammar:"'distribuere varer' = distribute goods"},
+  {rank:941, en:"to deliver",         no:"levere",      pos:"p2", type:"verb",         grammar:"'levere pakken' = deliver the package"},
+  {rank:942, en:"to ship",            no:"sende",       pos:"p2", type:"verb",         grammar:"'sende pakken' = ship the package"},
+  {rank:943, en:"to track",           no:"spore",       pos:"p2", type:"verb",         grammar:"'spore pakken' = track the package"},
+  {rank:944, en:"to return (item)",   no:"returnere",   pos:"p2", type:"verb",         grammar:"'returnere varen' = return the item"},
+  {rank:945, en:"to exchange",        no:"bytte",       pos:"p2", type:"verb",         grammar:"'bytte varen' = exchange the item"},
+  {rank:946, en:"to refund",          no:"refundere",   pos:"p2", type:"verb",         grammar:"'refundere pengene' = refund the money"},
+  {rank:947, en:"to complain (formal)",no:"klage",      pos:"p2", type:"verb",         grammar:"'klage på produktet' = complain about the product"},
+  {rank:948, en:"to guarantee",       no:"garantere",   pos:"p2", type:"verb",         grammar:"'garantere kvaliteten' = guarantee the quality"},
+  {rank:949, en:"to insure",          no:"forsikre",    pos:"p2", type:"verb",         grammar:"'forsikre bilen' = insure the car"},
+  {rank:950, en:"to register",        no:"registrere",  pos:"p2", type:"verb",         grammar:"'registrere seg' = register oneself"},
+  {rank:951, en:"to confirm",         no:"bekrefte",    pos:"p2", type:"verb",         grammar:"'bekrefte bestillingen' = confirm the order"},
+  {rank:952, en:"to approve",         no:"godkjenne",   pos:"p2", type:"verb",         grammar:"'godkjenne søknaden' = approve the application"},
+  {rank:953, en:"to deny",            no:"nekte",       pos:"p2", type:"verb",         grammar:"'nekte å gjøre det' = refuse to do it"},
+  {rank:954, en:"to permit",          no:"tillate",     pos:"p2", type:"verb",         grammar:"'tillate noe' = permit something"},
+  {rank:955, en:"to forbid",          no:"forby",       pos:"p2", type:"verb",         grammar:"'forby røyking' = forbid smoking"},
+  {rank:956, en:"to require",         no:"kreve",       pos:"p2", type:"verb",         grammar:"'kreve dokumentasjon' = require documentation"},
+  {rank:957, en:"to provide",         no:"gi",          pos:"p2", type:"verb",         grammar:"'gi informasjon' = provide information"},
+  {rank:958, en:"to maintain",        no:"vedlikeholde",pos:"p2", type:"verb",         grammar:"'vedlikeholde systemet' = maintain the system"},
+  {rank:959, en:"to monitor",         no:"overvåke",    pos:"p2", type:"verb",         grammar:"'overvåke situasjonen' = monitor the situation"},
+  {rank:960, en:"to control",         no:"kontrollere", pos:"p2", type:"verb",         grammar:"'kontrollere kvaliteten' = control the quality"},
+  {rank:961, en:"to manage",          no:"håndtere",    pos:"p2", type:"verb",         grammar:"'håndtere problemet' = manage the problem"},
+  {rank:962, en:"to handle",          no:"ta hånd om",  pos:"p2", type:"verb",         grammar:"'ta hånd om situasjonen' = handle the situation"},
+  {rank:963, en:"to solve",           no:"løse",        pos:"p2", type:"verb",         grammar:"'løse problemet' = solve the problem"},
+  {rank:964, en:"to fix",             no:"fikse",       pos:"p2", type:"verb",         grammar:"'fikse problemet' = fix the problem"},
+  {rank:965, en:"to prevent",         no:"forhindre",   pos:"p2", type:"verb",         grammar:"'forhindre problemer' = prevent problems"},
+  {rank:966, en:"to avoid",           no:"unngå",       pos:"p2", type:"verb",         grammar:"'unngå problemer' = avoid problems"},
+  {rank:967, en:"to reduce",          no:"redusere",    pos:"p2", type:"verb",         grammar:"'redusere kostnadene' = reduce costs"},
+  {rank:968, en:"to increase",        no:"øke",         pos:"p2", type:"verb",         grammar:"'øke produksjonen' = increase production"},
+  {rank:969, en:"to expand",          no:"utvide",      pos:"p2", type:"verb",         grammar:"'utvide virksomheten' = expand the business"},
+  {rank:970, en:"to grow (business)", no:"vokse",       pos:"p2", type:"verb",         grammar:"'virksomheten vokser' = the business grows"},
+  {rank:971, en:"to shrink",          no:"krympe",      pos:"p2", type:"verb",         grammar:"'markedet krymper' = the market shrinks"},
+  {rank:972, en:"to merge",           no:"slå seg sammen",pos:"p2",type:"verb",        grammar:"'selskapene slo seg sammen' = the companies merged"},
+  {rank:973, en:"to acquire",         no:"kjøpe opp",   pos:"p2", type:"verb",         grammar:"'kjøpe opp et selskap' = acquire a company"},
+  {rank:974, en:"to invest in",       no:"investere i", pos:"p2", type:"verb",         grammar:"'investere i fremtiden' = invest in the future"},
+  {rank:975, en:"to fund",            no:"finansiere",  pos:"p2", type:"verb",         grammar:"'finansiere prosjektet' = fund the project"},
+  {rank:976, en:"to budget",          no:"budsjettere", pos:"p2", type:"verb",         grammar:"'budsjettere for neste år' = budget for next year"},
+  {rank:977, en:"to forecast",        no:"prognostisere",pos:"p2",type:"verb",         grammar:"'prognostisere vekst' = forecast growth"},
+  {rank:978, en:"to audit",           no:"revidere",    pos:"p2", type:"verb",         grammar:"'revidere regnskapene' = audit the accounts"},
+  {rank:979, en:"to tax",             no:"beskatte",    pos:"p2", type:"verb",         grammar:"'beskatte inntekten' = tax the income"},
+  {rank:980, en:"to subsidize",       no:"subsidiere",  pos:"p2", type:"verb",         grammar:"'subsidiere landbruket' = subsidize agriculture"},
+  {rank:981, en:"to regulate",        no:"regulere",    pos:"p2", type:"verb",         grammar:"'regulere markedet' = regulate the market"},
+  {rank:982, en:"to legislate",       no:"lovgi",       pos:"p2", type:"verb",         grammar:"'lovgi om miljø' = legislate on environment"},
+  {rank:983, en:"to vote for",        no:"stemme på",   pos:"p2", type:"verb",         grammar:"'stemme på et parti' = vote for a party"},
+  {rank:984, en:"to campaign",        no:"drive valgkamp",pos:"p2",type:"verb",        grammar:"'drive valgkamp' = run a campaign"},
+  {rank:985, en:"to debate",          no:"debattere",   pos:"p2", type:"verb",         grammar:"'debattere politikk' = debate politics"},
+  {rank:986, en:"to negotiate (peace)",no:"forhandle om fred",pos:"p2",type:"verb",    grammar:"'forhandle om fred' = negotiate peace"},
+  {rank:987, en:"to cooperate internationally",no:"samarbeide internasjonalt",pos:"p2",type:"verb",grammar:"'samarbeide internasjonalt' = cooperate internationally"},
+  {rank:988, en:"to contribute",      no:"bidra",       pos:"p2", type:"verb",         grammar:"'bidra til samfunnet' = contribute to society"},
+  {rank:989, en:"to participate",     no:"delta",       pos:"p2", type:"verb",         grammar:"'delta i diskusjonen' = participate in the discussion"},
+  {rank:990, en:"to represent",       no:"representere",pos:"p2", type:"verb",         grammar:"'representere landet' = represent the country"},
+  {rank:991, en:"to lead",            no:"lede",        pos:"p2", type:"verb",         grammar:"'lede et team' = lead a team"},
+  {rank:992, en:"to follow (leader)", no:"følge",       pos:"p2", type:"verb",         grammar:"'følge lederen' = follow the leader"},
+  {rank:993, en:"to guide",           no:"veilede",     pos:"p2", type:"verb",         grammar:"'veilede studenter' = guide students"},
+  {rank:994, en:"to mentor",          no:"veilede",     pos:"p2", type:"verb",         grammar:"'veilede yngre kolleger' = mentor younger colleagues"},
+  {rank:995, en:"to coach",           no:"coache",      pos:"p2", type:"verb",         grammar:"'coache teamet' = coach the team"},
+  {rank:996, en:"to teach",           no:"undervise",   pos:"p2", type:"verb",         grammar:"'undervise i norsk' = teach Norwegian"},
+  {rank:997, en:"to educate",         no:"utdanne",     pos:"p2", type:"verb",         grammar:"'utdanne seg' = educate oneself"},
+  {rank:998, en:"to train (someone)", no:"lære opp",    pos:"p2", type:"verb",         grammar:"'lære opp nye ansatte' = train new employees"},
+  {rank:999, en:"to qualify",         no:"kvalifisere seg",pos:"p2",type:"verb",       grammar:"'kvalifisere seg til jobben' = qualify for the job"},
+  {rank:1000,en:"to master",          no:"mestre",      pos:"p2", type:"verb",         grammar:"'mestre norsk' = master Norwegian"},
+];
+
+// ══════════════════════════════════════════════
+//  POS CONFIG
+// ══════════════════════════════════════════════
+const POS_CONFIG = {
+  p1:{ label:"Sentence Glue", emoji:"🔴", cls:"pos-p1" },
+  p2:{ label:"Core Verb",     emoji:"🟠", cls:"pos-p2" },
+  p3:{ label:"Modifier",      emoji:"🟡", cls:"pos-p3" },
+  p4:{ label:"Noun",          emoji:"🟢", cls:"pos-p4" },
+  p5:{ label:"Extended",      emoji:"🔵", cls:"pos-p5" },
+};
+
+// ══════════════════════════════════════════════
+//  TIER CONFIG
+// ══════════════════════════════════════════════
+const TIERS = [
+  { max: 100,  unlockPct: 0,  label: "🥇 Top 100"  },
+  { max: 200,  unlockPct: 70, label: "🥈 Top 200"  },
+  { max: 500,  unlockPct: 70, label: "🏅 Top 500"  },
+  { max: 1000, unlockPct: 70, label: "📚 Top 1000" },
+];
+
+// ══════════════════════════════════════════════
+//  BADGE HELPERS
+// ══════════════════════════════════════════════
+function rankBadge(r) {
+  if (!r) return `<span class="rank-badge" style="background:rgba(255,255,255,.15);color:#fff">Custom</span>`;
+  if (r <= 100)  return `<span class="rank-badge rank-top100">🥇 Top 100</span>`;
+  if (r <= 200)  return `<span class="rank-badge rank-top200">🥈 Top 200</span>`;
+  return `<span class="rank-badge rank-top1000">🥉 Top 1000</span>`;
+}
+
+function posBadge(pos, type) {
+  const c = POS_CONFIG[pos] || POS_CONFIG.p5;
+  return `<span class="pos-badge ${c.cls}">${c.emoji} ${type || c.label}</span>`;
+}
+
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+const LS_KEY     = 'norsk_v4';
+let words        = [];
+let studyQueue   = [];
+let studyIndex   = 0;
+let studyFilter  = 'all';
+let listFilter   = 'all';
+let wotdRevealed = false;
+let settings     = { wordsPerDay: 3 };
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+function init() {
+  const saved = localStorage.getItem(LS_KEY);
+  if (saved) {
+    const d  = JSON.parse(saved);
+    words    = d.words    || [];
+    settings = d.settings || settings;
+    // Merge any new WORD_DB entries not yet in saved state
+    WORD_DB.forEach(w => {
+      if (!words.find(x => x.en === w.en && x.no === w.no)) {
+        words.push({...w, learned: false, addedAt: Date.now() });
+      }
+    });
+  } else {
+    // First run — seed from WORD_DB
+    words = WORD_DB.map(w => ({...w, learned: false, addedAt: Date.now() }));
+  }
+
+  document.getElementById('wotdCount').value = settings.wordsPerDay;
+
+  // Hide pool selector — tier system manages this now
+  if (document.getElementById('wotdPool')) {
+    document.getElementById('wotdPool').style.display = 'none';
+    document.querySelectorAll('.wotd-controls label').forEach(l => {
+      if (l.textContent.trim() === 'From top:') l.style.display = 'none';
+    });
+  }
+
+  save();
+  renderWotd();
+  buildStudyQueue();
+  renderWordList();
+  updateProgress();
+}
+
+function save() {
+  localStorage.setItem(LS_KEY, JSON.stringify({ words, settings }));
+}
+
+function saveSettings() {
+  settings.wordsPerDay = parseInt(document.getElementById('wotdCount').value);
+  save();
+}
+
+// ══════════════════════════════════════════════
+//  TIER LOGIC
+// ══════════════════════════════════════════════
+function getActiveTier() {
+  let activeTier = TIERS[0];
+
+  for (let i = 0; i < TIERS.length; i++) {
+    const tier     = TIERS[i];
+    const prevMax  = i === 0 ? 0 : TIERS[i - 1].max;
+    const tierWords = words.filter(w => (w.rank || 9999) <= tier.max && (w.rank || 9999) > prevMax);
+    const learned   = tierWords.filter(w => w.learned).length;
+    const pct       = tierWords.length ? (learned / tierWords.length) * 100 : 0;
+
+    activeTier = tier;
+
+    // If this tier isn't mastered enough yet, stop here
+    if (pct < tier.unlockPct) break;
+  }
+
+  return activeTier;
+}
+
+function getTierProgress(tier, index) {
+  const prevMax   = index === 0 ? 0 : TIERS[index - 1].max;
+  const tierWords = words.filter(w => (w.rank || 9999) <= tier.max && (w.rank || 9999) > prevMax);
+  const learned   = tierWords.filter(w => w.learned).length;
+  const pct       = tierWords.length ? Math.round((learned / tierWords.length) * 100) : 0;
+  return { total: tierWords.length, learned, pct };
+}
+
+// ══════════════════════════════════════════════
+//  DAILY MIX ALGORITHM  (tier-aware)
+// ══════════════════════════════════════════════
+function getDailyWords() {
+  const today      = new Date();
+  const seed       = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+  const n          = settings.wordsPerDay;
+  const activeTier = getActiveTier();
+
+  // Only pull unlearned words within the active tier ceiling
+  const pool = words.filter(w => !w.learned && (w.rank || 9999) <= activeTier.max);
+
+  if (pool.length === 0) {
+    // All words in active tier learned — show review mix
+    return words.filter(w => (w.rank || 9999) <= activeTier.max).sort(() => Math.random() - 0.5).slice(0, n);
+  }
+
+  const buckets = { p1:[], p2:[], p3:[], p4:[], p5:[] };
+  pool.forEach(w => { if (buckets[w.pos]) buckets[w.pos].push(w); });
+
+  function seededShuffle(arr, s) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      s = (s * 1664525 + 1013904223) & 0xffffffff;
+      const j = Math.abs(s) % (i + 1);
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  const targets =
+    n === 1  ? { p1:1, p2:0, p3:0, p4:0, p5:0 } :
+    n === 3  ? { p1:1, p2:1, p3:0, p4:1, p5:0 } :
+    n === 5  ? { p1:1, p2:1, p3:1, p4:2, p5:0 } :
+               { p1:2, p2:2, p3:2, p4:3, p5:1 };
+
+  const mix = [];
+  Object.entries(targets).forEach(([pos, count]) => {
+    const shuffled = seededShuffle(buckets[pos], seed + pos.charCodeAt(1));
+    mix.push(...shuffled.slice(0, count));
+  });
+
+  // Fill remainder if any bucket ran dry
+  if (mix.length < n) {
+    const used = new Set(mix.map(w => w.en));
+    const rest = seededShuffle(pool.filter(w => !used.has(w.en)), seed);
+    mix.push(...rest.slice(0, n - mix.length));
+  }
+
+  return mix.slice(0, n);
+}
+
+// ══════════════════════════════════════════════
+//  RENDER WOTD
+// ══════════════════════════════════════════════
+function renderWotd() {
+  wotdRevealed = false;
+  document.getElementById('wotdRevealBtn').textContent = 'Reveal Norwegian →';
+
+  const activeTier     = getActiveTier();
+  const activeTierIdx  = TIERS.indexOf(activeTier);
+  const daily          = getDailyWords();
+  const container      = document.getElementById('wotdCards');
+  const { total, learned, pct } = getTierProgress(activeTier, activeTierIdx);
+  const nextTier       = TIERS[activeTierIdx + 1];
+
+  const tierHTML = `
+    <div style="margin-bottom:12px;background:rgba(0,0,0,.2);border-radius:10px;padding:10px 14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:4px;">
+        <span style="font-weight:700;font-size:.85rem;">${activeTier.label} — Active Tier</span>
+        <span style="color:rgba(255,255,255,.7);font-size:.78rem;">${learned}/${total} learned (${pct}%)</span>
+      </div>
+      <div style="background:rgba(255,255,255,.1);border-radius:99px;height:6px;overflow:hidden;">
+        <div style="height:100%;width:${pct}%;background:var(--gold);border-radius:99px;transition:width.5s;"></div>
+      </div>
+      ${nextTier
+        ? `<div style="font-size:.7rem;color:rgba(255,255,255,.5);margin-top:5px;">
+             🔒 ${nextTier.label} unlocks at ${nextTier.unlockPct}% of ${activeTier.label}
+           </div>`
+        : `<div style="font-size:.7rem;color:var(--success);margin-top:5px;">🏆 All tiers unlocked!</div>`
+      }
+    </div>`;
+
+  container.innerHTML = tierHTML + daily.map(w => {
+    const borderColor = {
+      p1:'var(--p1)', p2:'var(--p2)', p3:'var(--p3)',
+      p4:'var(--p4)', p5:'var(--p5)'
+    }[w.pos] || 'rgba(255,255,255,.2)';
+
+    return `
+      <div class="wotd-card" style="border-left-color:${borderColor}">
+        <div class="wotd-card-header">
+          <div class="wotd-english">${w.en}</div>
+          <div class="wotd-card-badges">
+            ${posBadge(w.pos, w.type)}
+            ${rankBadge(w.rank)}
+          </div>
+        </div>
+        <div class="wotd-norwegian wotd-no">${w.no}</div>
+        <div class="wotd-grammar-note wotd-gr">${w.grammar || ''}</div>
+      </div>`;
+  }).join('');
+}
+
+function toggleWotdReveal() {
+  wotdRevealed = !wotdRevealed;
+  document.querySelectorAll('.wotd-no').forEach(el => el.style.display = wotdRevealed ? 'block' : 'none');
+  document.querySelectorAll('.wotd-gr').forEach(el => el.style.display = wotdRevealed ? 'block' : 'none');
+  document.getElementById('wotdRevealBtn').textContent = wotdRevealed ? 'Hide ↑' : 'Reveal Norwegian →';
+}
+
+// ══════════════════════════════════════════════
+//  STUDY MODE
+// ══════════════════════════════════════════════
+function buildStudyQueue() {
+  let q = words;
+  if (studyFilter === 'unlearned')                           q = words.filter(w => !w.learned);
+  else if (['p1','p2','p3','p4','p5'].includes(studyFilter)) q = words.filter(w => w.pos === studyFilter);
+
+  studyQueue = q.length ? q : [...words];
+  studyIndex = Math.min(studyIndex, studyQueue.length - 1);
+  if (studyIndex < 0) studyIndex = 0;
+  updateStudyCard();
+}
+
+function setStudyFilter(f, btn) {
+  studyFilter = f;
+  document.querySelectorAll('#studyFilterBtns.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  studyIndex = 0;
+  buildStudyQueue();
+}
+
+function updateStudyCard() {
+  document.getElementById('studyCard').classList.remove('flipped');
+  const counter = document.getElementById('studyCounter');
+
+  if (!studyQueue.length) {
+    document.getElementById('studyFront').textContent     = 'No words!';
+    document.getElementById('studyBack').textContent      = '—';
+    document.getElementById('studyFrontBadges').innerHTML = '';
+    document.getElementById('studyBackBadges').innerHTML  = '';
+    document.getElementById('studyGrammar').textContent   = '';
+    counter.textContent = '0 / 0';
+    return;
+  }
+
+  const w      = studyQueue[studyIndex];
+  const badges = `${posBadge(w.pos, w.type)} ${rankBadge(w.rank)}`;
+
+  document.getElementById('studyFront').textContent     = w.en;
+  document.getElementById('studyBack').textContent      = w.no;
+  document.getElementById('studyGrammar').textContent   = w.grammar || '';
+  document.getElementById('studyFrontBadges').innerHTML = badges;
+  document.getElementById('studyBackBadges').innerHTML  = badges;
+  counter.textContent = `${studyIndex + 1} / ${studyQueue.length}`;
+}
+
+function flipStudyCard() { document.getElementById('studyCard').classList.toggle('flipped'); }
+function nextCard()      { if (!studyQueue.length) return; studyIndex = (studyIndex + 1) % studyQueue.length; updateStudyCard(); }
+function prevCard()      { if (!studyQueue.length) return; studyIndex = (studyIndex - 1 + studyQueue.length) % studyQueue.length; updateStudyCard(); }
+
+function shuffleCards() {
+  studyQueue.sort(() => Math.random() - 0.5);
+  studyIndex = 0;
+  updateStudyCard();
+  showToast('🔀 Shuffled!');
+}
+
+function markLearned() {
+  if (!studyQueue.length) return;
+  const cur = studyQueue[studyIndex];
+  const idx = words.findIndex(w => w.en === cur.en && w.no === cur.no);
+  if (idx > -1) {
+    words[idx].learned = !words[idx].learned;
+    save();
+    showToast(words[idx].learned ? '✅ Marked learned!' : '🔄 Back to learning');
+    buildStudyQueue();
+    renderWordList();
+    updateProgress();
+    renderWotd();
+  }
+}
+
+// ══════════════════════════════════════════════
+//  ADD CUSTOM WORD
+// ══════════════════════════════════════════════
+function addWord() {
+  const en      = document.getElementById('inputEnglish').value.trim().toLowerCase();
+  const no      = document.getElementById('inputNorwegian').value.trim().toLowerCase();
+  const pos     = document.getElementById('inputPos').value;
+  const grammar = document.getElementById('inputGrammar').value.trim();
+
+  if (!en || !no) { showToast('⚠️ Fill both fields', '#e74c3c'); return; }
+  if (words.find(w => w.en === en)) { showToast('⚠️ Word already exists', '#e74c3c'); return; }
+
+  words.unshift({ en, no, pos, type: POS_CONFIG[pos].label, grammar, learned: false, rank: null, addedAt: Date.now() });
+  save();
+  ['inputEnglish','inputNorwegian','inputGrammar'].forEach(id => document.getElementById(id).value = '');
+  buildStudyQueue();
+  renderWordList();
+  updateProgress();
+  renderWotd();
+  showToast('✅ Word added!');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && ['inputEnglish','inputNorwegian','inputGrammar'].includes(document.activeElement.id)) addWord();
+});
+
+// ══════════════════════════════════════════════
+//  WORD LIST
+// ══════════════════════════════════════════════
+function setFilter(f, btn) {
+  listFilter = f;
+  document.querySelectorAll('.wordlist-section.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderWordList();
+}
+
+function renderWordList() {
+  const search = document.getElementById('searchBar').value.toLowerCase();
+  let filtered = words;
+
+  if (listFilter === 'learned')                              filtered = words.filter(w => w.learned);
+  else if (['p1','p2','p3','p4','p5'].includes(listFilter)) filtered = words.filter(w => w.pos === listFilter);
+
+  if (search) filtered = filtered.filter(w => w.en.includes(search) || w.no.includes(search));
+
+  const container = document.getElementById('wordList');
+  if (!filtered.length) { container.innerHTML = '<div class="empty-state">No words found</div>'; return; }
+
+  container.innerHTML = filtered.map(w => {
+    const ri = words.indexOf(w);
+    return `
+      <div class="word-item ${w.learned ? 'learned' : ''}">
+        <div class="word-item-text">
+          <div class="word-en">${w.en}</div>
+          <div class="word-no">${w.no}</div>
+          <div class="word-meta">
+            ${posBadge(w.pos, w.type)}
+            ${rankBadge(w.rank)}
+            ${w.grammar ? `<span class="word-grammar">${w.grammar}</span>` : ''}
+          </div>
+        </div>
+        <div class="word-actions">
+          <button class="icon-btn" title="${w.learned ? 'Unmark' : 'Mark learned'}"
+            onclick="toggleLearned(${ri})">${w.learned ? '🔄' : '✅'}</button>
+          <button class="icon-btn" title="Delete"
+            onclick="deleteWord(${ri})">🗑️</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleLearned(idx) {
+  words[idx].learned = !words[idx].learned;
+  save();
+  buildStudyQueue();
+  renderWordList();
+  updateProgress();
+  renderWotd();
+  showToast(words[idx].learned ? '✅ Learned!' : '🔄 Back to learning');
+}
+
+function deleteWord(idx) {
+  if (!confirm(`Delete "${words[idx].en}"?`)) return;
+  words.splice(idx, 1);
+  save();
+  buildStudyQueue();
+  renderWordList();
+  updateProgress();
+  renderWotd();
+  showToast('🗑️ Deleted');
+}
+
+// ══════════════════════════════════════════════
+//  PROGRESS
+// ══════════════════════════════════════════════
+function updateProgress() {
+  const total   = words.length;
+  const learned = words.filter(w => w.learned).length;
+  const pct     = total ? Math.round((learned / total) * 100) : 0;
+
+  document.getElementById('progressText').textContent = `${learned} / ${total} words learned`;
+  document.getElementById('progressBar').style.width  = pct + '%';
+
+  ['p1','p2','p3','p4','p5'].forEach(p => {
+    const tot = words.filter(w => w.pos === p).length;
+    const lrn = words.filter(w => w.pos === p && w.learned).length;
+    document.getElementById('stat' + p[0].toUpperCase() + p[1]).textContent = `${lrn}/${tot}`;
+  });
+}
+
+// ══════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════
+function showToast(msg, color = '#2ecc71') {
+  const t = document.getElementById('toast');
+  t.textContent      = msg;
+  t.style.background = color;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── Kick off ──
+init();
+</script>
+</body>
+</html>
