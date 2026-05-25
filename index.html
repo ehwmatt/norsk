@@ -34,20 +34,22 @@
     .wotd-controls select{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:5px 10px;border-radius:8px;font-size:.82rem;cursor:pointer;}
     .wotd-controls select option{background:#1b2a3b;color:#fff;}
     .wotd-cards{display:flex;flex-direction:column;gap:10px;}
-    .wotd-card{background:rgba(0,0,0,.25);border-radius:10px;padding:14px 16px;border-left:4px solid transparent;}
-    .wotd-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
-    .wotd-card-badges{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
-    .wotd-english{font-size:1.25rem;font-weight:700;margin-bottom:4px;}
-    .wotd-norwegian{color:var(--gold);font-size:1.05rem;font-style:italic;display:none;}
-    .wotd-grammar-note{font-size:.75rem;color:rgba(255,255,255,.55);margin-top:5px;font-style:italic;display:none;}
+    .wotd-card{perspective:1000px;height:180px;cursor:pointer;}
+    .wotd-card-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.2,.9,.3,1);}
+    .wotd-card.wotd-flipped .wotd-card-inner{transform:rotateY(180deg);}
+    .wotd-card-front,.wotd-card-back{position:absolute;inset:0;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;backface-visibility:hidden;padding:16px;border-left:4px solid transparent;}
+    .wotd-card-front{background:rgba(0,0,0,.25);}
+    .wotd-card-back{background:rgba(0,30,10,.4);transform:rotateY(180deg);}
+    .wotd-card-badges{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center;margin-top:6px;}
+    .wotd-english{font-size:1.25rem;font-weight:700;}
+    .wotd-norwegian{color:var(--gold);font-size:1.1rem;font-style:italic;font-weight:600;}
+    .wotd-grammar-note{font-size:.75rem;color:rgba(255,255,255,.55);margin-top:5px;font-style:italic;text-align:center;}
     .rank-badge{font-size:.65rem;padding:2px 7px;border-radius:99px;font-weight:700;}
     .rank-top50{background:#ff69b4;color:#000;}
     .rank-top100{background:#ffd700;color:#000;}
     .rank-top200{background:#c0c0c0;color:#000;}
     .rank-top500{background:#cd7f32;color:#fff;}
     .rank-top1000{background:rgba(255,255,255,.15);color:#ccc;}
-    .wotd-reveal-btn{display:block;margin:14px auto 0;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:8px 24px;border-radius:8px;cursor:pointer;font-size:.9rem;transition:background .2s;}
-    .wotd-reveal-btn:hover{background:rgba(255,255,255,.25);}
     .wotd-mark-btn{margin-top:8px;background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:.75rem;transition:all .2s;}
     .wotd-mark-btn:hover{background:rgba(46,204,113,.25);border-color:var(--success);color:var(--success);}
     .wotd-mark-btn.learned{background:rgba(46,204,113,.15);border-color:var(--success);color:var(--success);}
@@ -158,7 +160,6 @@
       </div>
     </div>
     <div class="wotd-cards" id="wotdCards"></div>
-    <button class="wotd-reveal-btn" id="wotdRevealBtn" onclick="toggleWotdReveal()">Reveal Norwegian →</button>
   </div>
 
   <div class="progress-section">
@@ -1353,8 +1354,8 @@ let studyQueue   = [];
 let studyIndex   = 0;
 let studyFilter  = 'all';
 let listFilter   = 'all';
-let wotdRevealed = false;
-let dailyWords   = null;
+let wotdFlippedSet = new Set();
+let dailyWords     = null;
 let settings     = { wordsPerDay: 3 };
 
 // ══════════════════════════════════════════════
@@ -1493,9 +1494,8 @@ function getDailyWords() {
 function renderWotd() {
   // Regenerate only on first load or when every card in the set is learned
   if (!dailyWords || dailyWords.every(w => w.learned)) {
-    dailyWords   = getDailyWords();
-    wotdRevealed = false;
-    document.getElementById('wotdRevealBtn').textContent = 'Reveal Norwegian →';
+    dailyWords = getDailyWords();
+    wotdFlippedSet.clear();
   }
 
   const activeTier     = getActiveTier();
@@ -1528,31 +1528,35 @@ function renderWotd() {
       p4:'var(--p4)', p5:'var(--p5)'
     }[w.pos] || 'rgba(255,255,255,.2)';
 
-    const isLearned = w.learned;
+    const isLearned  = w.learned;
+    const isFlipped  = wotdFlippedSet.has(w.en);
     return `
-      <div class="wotd-card" style="border-left-color:${borderColor}${isLearned ? ';opacity:.6' : ''}">
-        <div class="wotd-card-header">
-          <div class="wotd-english">${w.en}</div>
-          <div class="wotd-card-badges">
-            ${posBadge(w.pos, w.type)}
-            ${rankBadge(w.rank)}
+      <div class="wotd-card${isFlipped ? ' wotd-flipped' : ''}" style="${isLearned ? 'opacity:.6;' : ''}"
+           onclick="flipWotdCard(this, ${JSON.stringify(w.en)})">
+        <div class="wotd-card-inner">
+          <div class="wotd-card-front" style="border-left-color:${borderColor}">
+            <div class="wotd-english">${w.en}</div>
+            <div class="wotd-card-badges">${posBadge(w.pos, w.type)}${rankBadge(w.rank)}</div>
+            <span style="font-size:.7rem;color:rgba(255,255,255,.4);margin-top:8px;">tap to flip</span>
+          </div>
+          <div class="wotd-card-back" style="border-left-color:${borderColor}">
+            <div class="wotd-norwegian">${w.no}</div>
+            ${w.grammar ? `<div class="wotd-grammar-note">${w.grammar}</div>` : ''}
+            <div class="wotd-card-badges">${posBadge(w.pos, w.type)}${rankBadge(w.rank)}</div>
+            <button class="wotd-mark-btn${isLearned ? ' learned' : ''}"
+              onclick='event.stopPropagation();markLearnedWotd(${JSON.stringify(w.en)}, ${JSON.stringify(w.no)})'>
+              ${isLearned ? '✅ Learned' : 'Mark learned'}
+            </button>
           </div>
         </div>
-        <div class="wotd-norwegian wotd-no">${w.no}</div>
-        <div class="wotd-grammar-note wotd-gr">${w.grammar || ''}</div>
-        <button class="wotd-mark-btn${isLearned ? ' learned' : ''}"
-          onclick='markLearnedWotd(${JSON.stringify(w.en)}, ${JSON.stringify(w.no)})'>
-          ${isLearned ? '✅ Learned' : 'Mark learned'}
-        </button>
       </div>`;
   }).join('');
 }
 
-function toggleWotdReveal() {
-  wotdRevealed = !wotdRevealed;
-  document.querySelectorAll('.wotd-no').forEach(el => el.style.display = wotdRevealed ? 'block' : 'none');
-  document.querySelectorAll('.wotd-gr').forEach(el => el.style.display = wotdRevealed ? 'block' : 'none');
-  document.getElementById('wotdRevealBtn').textContent = wotdRevealed ? 'Hide ↑' : 'Reveal Norwegian →';
+function flipWotdCard(cardEl, key) {
+  cardEl.classList.toggle('wotd-flipped');
+  if (cardEl.classList.contains('wotd-flipped')) wotdFlippedSet.add(key);
+  else wotdFlippedSet.delete(key);
 }
 
 function markLearnedWotd(en, no) {
