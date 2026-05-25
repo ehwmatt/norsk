@@ -1353,7 +1353,7 @@ function init() {
     settings = d.settings || settings;
     // Merge any new WORD_DB entries not yet in saved state
     WORD_DB.forEach(w => {
-      if (!words.find(x => x.en === w.en && x.no === w.no)) {
+      if (!words.find(x => x.en === w.en)) {
         words.push({...w, learned: false, addedAt: Date.now() });
       }
     });
@@ -1427,12 +1427,12 @@ function getDailyWords() {
   const n          = settings.wordsPerDay;
   const activeTier = getActiveTier();
 
-  // Only pull unlearned words within the active tier ceiling
-  const pool = words.filter(w => !w.learned && (w.rank || 9999) <= activeTier.max);
+  // Pull unlearned words within the active tier ceiling; custom words (rank:null) always included
+  const pool = words.filter(w => !w.learned && (!w.rank || (w.rank || 9999) <= activeTier.max));
 
   if (pool.length === 0) {
     // All words in active tier learned — show review mix
-    return words.filter(w => (w.rank || 9999) <= activeTier.max).sort(() => Math.random() - 0.5).slice(0, n);
+    return words.filter(w => !w.rank || (w.rank || 9999) <= activeTier.max).sort(() => Math.random() - 0.5).slice(0, n);
   }
 
   const buckets = { p1:[], p2:[], p3:[], p4:[], p5:[] };
@@ -1449,7 +1449,7 @@ function getDailyWords() {
   }
 
   const targets =
-    n === 1  ? { p1:1, p2:0, p3:0, p4:0, p5:0 } :
+    n <= 2   ? { p1:0, p2:0, p3:0, p4:0, p5:0 } :
     n === 3  ? { p1:1, p2:1, p3:0, p4:1, p5:0 } :
     n === 5  ? { p1:1, p2:1, p3:1, p4:2, p5:0 } :
                { p1:2, p2:2, p3:2, p4:3, p5:1 };
