@@ -41,9 +41,11 @@
     .wotd-norwegian{color:var(--gold);font-size:1.05rem;font-style:italic;display:none;}
     .wotd-grammar-note{font-size:.75rem;color:rgba(255,255,255,.55);margin-top:5px;font-style:italic;display:none;}
     .rank-badge{font-size:.65rem;padding:2px 7px;border-radius:99px;font-weight:700;}
+    .rank-top50{background:#ff69b4;color:#000;}
     .rank-top100{background:#ffd700;color:#000;}
     .rank-top200{background:#c0c0c0;color:#000;}
-    .rank-top1000{background:#cd7f32;color:#fff;}
+    .rank-top500{background:#cd7f32;color:#fff;}
+    .rank-top1000{background:rgba(255,255,255,.15);color:#ccc;}
     .wotd-reveal-btn{display:block;margin:14px auto 0;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:8px 24px;border-radius:8px;cursor:pointer;font-size:.9rem;transition:background .2s;}
     .wotd-reveal-btn:hover{background:rgba(255,255,255,.25);}
     .wotd-mark-btn{margin-top:8px;background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:.75rem;transition:all .2s;}
@@ -1312,9 +1314,16 @@ const POS_CONFIG = {
 //  TIER CONFIG
 // ══════════════════════════════════════════════
 const TIERS = [
-  { max: 100,  unlockPct: 0,  label: "🥇 Top 100"  },
+  { max: 50,   unlockPct: 80, label: "⭐ Top 50"   },
+  { max: 100,  unlockPct: 80, label: "🥇 Top 100"  },
   { max: 200,  unlockPct: 70, label: "🥈 Top 200"  },
+  { max: 300,  unlockPct: 70, label: "🏅 Top 300"  },
+  { max: 400,  unlockPct: 70, label: "🏅 Top 400"  },
   { max: 500,  unlockPct: 70, label: "🏅 Top 500"  },
+  { max: 600,  unlockPct: 70, label: "📚 Top 600"  },
+  { max: 700,  unlockPct: 70, label: "📚 Top 700"  },
+  { max: 800,  unlockPct: 70, label: "📚 Top 800"  },
+  { max: 900,  unlockPct: 70, label: "📚 Top 900"  },
   { max: 1000, unlockPct: 70, label: "📚 Top 1000" },
 ];
 
@@ -1322,10 +1331,12 @@ const TIERS = [
 //  BADGE HELPERS
 // ══════════════════════════════════════════════
 function rankBadge(r) {
-  if (!r) return `<span class="rank-badge" style="background:rgba(255,255,255,.15);color:#fff">Custom</span>`;
+  if (!r)        return `<span class="rank-badge" style="background:rgba(255,255,255,.15);color:#fff">Custom</span>`;
+  if (r <= 50)   return `<span class="rank-badge rank-top50">⭐ Top 50</span>`;
   if (r <= 100)  return `<span class="rank-badge rank-top100">🥇 Top 100</span>`;
   if (r <= 200)  return `<span class="rank-badge rank-top200">🥈 Top 200</span>`;
-  return `<span class="rank-badge rank-top1000">🥉 Top 1000</span>`;
+  if (r <= 500)  return `<span class="rank-badge rank-top500">🏅 Top 500</span>`;
+  return `<span class="rank-badge rank-top1000">📚 Top 1000</span>`;
 }
 
 function posBadge(pos, type) {
@@ -1405,7 +1416,7 @@ function getActiveTier() {
     const prevMax  = i === 0 ? 0 : TIERS[i - 1].max;
     const tierWords = words.filter(w => (w.rank || 9999) <= tier.max && (w.rank || 9999) > prevMax);
     const learned   = tierWords.filter(w => w.learned).length;
-    const pct       = tierWords.length ? (learned / tierWords.length) * 100 : 0;
+    const pct       = tierWords.length ? (learned / tierWords.length) * 100 : 100;
 
     activeTier = tier;
 
@@ -1505,7 +1516,7 @@ function renderWotd() {
       </div>
       ${nextTier
         ? `<div style="font-size:.7rem;color:rgba(255,255,255,.5);margin-top:5px;">
-             🔒 ${nextTier.label} unlocks at ${nextTier.unlockPct}% of ${activeTier.label}
+             🔒 ${nextTier.label} unlocks at ${activeTier.unlockPct}% of ${activeTier.label}
            </div>`
         : `<div style="font-size:.7rem;color:var(--success);margin-top:5px;">🏆 All tiers unlocked!</div>`
       }
@@ -1560,11 +1571,14 @@ function markLearnedWotd(en, no) {
 //  STUDY MODE
 // ══════════════════════════════════════════════
 function buildStudyQueue() {
-  let q = words;
-  if (studyFilter === 'unlearned')                           q = words.filter(w => !w.learned);
-  else if (['p1','p2','p3','p4','p5'].includes(studyFilter)) q = words.filter(w => w.pos === studyFilter);
+  const activeTier = getActiveTier();
+  const tierPool   = words.filter(w => !w.rank || w.rank <= activeTier.max);
 
-  studyQueue = q.length ? q : [...words];
+  let q = tierPool;
+  if (studyFilter === 'unlearned')                           q = tierPool.filter(w => !w.learned);
+  else if (['p1','p2','p3','p4','p5'].includes(studyFilter)) q = tierPool.filter(w => w.pos === studyFilter);
+
+  studyQueue = q.length ? q : tierPool;
   studyIndex = Math.min(studyIndex, studyQueue.length - 1);
   if (studyIndex < 0) studyIndex = 0;
   updateStudyCard();

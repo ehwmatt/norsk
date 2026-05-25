@@ -7,29 +7,46 @@
 // ── Minimal data fixtures ──────────────────────────────────────────────────
 
 const TIERS = [
-  { max: 100,  unlockPct: 0,  label: "Top 100"  },
+  { max: 50,   unlockPct: 80, label: "Top 50"   },
+  { max: 100,  unlockPct: 80, label: "Top 100"  },
   { max: 200,  unlockPct: 70, label: "Top 200"  },
+  { max: 300,  unlockPct: 70, label: "Top 300"  },
+  { max: 400,  unlockPct: 70, label: "Top 400"  },
   { max: 500,  unlockPct: 70, label: "Top 500"  },
+  { max: 600,  unlockPct: 70, label: "Top 600"  },
+  { max: 700,  unlockPct: 70, label: "Top 700"  },
+  { max: 800,  unlockPct: 70, label: "Top 800"  },
+  { max: 900,  unlockPct: 70, label: "Top 900"  },
   { max: 1000, unlockPct: 70, label: "Top 1000" },
 ];
 
 // Small representative WORD_DB: 3 per tier bracket, 1 custom slot
 const WORD_DB = [
-  // rank 1-100
+  // rank 1-50 — varied POS so distribution tests work
   { rank:1,   en:"and",     no:"og",      pos:"p1", type:"conjunction" },
   { rank:2,   en:"to be",   no:"være",    pos:"p2", type:"verb" },
   { rank:3,   en:"a/an",    no:"en",      pos:"p1", type:"article" },
-  { rank:50,  en:"not",     no:"ikke",    pos:"p1", type:"adverb" },
-  { rank:80,  en:"have",    no:"ha",      pos:"p2", type:"verb" },
+  { rank:10,  en:"man",     no:"mann",    pos:"p4", type:"noun" },
+  { rank:20,  en:"big",     no:"stor",    pos:"p3", type:"adjective" },
+  { rank:30,  en:"not",     no:"ikke",    pos:"p1", type:"adverb" },
+  { rank:40,  en:"go",      no:"gå",      pos:"p2", type:"verb" },
+  { rank:50,  en:"house",   no:"hus",     pos:"p4", type:"noun" },
+  // rank 51-100
+  { rank:60,  en:"have",    no:"ha",      pos:"p2", type:"verb" },
+  { rank:80,  en:"good",    no:"god",     pos:"p3", type:"adjective" },
   // rank 101-200
   { rank:101, en:"time",    no:"tid",     pos:"p4", type:"noun" },
   { rank:150, en:"work",    no:"arbeid",  pos:"p4", type:"noun" },
-  { rank:180, en:"good",    no:"god",     pos:"p3", type:"adjective" },
-  // rank 201-500
-  { rank:201, en:"city",    no:"by",      pos:"p4", type:"noun" },
-  { rank:300, en:"old",     no:"gammel",  pos:"p3", type:"adjective" },
-  // rank 501-1000
-  { rank:501, en:"bridge",  no:"bru",     pos:"p4", type:"noun" },
+  { rank:180, en:"nice",    no:"fin",     pos:"p3", type:"adjective" },
+  // one word per remaining tier bracket so empty-tier logic isn't triggered
+  { rank:250, en:"city",    no:"by",      pos:"p4", type:"noun" },
+  { rank:350, en:"old",     no:"gammel",  pos:"p3", type:"adjective" },
+  { rank:450, en:"road",    no:"vei",     pos:"p4", type:"noun" },
+  { rank:550, en:"bridge",  no:"bru",     pos:"p4", type:"noun" },
+  { rank:650, en:"snow",    no:"snø",     pos:"p4", type:"noun" },
+  { rank:750, en:"cold",    no:"kald",    pos:"p3", type:"adjective" },
+  { rank:850, en:"window",  no:"vindu",   pos:"p4", type:"noun" },
+  { rank:950, en:"river",   no:"elv",     pos:"p4", type:"noun" },
 ];
 
 function makeWord(w) {
@@ -45,7 +62,7 @@ function getActiveTier(words) {
     const prevMax   = i === 0 ? 0 : TIERS[i - 1].max;
     const tierWords = words.filter(w => (w.rank || 9999) <= tier.max && (w.rank || 9999) > prevMax);
     const learned   = tierWords.filter(w => w.learned).length;
-    const pct       = tierWords.length ? (learned / tierWords.length) * 100 : 0;
+    const pct       = tierWords.length ? (learned / tierWords.length) * 100 : 100;
     activeTier = tier;
     if (pct < tier.unlockPct) break;
   }
@@ -131,40 +148,50 @@ function assert(condition, label, extra = '') {
 console.log('\n━━━ 1. Tier logic ━━━');
 
 {
-  // Fresh state — nothing learned
+  // Fresh state — nothing learned; TIERS[0] unlockPct=80, 0% < 80% → breaks at Top 50
   const words = WORD_DB.map(makeWord);
   const active = getActiveTier(words);
-  // TIERS[0] has unlockPct:0 → never breaks there → falls through to TIERS[1]
-  assert(active.label === 'Top 200',
-    'Fresh state: active tier is Top 200 (Top 100 unlockPct=0 always passes)');
+  assert(active.label === 'Top 50',
+    'Fresh state: active tier is Top 50 (nothing learned, breaks at first tier)');
 
-  // Pool should contain rank 1-200 words (not 201+)
-  const pool = words.filter(w => !w.learned && (w.rank || 9999) <= active.max);
-  const inPool    = pool.map(w => w.rank);
-  const maxInPool = Math.max(...inPool);
-  assert(maxInPool <= 200,
-    'Fresh state: daily pool is capped at rank 200',
-    `max rank in pool=${maxInPool}`);
-  assert(!inPool.includes(201),
-    'Fresh state: rank-201 word excluded from pool');
+  // Pool should contain rank 1-50 words only
+  const pool = words.filter(w => !w.learned && (!w.rank || w.rank <= active.max));
+  const rankedInPool = pool.filter(w => w.rank).map(w => w.rank);
+  assert(rankedInPool.every(r => r <= 50),
+    'Fresh state: daily pool capped at rank 50');
+  assert(!pool.find(w => w.rank > 50),
+    'Fresh state: rank-51+ words excluded from pool');
 }
 
 {
-  // After learning 70% of Top-200 bracket (rank 101-200)
+  // After learning 80% of Top-50 bracket → advances to Top 100
   const words = WORD_DB.map(makeWord);
+  const bracket50 = words.filter(w => w.rank <= 50);
+  const toLearn = Math.ceil(bracket50.length * 0.8);
+  bracket50.slice(0, toLearn).forEach(w => { w.learned = true; });
+
+  const active = getActiveTier(words);
+  assert(active.label === 'Top 100',
+    'After 80% of Top-50 bracket learned: active tier advances to Top 100');
+}
+
+{
+  // After learning 70% of Top-200 bracket (rank 101-200) → advances to Top 300
+  const words = WORD_DB.map(makeWord);
+  // First unlock Top 50 and Top 100
+  words.filter(w => w.rank <= 100).forEach(w => { w.learned = true; });
   const bracket200 = words.filter(w => w.rank > 100 && w.rank <= 200);
-  const toLearn = Math.ceil(bracket200.length * 0.7);
-  bracket200.slice(0, toLearn).forEach(w => { w.learned = true; });
+  Math.ceil(bracket200.length * 0.7) > 0 &&
+    bracket200.slice(0, Math.ceil(bracket200.length * 0.7)).forEach(w => { w.learned = true; });
 
   const active = getActiveTier(words);
-  assert(active.label === 'Top 500',
-    'After 70% of Top-200 bracket learned: active tier advances to Top 500');
+  assert(active.label === 'Top 300',
+    'After unlocking Top 100 and 70% of Top 200: active tier is Top 300');
 }
 
 {
-  // All tiers 70%+ mastered → active = Top 1000 (last tier)
+  // All words learned → active = Top 1000 (last tier)
   const words = WORD_DB.map(makeWord);
-  // Mark everything learned
   words.forEach(w => { w.learned = true; });
   const active = getActiveTier(words);
   assert(active.label === 'Top 1000',
@@ -172,12 +199,10 @@ console.log('\n━━━ 1. Tier logic ━━━');
 }
 
 {
-  // Empty word list edge case
+  // Empty word list — all tiers have 0 words → treated as 100% mastered → returns last tier
   const active = getActiveTier([]);
-  // All tiers have 0 words → pct = 0 for all; TIERS[0] unlockPct=0 → passes,
-  // TIERS[1] unlockPct=70 → 0 < 70 → breaks → returns TIERS[1]
-  assert(active.label === 'Top 200',
-    'Empty word list: gracefully returns Top 200 (TIERS[1] breaks on 0%)');
+  assert(active.label === 'Top 1000',
+    'Empty word list: empty tiers treated as mastered, returns Top 1000 (last)');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
