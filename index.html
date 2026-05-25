@@ -1343,6 +1343,7 @@ let studyIndex   = 0;
 let studyFilter  = 'all';
 let listFilter   = 'all';
 let wotdRevealed = false;
+let dailyWords   = null;
 let settings     = { wordsPerDay: 3 };
 
 // ══════════════════════════════════════════════
@@ -1388,7 +1389,9 @@ function save() {
 
 function saveSettings() {
   settings.wordsPerDay = parseInt(document.getElementById('wotdCount').value);
+  dailyWords = null;
   save();
+  renderWotd();
 }
 
 // ══════════════════════════════════════════════
@@ -1477,12 +1480,16 @@ function getDailyWords() {
 //  RENDER WOTD
 // ══════════════════════════════════════════════
 function renderWotd() {
-  wotdRevealed = false;
-  document.getElementById('wotdRevealBtn').textContent = 'Reveal Norwegian →';
+  // Regenerate only on first load or when every card in the set is learned
+  if (!dailyWords || dailyWords.every(w => w.learned)) {
+    dailyWords   = getDailyWords();
+    wotdRevealed = false;
+    document.getElementById('wotdRevealBtn').textContent = 'Reveal Norwegian →';
+  }
 
   const activeTier     = getActiveTier();
   const activeTierIdx  = TIERS.indexOf(activeTier);
-  const daily          = getDailyWords();
+  const daily          = dailyWords;
   const container      = document.getElementById('wotdCards');
   const { total, learned, pct } = getTierProgress(activeTier, activeTierIdx);
   const nextTier       = TIERS[activeTierIdx + 1];
