@@ -1532,7 +1532,7 @@ function renderWotd() {
     const isFlipped  = wotdFlippedSet.has(w.en);
     return `
       <div class="wotd-card${isFlipped ? ' wotd-flipped' : ''}" style="${isLearned ? 'opacity:.6;' : ''}"
-           onclick="flipWotdCard(this, ${JSON.stringify(w.en)})">
+           onclick='flipWotdCard(this, ${JSON.stringify(w.en)})'>
         <div class="wotd-card-inner">
           <div class="wotd-card-front" style="border-left-color:${borderColor}">
             <div class="wotd-english">${w.en}</div>
