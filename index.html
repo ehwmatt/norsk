@@ -46,6 +46,9 @@
     .rank-top1000{background:#cd7f32;color:#fff;}
     .wotd-reveal-btn{display:block;margin:14px auto 0;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:8px 24px;border-radius:8px;cursor:pointer;font-size:.9rem;transition:background .2s;}
     .wotd-reveal-btn:hover{background:rgba(255,255,255,.25);}
+    .wotd-mark-btn{margin-top:8px;background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:.75rem;transition:all .2s;}
+    .wotd-mark-btn:hover{background:rgba(46,204,113,.25);border-color:var(--success);color:var(--success);}
+    .wotd-mark-btn.learned{background:rgba(46,204,113,.15);border-color:var(--success);color:var(--success);}
     .progress-section{background:var(--card);border-radius:var(--radius);padding:16px 20px;}
     .progress-header{display:flex;justify-content:space-between;margin-bottom:10px;font-size:.9rem;}
     .progress-bar-bg{background:rgba(255,255,255,.08);border-radius:99px;height:10px;overflow:hidden;}
@@ -1353,7 +1356,7 @@ function init() {
     settings = d.settings || settings;
     // Merge any new WORD_DB entries not yet in saved state
     WORD_DB.forEach(w => {
-      if (!words.find(x => x.en === w.en && x.no === w.no)) {
+      if (!words.find(x => x.en === w.en)) {
         words.push({...w, learned: false, addedAt: Date.now() });
       }
     });
@@ -1427,12 +1430,12 @@ function getDailyWords() {
   const n          = settings.wordsPerDay;
   const activeTier = getActiveTier();
 
-  // Only pull unlearned words within the active tier ceiling
-  const pool = words.filter(w => !w.learned && (w.rank || 9999) <= activeTier.max);
+  // Pull unlearned words within the active tier ceiling; custom words (rank:null) always included
+  const pool = words.filter(w => !w.learned && (!w.rank || (w.rank || 9999) <= activeTier.max));
 
   if (pool.length === 0) {
     // All words in active tier learned — show review mix
-    return words.filter(w => (w.rank || 9999) <= activeTier.max).sort(() => Math.random() - 0.5).slice(0, n);
+    return words.filter(w => !w.rank || (w.rank || 9999) <= activeTier.max).sort(() => Math.random() - 0.5).slice(0, n);
   }
 
   const buckets = { p1:[], p2:[], p3:[], p4:[], p5:[] };
@@ -1449,7 +1452,7 @@ function getDailyWords() {
   }
 
   const targets =
-    n === 1  ? { p1:1, p2:0, p3:0, p4:0, p5:0 } :
+    n <= 2   ? { p1:0, p2:0, p3:0, p4:0, p5:0 } :
     n === 3  ? { p1:1, p2:1, p3:0, p4:1, p5:0 } :
     n === 5  ? { p1:1, p2:1, p3:1, p4:2, p5:0 } :
                { p1:2, p2:2, p3:2, p4:3, p5:1 };
@@ -1507,8 +1510,9 @@ function renderWotd() {
       p4:'var(--p4)', p5:'var(--p5)'
     }[w.pos] || 'rgba(255,255,255,.2)';
 
+    const isLearned = w.learned;
     return `
-      <div class="wotd-card" style="border-left-color:${borderColor}">
+      <div class="wotd-card" style="border-left-color:${borderColor}${isLearned ? ';opacity:.6' : ''}">
         <div class="wotd-card-header">
           <div class="wotd-english">${w.en}</div>
           <div class="wotd-card-badges">
@@ -1518,6 +1522,10 @@ function renderWotd() {
         </div>
         <div class="wotd-norwegian wotd-no">${w.no}</div>
         <div class="wotd-grammar-note wotd-gr">${w.grammar || ''}</div>
+        <button class="wotd-mark-btn${isLearned ? ' learned' : ''}"
+          onclick="markLearnedWotd(${JSON.stringify(w.en)}, ${JSON.stringify(w.no)})">
+          ${isLearned ? '✅ Learned' : 'Mark learned'}
+        </button>
       </div>`;
   }).join('');
 }
@@ -1527,6 +1535,18 @@ function toggleWotdReveal() {
   document.querySelectorAll('.wotd-no').forEach(el => el.style.display = wotdRevealed ? 'block' : 'none');
   document.querySelectorAll('.wotd-gr').forEach(el => el.style.display = wotdRevealed ? 'block' : 'none');
   document.getElementById('wotdRevealBtn').textContent = wotdRevealed ? 'Hide ↑' : 'Reveal Norwegian →';
+}
+
+function markLearnedWotd(en, no) {
+  const idx = words.findIndex(w => w.en === en && w.no === no);
+  if (idx === -1) return;
+  words[idx].learned = !words[idx].learned;
+  save();
+  showToast(words[idx].learned ? '✅ Marked learned!' : '🔄 Back to learning');
+  renderWotd();
+  buildStudyQueue();
+  renderWordList();
+  updateProgress();
 }
 
 // ══════════════════════════════════════════════
