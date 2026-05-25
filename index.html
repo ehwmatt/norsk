@@ -1523,7 +1523,7 @@ function renderWotd() {
         <div class="wotd-norwegian wotd-no">${w.no}</div>
         <div class="wotd-grammar-note wotd-gr">${w.grammar || ''}</div>
         <button class="wotd-mark-btn${isLearned ? ' learned' : ''}"
-          onclick="markLearnedWotd(${JSON.stringify(w.en)}, ${JSON.stringify(w.no)})">
+          onclick='markLearnedWotd(${JSON.stringify(w.en)}, ${JSON.stringify(w.no)})'>
           ${isLearned ? '✅ Learned' : 'Mark learned'}
         </button>
       </div>`;
