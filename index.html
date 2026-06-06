@@ -113,10 +113,47 @@
     .empty-state{text-align:center;color:var(--muted);padding:30px;font-style:italic;}
     .toast{position:fixed;bottom:24px;right:24px;background:var(--success);color:#fff;padding:11px 18px;border-radius:10px;font-weight:600;font-size:.88rem;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;z-index:999;}
     .toast.show{opacity:1;transform:translateY(0);}
+    /* Conjugation mini-table on flashcard back */
+    .conj-mini{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin-top:10px;font-size:.75rem;text-align:left;width:100%;max-width:280px;}
+    .conj-mini .cl{color:rgba(255,255,255,.45);text-transform:uppercase;font-size:.65rem;letter-spacing:.5px;align-self:center;}
+    .conj-mini .cv{color:var(--gold);font-style:italic;}
+    /* Quiz section */
+    .quiz-section{background:var(--card);border-radius:var(--radius);padding:20px;}
+    .quiz-section h2{font-size:1rem;color:var(--muted);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px;}
+    .quiz-controls{display:flex;gap:24px;flex-wrap:wrap;}
+    .quiz-left{flex:1;min-width:220px;}
+    .quiz-right{display:flex;flex-direction:column;gap:12px;min-width:160px;}
+    .quiz-right .qlabel{font-size:.78rem;color:var(--muted);display:block;margin-bottom:5px;}
+    .quiz-select{width:100%;padding:7px 10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:var(--text);font-size:.82rem;cursor:pointer;outline:none;}
+    .quiz-select:focus{border-color:var(--accent2);}
+    .quiz-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center;}
+    .quiz-row label{font-size:.78rem;color:var(--muted);white-space:nowrap;min-width:60px;}
+    .quiz-card-area{background:rgba(255,255,255,.04);border-radius:12px;padding:24px 20px;text-align:center;margin:14px 0;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+    .quiz-question{font-size:1.4rem;font-weight:700;margin-bottom:4px;color:var(--gold);}
+    .quiz-subtext{font-size:.78rem;color:var(--muted);margin-bottom:18px;line-height:1.5;}
+    .mc-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:500px;margin:0 auto;}
+    .mc-btn{padding:11px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:var(--text);font-size:.88rem;cursor:pointer;transition:all .2s;text-align:center;}
+    .mc-btn:hover:not(:disabled){background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.3);}
+    .mc-btn.correct{background:rgba(46,204,113,.2) !important;border-color:var(--success) !important;color:var(--success) !important;}
+    .mc-btn.wrong{background:rgba(231,76,60,.2) !important;border-color:var(--accent) !important;color:var(--accent) !important;}
+    .mc-btn:disabled{cursor:default;}
+    .quiz-typed-row{display:flex;gap:8px;width:100%;max-width:420px;margin:0 auto;}
+    .quiz-input{flex:1;padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:var(--text);font-size:1rem;outline:none;transition:border-color .2s,background .2s;}
+    .quiz-input:focus{border-color:var(--accent2);}
+    .quiz-input.correct{border-color:var(--success);background:rgba(46,204,113,.1);}
+    .quiz-input.wrong{border-color:var(--accent);background:rgba(231,76,60,.1);}
+    .quiz-feedback{margin-top:12px;font-size:.88rem;min-height:1.3em;font-weight:600;}
+    .quiz-feedback.correct{color:var(--success);}
+    .quiz-feedback.wrong{color:var(--accent);}
+    .quiz-score-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px;}
+    .quiz-score-box{background:rgba(255,255,255,.04);border-radius:8px;padding:8px 20px;text-align:center;flex:1;min-width:70px;}
+    .quiz-score-num{font-size:1.5rem;font-weight:700;}
+    .quiz-score-label{font-size:.7rem;color:var(--muted);margin-top:2px;}
     @media(max-width:480px){
       header h1{font-size:1.5rem;}
       .flashcard{height:150px;}
       .card-word,.card-no{font-size:1.2rem;}
+      .mc-options{grid-template-columns:1fr;}
     }
   </style>
 </head>
@@ -179,6 +216,86 @@
     </div>
   </div>
 
+  <!-- ── QUIZ SECTION ── -->
+  <div class="quiz-section">
+    <h2>🧠 Quiz Mode</h2>
+
+    <div class="quiz-controls">
+      <div class="quiz-left">
+        <div class="quiz-row">
+          <label>Mode:</label>
+          <div class="filter-tabs">
+            <button class="tab-btn active" onclick="setQuizMode('word',this)">📝 Word Quiz</button>
+            <button class="tab-btn" onclick="setQuizMode('verb',this)">🔠 Verb Forms</button>
+          </div>
+        </div>
+
+        <div class="quiz-row" id="quizDirRow">
+          <label>Direction:</label>
+          <div class="filter-tabs">
+            <button class="tab-btn active" id="qDirA" onclick="setQuizDir('a',this)">EN → NO</button>
+            <button class="tab-btn" id="qDirB" onclick="setQuizDir('b',this)">NO → EN</button>
+            <button class="tab-btn" id="qDirMix" onclick="setQuizDir('mix',this)">🔀 Mix</button>
+          </div>
+        </div>
+
+        <div class="quiz-row">
+          <label>Answer:</label>
+          <div class="filter-tabs">
+            <button class="tab-btn active" onclick="setQuizType('mc',this)">Multiple Choice</button>
+            <button class="tab-btn" onclick="setQuizType('typed',this)">Typed Answer</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz-right">
+        <div>
+          <span class="qlabel">Tier:</span>
+          <select class="quiz-select" id="quizTierSelect" onchange="setQuizTier(this.value)">
+            <option value="active">Active tier</option>
+            <option value="50">⭐ Top 50</option>
+            <option value="100">🥇 Top 100</option>
+            <option value="200">🥈 Top 200</option>
+            <option value="300">🏅 Top 300</option>
+            <option value="400">🏅 Top 400</option>
+            <option value="500">🏅 Top 500</option>
+            <option value="600">📚 Top 600</option>
+            <option value="700">📚 Top 700</option>
+            <option value="800">📚 Top 800</option>
+            <option value="900">📚 Top 900</option>
+            <option value="1000">📚 Top 1000</option>
+            <option value="all">All words</option>
+          </select>
+        </div>
+        <div>
+          <span class="qlabel">Order:</span>
+          <div class="filter-tabs">
+            <button class="tab-btn active" onclick="setQuizOrder('random',this)">Random</button>
+            <button class="tab-btn" onclick="setQuizOrder('seq',this)">In Order</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quiz-card-area">
+      <div class="quiz-question" id="quizQuestion">—</div>
+      <div class="quiz-subtext" id="quizSubtext"></div>
+      <div id="quizAnswerArea"></div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+    </div>
+
+    <div class="quiz-score-row">
+      <div class="quiz-score-box"><div class="quiz-score-num" id="qScoreCorrect">0</div><div class="quiz-score-label">Correct</div></div>
+      <div class="quiz-score-box"><div class="quiz-score-num" id="qScoreWrong">0</div><div class="quiz-score-label">Wrong</div></div>
+      <div class="quiz-score-box"><div class="quiz-score-num" id="qScoreStreak">0</div><div class="quiz-score-label">Streak 🔥</div></div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="nextQuizQuestion()">Next ➡</button>
+      <button class="btn btn-ghost" onclick="resetQuizScore()">Reset Score</button>
+    </div>
+  </div>
+
   <div class="study-section">
     <h2>🃏 Study Mode</h2>
     <div class="study-filter" id="studyFilterBtns">
@@ -200,6 +317,7 @@
           <span class="card-no" id="studyBack">—</span>
           <div class="card-pos-row" id="studyBackBadges"></div>
           <span class="card-grammar" id="studyGrammar"></span>
+          <div class="conj-mini" id="studyConjugation"></div>
           <span class="card-hint">Norwegian</span>
         </div>
       </div>
@@ -1298,6 +1416,232 @@ const WORD_DB = [
   {rank:998, en:"to train (someone)", no:"lære opp",    pos:"p2", type:"verb",         grammar:"'lære opp nye ansatte' = train new employees"},
   {rank:999, en:"to qualify",         no:"kvalifisere seg",pos:"p2",type:"verb",       grammar:"'kvalifisere seg til jobben' = qualify for the job"},
   {rank:1000,en:"to master",          no:"mestre",      pos:"p2", type:"verb",         grammar:"'mestre norsk' = master Norwegian"},
+  {rank:null, en:"obey", no:"adlyde", pos:"p2", type:"verb", grammar:"Gruppe UV · present: adlyder · past: adlød · perfect: adlydt"},
+  {rank:null, en:"work", no:"arbeide", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: arbeider · past: arbeidet · perfect: arbeidet · imp: arbeid"},
+  {rank:null, en:"cede", no:"avstå", pos:"p2", type:"verb", grammar:"Gruppe UV · present: avstår · past: avstod · perfect: avstatt"},
+  {rank:null, en:"beat, hit", no:"banke", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: banker · past: banket · perfect: banket"},
+  {rank:null, en:"shave", no:"barbere", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: barberer · past: barberte · perfect: barbert"},
+  {rank:null, en:"ask", no:"be", pos:"p2", type:"verb", grammar:"Gruppe UV · present: ber · past: ba(d) · perfect: bedt · imp: be"},
+  {rank:null, en:"adapt", no:"bearbeide", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: bearbeider · past: bearbeidet · perfect: bearbeidet"},
+  {rank:null, en:"cheat", no:"bedra", pos:"p2", type:"verb", grammar:"Gruppe UV · present: bedrar · past: bedro · perfect: bedratt"},
+  {rank:null, en:"drug", no:"bedøve", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: bedøver · past: bedøvet · perfect: bedøvet"},
+  {rank:null, en:"handle", no:"behandle", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: behandler · past: behandlet · perfect: behandlet"},
+  {rank:null, en:"graze", no:"beite", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: beiter · past: beitet · perfect: beitet"},
+  {rank:null, en:"describe", no:"beskrive", pos:"p2", type:"verb", grammar:"Gruppe UV · present: beskriver · past: beskrev · perfect: beskrevet · imp: beskriv"},
+  {rank:null, en:"mount", no:"beslå", pos:"p2", type:"verb", grammar:"Gruppe UV · present: beslår · past: beslo · perfect: beslått"},
+  {rank:null, en:"pass (as in exam)", no:"bestå", pos:"p2", type:"verb", grammar:"Gruppe UV · present: består · past: besto(d) · perfect: bestått"},
+  {rank:null, en:"bind", no:"binde", pos:"p2", type:"verb", grammar:"Gruppe UV · present: binder · past: bandt · perfect: bundet"},
+  {rank:null, en:"bite", no:"bite", pos:"p2", type:"verb", grammar:"Gruppe UV · present: biter · past: bet · perfect: bit"},
+  {rank:null, en:"bark, yap", no:"bjeffe", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: bjeffer · past: bjeffet · perfect: bjeffet"},
+  {rank:null, en:"bleed", no:"blø", pos:"p2", type:"verb", grammar:"Gruppe 4 · present: blør · past: blødde · perfect: blødd · imp: blø"},
+  {rank:null, en:"blow", no:"blåse", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: blåser · past: blåste · perfect: blåst"},
+  {rank:null, en:"break", no:"brekke", pos:"p2", type:"verb", grammar:"Gruppe UV · present: brekker · past: brakk · perfect: brukket"},
+  {rank:null, en:"burn", no:"brenne", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: brenner · past: brente · perfect: brent"},
+  {rank:null, en:"bring", no:"bringe", pos:"p2", type:"verb", grammar:"Gruppe UV · present: bringer · past: brakte · perfect: brakt"},
+  {rank:null, en:"burst", no:"briste", pos:"p2", type:"verb", grammar:"Gruppe UV · present: brister · past: brast · perfect: bristet"},
+  {rank:null, en:"bother", no:"bry", pos:"p2", type:"verb", grammar:"Gruppe 4 · present: bryr · past: brydde · perfect: brydd"},
+  {rank:null, en:"violate, break", no:"bryte", pos:"p2", type:"verb", grammar:"Gruppe UV · present: bryter · past: brøt · perfect: brutt"},
+  {rank:null, en:"ought to", no:"burde", pos:"p2", type:"verb", grammar:"Gruppe UV · present: bør · past: burde · perfect: burdet"},
+  {rank:null, en:"offer, bid", no:"by", pos:"p2", type:"verb", grammar:"Gruppe UV · present: byr · past: bød · perfect: budt"},
+  {rank:null, en:"bear, endure", no:"bære", pos:"p2", type:"verb", grammar:"Gruppe UV · present: bærer · past: bar · perfect: båret"},
+  {rank:null, en:"democratize", no:"demokratisere", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: demokratiserer · past: demokratiserte · perfect: demokratisert"},
+  {rank:null, en:"drive, operate", no:"drive", pos:"p2", type:"verb", grammar:"Gruppe UV · present: driver · past: drev · perfect: drevet"},
+  {rank:null, en:"cultivate", no:"dyrke", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: dyrker · past: dyrket · perfect: dyrket"},
+  {rank:null, en:"push", no:"dytte", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: dytter · past: dyttet · perfect: dyttet · imp: dytt"},
+  {rank:null, en:"rise", no:"ese", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: eser · past: este · perfect: est"},
+  {rank:null, en:"eat greedily", no:"ete", pos:"p2", type:"verb", grammar:"Gruppe UV · present: eter · past: åt · perfect: ett"},
+  {rank:null, en:"evangelize", no:"evangelisere", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: evangeliserer · past: evangeliserte · perfect: evangelisert"},
+  {rank:null, en:"fish", no:"fiske", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: fisker · past: fisket · perfect: fisket"},
+  {rank:null, en:"joke", no:"fleipe", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: fleiper · past: fleipte · perfect: fleipt"},
+  {rank:null, en:"flee", no:"flykte", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: flykter · past: flyktet · perfect: flyktet"},
+  {rank:null, en:"float", no:"flyte", pos:"p2", type:"verb", grammar:"Gruppe UV · present: flyter · past: fløt · perfect: flytt"},
+  {rank:null, en:"unite", no:"forene", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: forener · past: forente · perfect: forent"},
+  {rank:null, en:"undertake", no:"foreta", pos:"p2", type:"verb", grammar:"Gruppe UV · present: foretar · past: foretok · perfect: foretatt"},
+  {rank:null, en:"catch a cold", no:"forkjøle seg", pos:"p2", type:"verb", grammar:"Gruppe UV · present: forkjøler seg · past: forkjølet seg · perfect: forkjølt seg"},
+  {rank:null, en:"forgive", no:"forlate", pos:"p2", type:"verb", grammar:"Gruppe UV · present: forlater · past: forlot · perfect: forlatt"},
+  {rank:null, en:"renew", no:"fornye", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: fornyer · past: fornyet · perfect: fornyet"},
+  {rank:null, en:"disappear", no:"forsvinne", pos:"p2", type:"verb", grammar:"Gruppe UV · present: forsvinner · past: forsvant · perfect: forsvunnet"},
+  {rank:null, en:"gush", no:"fosse", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: fosser · past: fosset · perfect: fosset"},
+  {rank:null, en:"freeze", no:"fryse", pos:"p2", type:"verb", grammar:"Gruppe UV · present: fryser · past: frøs · perfect: frosset"},
+  {rank:null, en:"fill", no:"fylle", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: fyller · past: fylte · perfect: fylt"},
+  {rank:null, en:"bear, give birth to", no:"føde", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: føder · past: fødte · perfect: født"},
+  {rank:null, en:"be, feel", no:"føle seg", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: føler seg · past: følte seg · perfect: følt seg"},
+  {rank:null, en:"blow dry", no:"føne", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: føner · past: fønte · perfect: fønt"},
+  {rank:null, en:"crow", no:"gale", pos:"p2", type:"verb", grammar:"Gruppe UV · present: galer · past: gol · perfect: galt"},
+  {rank:null, en:"gape", no:"gape", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: gaper · past: gapte · perfect: gapt"},
+  {rank:null, en:"take the trouble", no:"gidde", pos:"p2", type:"verb", grammar:"Gruppe UV · present: gidder · past: gadd · perfect: giddet"},
+  {rank:null, en:"marry", no:"gifte", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: gifter · past: giftet · perfect: giftet"},
+  {rank:null, en:"to be worth", no:"gjelde", pos:"p2", type:"verb", grammar:"Gruppe UV · present: gjelder · past: gjaldt · perfect: gjeldt"},
+  {rank:null, en:"repeat", no:"gjenta", pos:"p2", type:"verb", grammar:"Gruppe UV · present: gjentar · past: gjentok · perfect: gjentatt"},
+  {rank:null, en:"guess", no:"gjette", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: gjetter · past: gjettet · perfect: gjettet"},
+  {rank:null, en:"look forward", no:"glede seg", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: gleder seg · past: gledet seg · perfect: gledet seg"},
+  {rank:null, en:"slide, glide", no:"gli", pos:"p2", type:"verb", grammar:"Gruppe UV · present: glir · past: glei/gled · perfect: glidd"},
+  {rank:null, en:"gnaw", no:"gnage", pos:"p2", type:"verb", grammar:"Gruppe UV · present: gnager · past: gnog · perfect: gnaget"},
+  {rank:null, en:"rub", no:"gni", pos:"p2", type:"verb", grammar:"Gruppe UV · present: gnir · past: gned · perfect: gnidd"},
+  {rank:null, en:"dig", no:"grave", pos:"p2", type:"verb", grammar:"Gruppe UV · present: graver · past: grov · perfect: gravd"},
+  {rank:null, en:"comb", no:"gre", pos:"p2", type:"verb", grammar:"Gruppe 4 · present: grer · past: gredde · perfect: gredd · imp: gre"},
+  {rank:null, en:"manage, cope with", no:"greie", pos:"p2", type:"verb", grammar:"Gruppe 3 · present: greier · past: greide · perfect: greid"},
+  {rank:null, en:"border", no:"grense", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: grenser · past: grenset · perfect: grenset"},
+  {rank:null, en:"grill", no:"grille", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: griller · past: grillet · perfect: grillet"},
+  {rank:null, en:"fret", no:"grine", pos:"p2", type:"verb", grammar:"Gruppe UV · present: griner · past: grein · perfect: grint"},
+  {rank:null, en:"grip", no:"gripe", pos:"p2", type:"verb", grammar:"Gruppe UV · present: griper · past: grep · perfect: grepet"},
+  {rank:null, en:"dread", no:"grue seg", pos:"p2", type:"verb", grammar:"Gruppe UV · present: gruer seg · past: grudde seg · perfect: gruet"},
+  {rank:null, en:"shudder", no:"gyse", pos:"p2", type:"verb", grammar:"Gruppe UV · present: gyser · past: gjøs · perfect: gyst"},
+  {rank:null, en:"spawn", no:"gyte", pos:"p2", type:"verb", grammar:"Gruppe UV · present: gyter · past: gjøt · perfect: gytt"},
+  {rank:null, en:"fly", no:"gyve", pos:"p2", type:"verb", grammar:"Gruppe UV · present: gyver · past: gjøv · perfect: gjøvet"},
+  {rank:null, en:"occur", no:"hende", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: hender · past: hendte · perfect: hendt"},
+  {rank:null, en:"hang", no:"henge", pos:"p2", type:"verb", grammar:"Gruppe UV · present: henger · past: hang/hengte · perfect: hengt"},
+  {rank:null, en:"get", no:"hente", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: henter · past: hentet · perfect: hentet · imp: hent"},
+  {rank:null, en:"name", no:"hete", pos:"p2", type:"verb", grammar:"Gruppe UV · present: heter · past: het · perfect: hett"},
+  {rank:null, en:"greet", no:"hilse", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: hilser · past: hilste · perfect: hilst"},
+  {rank:null, en:"prevent", no:"hindre", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: hindrer · past: hindret · perfect: hindret"},
+  {rank:null, en:"heave", no:"hive", pos:"p2", type:"verb", grammar:"Gruppe UV · present: hiver · past: hev · perfect: hevet"},
+  {rank:null, en:"cut, chop", no:"hogge", pos:"p2", type:"verb", grammar:"Gruppe UV · present: hogger · past: hogg · perfect: hogd"},
+  {rank:null, en:"cough", no:"hoste", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: hoster · past: hostet · perfect: hostet"},
+  {rank:null, en:"comfort", no:"hygge", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: hygger · past: hygget · perfect: hygget"},
+  {rank:null, en:"harvest", no:"høste", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: høster · past: høstet · perfect: høstet"},
+  {rank:null, en:"calculate", no:"kalkulere", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: kalkulerer · past: kalkulerte · perfect: kalkulert"},
+  {rank:null, en:"clap", no:"klappe", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: klapper · past: klappet · perfect: klappet"},
+  {rank:null, en:"manage", no:"klare", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: klarer · past: klarte · perfect: klart · imp: klar"},
+  {rank:null, en:"dress, clothe", no:"kle", pos:"p2", type:"verb", grammar:"Gruppe 4 · present: kler · past: kledde · perfect: kledd · imp: kle"},
+  {rank:null, en:"sound", no:"klinge", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: klinger · past: klingte · perfect: klingt"},
+  {rank:null, en:"cut, clip", no:"klippe", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: klipper · past: klipte · perfect: klipt · imp: klipp"},
+  {rank:null, en:"pinch", no:"klype", pos:"p2", type:"verb", grammar:"Gruppe UV · present: klyper · past: kløp · perfect: kløpet"},
+  {rank:null, en:"climb", no:"klyve", pos:"p2", type:"verb", grammar:"Gruppe UV · present: klyver · past: kløv · perfect: kløvet"},
+  {rank:null, en:"crack", no:"knekke", pos:"p2", type:"verb", grammar:"Gruppe UV · present: knekker · past: knakk · perfect: knekt"},
+  {rank:null, en:"pinch", no:"knipe", pos:"p2", type:"verb", grammar:"Gruppe UV · present: kniper · past: knep · perfect: knepet"},
+  {rank:null, en:"tie", no:"knyte", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: knyter · past: knytet/knøt · perfect: knytet/knytt"},
+  {rank:null, en:"contact", no:"kontaktere", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: kontakterer · past: kontakterte · perfect: kontaktert"},
+  {rank:null, en:"correct", no:"korrigere", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: korrigerer · past: korrigerte · perfect: korrigert"},
+  {rank:null, en:"enjoy yourself", no:"kose seg", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: koser seg · past: koste seg · perfect: kost seg"},
+  {rank:null, en:"cost", no:"koste", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: koster · past: kostet · perfect: kostet"},
+  {rank:null, en:"creep", no:"krype", pos:"p2", type:"verb", grammar:"Gruppe UV · present: kryper · past: krøp · perfect: krøpet"},
+  {rank:null, en:"choke, strangle", no:"kvele", pos:"p2", type:"verb", grammar:"Gruppe UV · present: kveler · past: kvalte · perfect: kvalt"},
+  {rank:null, en:"prepare", no:"lage", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: lager · past: laget · perfect: laget"},
+  {rank:null, en:"lay", no:"legge", pos:"p2", type:"verb", grammar:"Gruppe UV · present: legger · past: la · perfect: lagt"},
+  {rank:null, en:"play", no:"leke", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: leker · past: lekte · perfect: lekt · imp: lek"},
+  {rank:null, en:"search", no:"lete", pos:"p2", type:"verb", grammar:"Gruppe UV · present: leter · past: lette · perfect: lett · imp: let"},
+  {rank:null, en:"suffer", no:"lide", pos:"p2", type:"verb", grammar:"Gruppe UV · present: lider · past: led · perfect: lidd"},
+  {rank:null, en:"air", no:"lufte", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: lufter · past: luftet · perfect: luftet"},
+  {rank:null, en:"smell", no:"lukte", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: lukter · past: luktet · perfect: luktet"},
+  {rank:null, en:"sound", no:"lyde", pos:"p2", type:"verb", grammar:"Gruppe UV · present: lyder · past: lød · perfect: lydt"},
+  {rank:null, en:"tell a lie", no:"lyge", pos:"p2", type:"verb", grammar:"Gruppe UV · present: lyger · past: løy · perfect: løyet"},
+  {rank:null, en:"tell a lie", no:"lyve", pos:"p2", type:"verb", grammar:"Gruppe UV · present: lyver · past: løy · perfect: løyet"},
+  {rank:null, en:"lift", no:"løfte", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: løfter · past: løftet · perfect: løftet"},
+  {rank:null, en:"lock", no:"låse", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: låser · past: låste · perfect: låst"},
+  {rank:null, en:"bother", no:"mase", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: maser · past: maste · perfect: mast · imp: mas"},
+  {rank:null, en:"mark", no:"merke", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: merker · past: merket · perfect: merket"},
+  {rank:null, en:"decrease", no:"minke", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: minker · past: minket · perfect: minket"},
+  {rank:null, en:"sneeze", no:"nyse", pos:"p2", type:"verb", grammar:"Gruppe UV · present: nyser · past: nøs · perfect: nyst"},
+  {rank:null, en:"revise", no:"omarbeide", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: omarbeider · past: omarbeidet · perfect: omarbeidet"},
+  {rank:null, en:"look up", no:"oppsøke", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: oppsøker · past: oppsøkte · perfect: oppsøkt"},
+  {rank:null, en:"exaggerate", no:"overdrive", pos:"p2", type:"verb", grammar:"Gruppe UV · present: overdriver · past: overdrev · perfect: overdrevet"},
+  {rank:null, en:"spend the night", no:"overnatte", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: overnatter · past: overnattet · perfect: overnattet"},
+  {rank:null, en:"sign", no:"overskrive", pos:"p2", type:"verb", grammar:"Gruppe UV · present: overskriver · past: overskrev · perfect: overskrevet"},
+  {rank:null, en:"take over", no:"overta", pos:"p2", type:"verb", grammar:"Gruppe UV · present: overtar · past: overtok · perfect: overtatt"},
+  {rank:null, en:"persuade", no:"overtale", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: overtaler · past: overtalte · perfect: overtalt"},
+  {rank:null, en:"pack", no:"pakke", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: pakker · past: pakket · perfect: pakket"},
+  {rank:null, en:"park", no:"parkere", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: parkerer · past: parkerte · perfect: parkert · imp: parker"},
+  {rank:null, en:"fit", no:"passe", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: passer · past: passet · perfect: passet"},
+  {rank:null, en:"wheeze", no:"pipe", pos:"p2", type:"verb", grammar:"Gruppe UV · present: piper · past: pe(i)p · perfect: pepet"},
+  {rank:null, en:"look after", no:"pleie", pos:"p2", type:"verb", grammar:"Gruppe 3 · present: pleier · past: pleide · perfect: pleid"},
+  {rank:null, en:"stop, seal", no:"plombere", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: plomberer · past: plomberte · perfect: plombert"},
+  {rank:null, en:"whistle", no:"plystre", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: plystrer · past: plystret · perfect: plystret"},
+  {rank:null, en:"preach", no:"preke", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: preker · past: prekte · perfect: prekt"},
+  {rank:null, en:"clean, polish", no:"pusse", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: pusser · past: pusset · perfect: pusset"},
+  {rank:null, en:"put", no:"putte", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: putter · past: puttet · perfect: puttet"},
+  {rank:null, en:"decorate, trim", no:"pynte", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: pynter · past: pyntet · perfect: pyntet"},
+  {rank:null, en:"arrest", no:"pågripe", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: pågriper · past: pågripet · perfect: pågripet"},
+  {rank:null, en:"rain", no:"regne", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: regner · past: regnet · perfect: renget"},
+  {rank:null, en:"reach", no:"rekke", pos:"p2", type:"verb", grammar:"Gruppe UV · present: rekker · past: rakk · perfect: rukket"},
+  {rank:null, en:"register", no:"rekommandere", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: rekommanderer · past: rekommanderte · perfect: rekommandert"},
+  {rank:null, en:"clean", no:"rense", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: renser · past: renset · perfect: renset"},
+  {rank:null, en:"repeat, revise", no:"repetere", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: repeterer · past: repeterte · perfect: repetert"},
+  {rank:null, en:"straighten, align", no:"rette", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: retter · past: rettet · perfect: rettet"},
+  {rank:null, en:"ride", no:"ri", pos:"p2", type:"verb", grammar:"Gruppe UV · present: rir · past: red · perfect: ridd"},
+  {rank:null, en:"grate", no:"rive", pos:"p2", type:"verb", grammar:"Gruppe UV · present: river · past: rev · perfect: revet"},
+  {rank:null, en:"row", no:"ro", pos:"p2", type:"verb", grammar:"Gruppe 4 · present: ror · past: rodde · perfect: rodd · imp: ro"},
+  {rank:null, en:"call, shout", no:"rope", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: roper · past: ropte · perfect: ropt · imp: rop"},
+  {rank:null, en:"pull", no:"ruske", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: rusker · past: rusket · perfect: rusket"},
+  {rank:null, en:"clear away, remove", no:"rydde av", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: rydder av · past: ryddet av · perfect: ryddet av"},
+  {rank:null, en:"smoke", no:"ryke", pos:"p2", type:"verb", grammar:"Gruppe UV · present: ryker · past: røk · perfect: røket"},
+  {rank:null, en:"stir", no:"røre", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: rører · past: rørte · perfect: rørt · imp: rør"},
+  {rank:null, en:"smoke", no:"røyke", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: røyker · past: røykte · perfect: røykt"},
+  {rank:null, en:"recommend", no:"råde", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: råder · past: rådet · perfect: rådet"},
+  {rank:null, en:"saw", no:"sage", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: sager · past: saget · perfect: saget · imp: sag"},
+  {rank:null, en:"compare", no:"sammenlikne", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: sammenlikner · past: sammenliknet · perfect: sammenliknet"},
+  {rank:null, en:"ooze, seep", no:"sige", pos:"p2", type:"verb", grammar:"Gruppe UV · present: siger · past: seg · perfect: seget"},
+  {rank:null, en:"aim", no:"sikte", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: sikter · past: siktet · perfect: siktet · imp: sikt"},
+  {rank:null, en:"change, switch", no:"skifte", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: skifter · past: skiftet · perfect: skiftet"},
+  {rank:null, en:"tremble", no:"skjelve", pos:"p2", type:"verb", grammar:"Gruppe UV · present: skjelver · past: skalv · perfect: skjelvet"},
+  {rank:null, en:"understand", no:"skjønne", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: skjønner · past: skjønte · perfect: skjønt"},
+  {rank:null, en:"proceed", no:"skride", pos:"p2", type:"verb", grammar:"Gruppe UV · present: skrider · past: skred · perfect: skredet"},
+  {rank:null, en:"screw", no:"skru", pos:"p2", type:"verb", grammar:"Gruppe 4 · present: skrur · past: skrudde · perfect: skrudd · imp: skru"},
+  {rank:null, en:"boast", no:"skryte", pos:"p2", type:"verb", grammar:"Gruppe UV · present: skryter · past: skrøt · perfect: skrytt"},
+  {rank:null, en:"splash", no:"skvette", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: skvetter · past: skvettet · perfect: skvettet"},
+  {rank:null, en:"wash", no:"skylle", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: skyller · past: skylte · perfect: skylt"},
+  {rank:null, en:"hasten", no:"skynde", pos:"p2", type:"verb", grammar:"Gruppe UV · present: skynder · past: skyndte · perfect: skyndet"},
+  {rank:null, en:"shoot", no:"skyte", pos:"p2", type:"verb", grammar:"Gruppe UV · present: skyter · past: skjøt · perfect: skutt"},
+  {rank:null, en:"push, shove", no:"skyve", pos:"p2", type:"verb", grammar:"Gruppe UV · present: skyver · past: skøv · perfect: skutt"},
+  {rank:null, en:"throw", no:"slenge", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: slenger · past: slengte · perfect: slengt"},
+  {rank:null, en:"drop", no:"slippe", pos:"p2", type:"verb", grammar:"Gruppe UV · present: slipper · past: slapp · perfect: sluppet"},
+  {rank:null, en:"toil", no:"slite", pos:"p2", type:"verb", grammar:"Gruppe UV · present: sliter · past: slet · perfect: slitt"},
+  {rank:null, en:"end, close", no:"slutte", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: slutter · past: sluttet · perfect: sluttet"},
+  {rank:null, en:"hit", no:"slå", pos:"p2", type:"verb", grammar:"Gruppe UV · present: slår · past: slo · perfect: slått"},
+  {rank:null, en:"fight", no:"slåss", pos:"p2", type:"verb", grammar:"Gruppe UV · present: slåss · past: sloss · perfect: slåss"},
+  {rank:null, en:"bang, smack", no:"smelle", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: smeller · past: smelte · perfect: smelt"},
+  {rank:null, en:"infect", no:"smitte", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: smitter · past: smittet · perfect: smittet"},
+  {rank:null, en:"apply make up", no:"sminke", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: sminker · past: sminket · perfect: sminket"},
+  {rank:null, en:"oil, lubricate", no:"smøre", pos:"p2", type:"verb", grammar:"Gruppe UV · present: smører · past: smurte · perfect: smurt"},
+  {rank:null, en:"move slowly", no:"snegle", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: snegler · past: sneglet · perfect: sneglet"},
+  {rank:null, en:"sneak", no:"snike", pos:"p2", type:"verb", grammar:"Gruppe UV · present: sniker · past: snek · perfect: sneket"},
+  {rank:null, en:"cheat", no:"snyte", pos:"p2", type:"verb", grammar:"Gruppe UV · present: snyter · past: snøt · perfect: snytt"},
+  {rank:null, en:"snow", no:"snø", pos:"p2", type:"verb", grammar:"Gruppe 4 · present: snør · past: snødde · perfect: snødd"},
+  {rank:null, en:"fall asleep", no:"sovne", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: sovner · past: sovnet · perfect: sovnet"},
+  {rank:null, en:"spend", no:"spandere", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: spanderer · past: spanderte · perfect: spandert · imp: spander"},
+  {rank:null, en:"kick", no:"sparke", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: sparker · past: sparket · perfect: sparket · imp: spark"},
+  {rank:null, en:"nail", no:"spikre", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: spikrer · past: spikret · perfect: spikret · imp: spikre"},
+  {rank:null, en:"spin", no:"spinne", pos:"p2", type:"verb", grammar:"Gruppe UV · present: spinner · past: spant · perfect: spunnet"},
+  {rank:null, en:"crack, burst", no:"sprekke", pos:"p2", type:"verb", grammar:"Gruppe UV · present: sprekker · past: sprakk · perfect: sprukket"},
+  {rank:null, en:"bounce", no:"sprette", pos:"p2", type:"verb", grammar:"Gruppe UV · present: spretter · past: spratt · perfect: sprettet"},
+  {rank:null, en:"spring, leap", no:"springe", pos:"p2", type:"verb", grammar:"Gruppe UV · present: springer · past: sprang · perfect: sprunget"},
+  {rank:null, en:"manage", no:"stelle", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: steller · past: stelte · perfect: stelt"},
+  {rank:null, en:"summon", no:"stevne", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: stevner · past: stevnet · perfect: stevnet"},
+  {rank:null, en:"climb", no:"stige", pos:"p2", type:"verb", grammar:"Gruppe UV · present: stiger · past: steg · perfect: steget"},
+  {rank:null, en:"stick", no:"stikke", pos:"p2", type:"verb", grammar:"Gruppe UV · present: stikker · past: stakk · perfect: stukket"},
+  {rank:null, en:"put, place", no:"stille", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: stiller · past: stilte · perfect: stilt"},
+  {rank:null, en:"steal", no:"stjele", pos:"p2", type:"verb", grammar:"Gruppe UV · present: stjeler · past: stjal · perfect: stjålet"},
+  {rank:null, en:"struggle", no:"stri", pos:"p2", type:"verb", grammar:"Gruppe UV · present: strir · past: stred · perfect: stridd"},
+  {rank:null, en:"swear", no:"sverge", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: sverger · past: sverget · perfect: sverget"},
+  {rank:null, en:"burn", no:"svi", pos:"p2", type:"verb", grammar:"Gruppe UV · present: svir · past: sved · perfect: svidd"},
+  {rank:null, en:"defraud, deceive", no:"svike", pos:"p2", type:"verb", grammar:"Gruppe UV · present: sviker · past: svek · perfect: sveket"},
+  {rank:null, en:"swing, brandish", no:"svinge", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: svinger · past: svingte · perfect: svingt"},
+  {rank:null, en:"cycle", no:"sykle", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: sykler · past: syklet · perfect: syklet · imp: sykle"},
+  {rank:null, en:"think", no:"synes", pos:"p2", type:"verb", grammar:"Gruppe UV · present: syn(e)s · past: syntes · perfect: syn(e)s"},
+  {rank:null, en:"sink", no:"synke", pos:"p2", type:"verb", grammar:"Gruppe UV · present: synker · past: sank · perfect: sunket"},
+  {rank:null, en:"thank", no:"takke", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: takker · past: takket · perfect: takket"},
+  {rank:null, en:"tap, draw", no:"tappe", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: tapper · past: tappet · perfect: tappet"},
+  {rank:null, en:"light, ignite", no:"tenne", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: tenner · past: tente · perfect: tent"},
+  {rank:null, en:"beg", no:"tigge", pos:"p2", type:"verb", grammar:"Gruppe UV · present: tigger · past: tagg · perfect: tigget"},
+  {rank:null, en:"dare", no:"tore", pos:"p2", type:"verb", grammar:"Gruppe UV · present: tør · past: torde · perfect: tort"},
+  {rank:null, en:"torture", no:"torturere", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: torturerer · past: torturerte · perfect: torturert"},
+  {rank:null, en:"tread, step", no:"tre", pos:"p2", type:"verb", grammar:"Gruppe UV · present: trer · past: trådte · perfect: trådt"},
+  {rank:null, en:"meet", no:"treffe", pos:"p2", type:"verb", grammar:"Gruppe UV · present: treffer · past: traff · perfect: truffet"},
+  {rank:null, en:"catch up, grab", no:"trive", pos:"p2", type:"verb", grammar:"Gruppe UV · present: triver · past: treiv · perfect: trevet"},
+  {rank:null, en:"thrive, happy", no:"trives", pos:"p2", type:"verb", grammar:"Gruppe UV · present: triv(e)s · past: trivdes · perfect: triv(e)s"},
+  {rank:null, en:"force, compel", no:"tvinge", pos:"p2", type:"verb", grammar:"Gruppe UV · present: tvinger · past: tvang · perfect: tvunget"},
+  {rank:null, en:"dry", no:"tørke", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: tørker · past: tørket · perfect: tørket"},
+  {rank:null, en:"sign", no:"underskrive", pos:"p2", type:"verb", grammar:"Gruppe UV · present: underskriver · past: underskrev · perfect: underskrevet"},
+  {rank:null, en:"excuse", no:"unnskylde", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: unnskylder · past: unnskyldte · perfect: unnskyldt"},
+  {rank:null, en:"prepare, work out", no:"utarbeide", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: utarbeider · past: utarbeidet · perfect: utarbeidet"},
+  {rank:null, en:"export, perform", no:"utføre", pos:"p2", type:"verb", grammar:"Gruppe 1 · present: utfører · past: utførte · perfect: utført"},
+  {rank:null, en:"hanging down, down", no:"utslå", pos:"p2", type:"verb", grammar:"Gruppe UV · present: utslår · past: utslo · perfect: utslått"},
+  {rank:null, en:"warm", no:"varme", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: varmer · past: varmet · perfect: varmet"},
+  {rank:null, en:"wake", no:"vekke", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: vekker · past: vekket · perfect: vekket"},
+  {rank:null, en:"preserve, defend", no:"verne", pos:"p2", type:"verb", grammar:"Gruppe 2 · present: verner · past: vernet · perfect: vernet"},
+  {rank:null, en:"yield", no:"vike", pos:"p2", type:"verb", grammar:"Gruppe UV · present: viker · past: vekket · perfect: veket"},
+  {rank:null, en:"rape", no:"voldta", pos:"p2", type:"verb", grammar:"Gruppe UV · present: voldtar · past: voldtok · perfect: voldtatt"},
+  {rank:null, en:"twist", no:"vri", pos:"p2", type:"verb", grammar:"Gruppe UV · present: vrir · past: vred · perfect: vridd"}
 ];
 
 // ══════════════════════════════════════════════
@@ -1326,6 +1670,390 @@ const TIERS = [
   { max: 800,  unlockPct: 70, label: "📚 Top 800"  },
   { max: 900,  unlockPct: 70, label: "📚 Top 900"  },
   { max: 1000, unlockPct: 70, label: "📚 Top 1000" },
+];
+
+// ══════════════════════════════════════════════
+//  VERB CONJUGATION TABLE
+// ══════════════════════════════════════════════
+const VERB_CONJUGATIONS = [
+  {inf:"adlyde",gruppe:"UV",presens:"adlyder",preteritum:"adlød",perfektum:"adlydt",imperativ:"",en:"Obey"},
+  {inf:"anbefale",gruppe:"1",presens:"anbefaler",preteritum:"anbefalte",perfektum:"anbefalt",imperativ:"",en:"Recommend"},
+  {inf:"ansette",gruppe:"UV",presens:"ansetter",preteritum:"ansatte",perfektum:"ansatt",imperativ:"",en:"Employ"},
+  {inf:"arbeide",gruppe:"2",presens:"arbeider",preteritum:"arbeidet",perfektum:"arbeidet",imperativ:"arbeid",en:"Work"},
+  {inf:"avslå",gruppe:"UV",presens:"avslår",preteritum:"avslo",perfektum:"avslått",imperativ:"",en:"Repulse"},
+  {inf:"avstå",gruppe:"UV",presens:"avstår",preteritum:"avstod",perfektum:"avstatt",imperativ:"",en:"Cede"},
+  {inf:"bade",gruppe:"2",presens:"bader",preteritum:"badet",perfektum:"badet",imperativ:"bad",en:"Bath"},
+  {inf:"banke",gruppe:"2",presens:"banker",preteritum:"banket",perfektum:"banket",imperativ:"",en:"Beat, Hit"},
+  {inf:"barbere",gruppe:"1",presens:"barberer",preteritum:"barberte",perfektum:"barbert",imperativ:"",en:"Shave"},
+  {inf:"be",gruppe:"UV",presens:"ber",preteritum:"ba(d)",perfektum:"bedt",imperativ:"be",en:"Ask"},
+  {inf:"bearbeide",gruppe:"2",presens:"bearbeider",preteritum:"bearbeidet",perfektum:"bearbeidet",imperativ:"",en:"Adapt"},
+  {inf:"bedra",gruppe:"UV",presens:"bedrar",preteritum:"bedro",perfektum:"bedratt",imperativ:"",en:"Cheat"},
+  {inf:"bedøve",gruppe:"2",presens:"bedøver",preteritum:"bedøvet",perfektum:"bedøvet",imperativ:"",en:"Drug"},
+  {inf:"bedøve",gruppe:"3",presens:"bedøver",preteritum:"bedøvde",perfektum:"bedøvd",imperativ:"",en:"Anaesthetise"},
+  {inf:"begynne",gruppe:"1",presens:"begynner",preteritum:"begynte",perfektum:"begynt",imperativ:"",en:"Begin"},
+  {inf:"behandle",gruppe:"2",presens:"behandler",preteritum:"behandlet",perfektum:"behandlet",imperativ:"",en:"Handle"},
+  {inf:"beite",gruppe:"2",presens:"beiter",preteritum:"beitet",perfektum:"beitet",imperativ:"",en:"Graze"},
+  {inf:"beskrive",gruppe:"UV",presens:"beskriver",preteritum:"beskrev",perfektum:"beskrevet",imperativ:"beskriv",en:"Describe"},
+  {inf:"bestemme",gruppe:"1",presens:"bestemmer",preteritum:"bestemte",perfektum:"bestemt",imperativ:"",en:"Decide"},
+  {inf:"beslå",gruppe:"UV",presens:"beslår",preteritum:"beslo",perfektum:"beslått",imperativ:"",en:"Mount"},
+  {inf:"bestille",gruppe:"1",presens:"bestiller",preteritum:"bestilte",perfektum:"bestilt",imperativ:"",en:"Do, Order"},
+  {inf:"bestå",gruppe:"UV",presens:"består",preteritum:"besto(d)",perfektum:"bestått",imperativ:"",en:"Pass (as in exam)"},
+  {inf:"besøke",gruppe:"1",presens:"besøker",preteritum:"besøkte",perfektum:"besøkt",imperativ:"",en:"Visit"},
+  {inf:"betale",gruppe:"1",presens:"betaler",preteritum:"betalte",perfektum:"betalt",imperativ:"",en:"Pay"},
+  {inf:"bety",gruppe:"4",presens:"betyr",preteritum:"betydde",perfektum:"betydd",imperativ:"",en:"Mean, Signify"},
+  {inf:"binde",gruppe:"UV",presens:"binder",preteritum:"bandt",perfektum:"bundet",imperativ:"",en:"Bind"},
+  {inf:"bite",gruppe:"UV",presens:"biter",preteritum:"bet",perfektum:"bit",imperativ:"",en:"Bite"},
+  {inf:"bjeffe",gruppe:"2",presens:"bjeffer",preteritum:"bjeffet",perfektum:"bjeffet",imperativ:"",en:"Bark, Yap"},
+  {inf:"blande",gruppe:"2",presens:"blander",preteritum:"blandet",perfektum:"blandet",imperativ:"",en:"Blend, Mix"},
+  {inf:"bli",gruppe:"UV/HV",presens:"blir",preteritum:"ble",perfektum:"blitt",imperativ:"bli",en:"Be"},
+  {inf:"blø",gruppe:"4",presens:"blør",preteritum:"blødde",perfektum:"blødd",imperativ:"blø",en:"Bleed"},
+  {inf:"blåse",gruppe:"1",presens:"blåser",preteritum:"blåste",perfektum:"blåst",imperativ:"",en:"Blow"},
+  {inf:"bo",gruppe:"4",presens:"bor",preteritum:"bordde",perfektum:"bordd",imperativ:"bo",en:"Live, Reside"},
+  {inf:"brekke",gruppe:"UV",presens:"brekker",preteritum:"brakk",perfektum:"brukket",imperativ:"",en:"Break"},
+  {inf:"brenne",gruppe:"1",presens:"brenner",preteritum:"brente",perfektum:"brent",imperativ:"",en:"Burn"},
+  {inf:"bringe",gruppe:"UV",presens:"bringer",preteritum:"brakte",perfektum:"brakt",imperativ:"",en:"Bring"},
+  {inf:"briste",gruppe:"UV",presens:"brister",preteritum:"brast",perfektum:"bristet",imperativ:"",en:"Burst"},
+  {inf:"bruke",gruppe:"1",presens:"bruker",preteritum:"brukte",perfektum:"brukt",imperativ:"bruk",en:"Use"},
+  {inf:"bry",gruppe:"4",presens:"bryr",preteritum:"brydde",perfektum:"brydd",imperativ:"",en:"Bother"},
+  {inf:"bryte",gruppe:"UV",presens:"bryter",preteritum:"brøt",perfektum:"brutt",imperativ:"",en:"Violate, Break"},
+  {inf:"burde",gruppe:"UV",presens:"bør",preteritum:"burde",perfektum:"burdet",imperativ:"",en:"Ought to"},
+  {inf:"by",gruppe:"UV",presens:"byr",preteritum:"bød",perfektum:"budt",imperativ:"",en:"Offer, Bid"},
+  {inf:"bygge",gruppe:"3",presens:"bygger",preteritum:"bygde",perfektum:"bygd",imperativ:"",en:"Build"},
+  {inf:"bytte",gruppe:"2",presens:"bytter",preteritum:"byttet",perfektum:"byttet",imperativ:"",en:"Change, Exchange"},
+  {inf:"bære",gruppe:"UV",presens:"bærer",preteritum:"bar",perfektum:"båret",imperativ:"",en:"Bear, Endure"},
+  {inf:"danse",gruppe:"2",presens:"danser",preteritum:"danset",perfektum:"danset",imperativ:"dans",en:"Dance"},
+  {inf:"dele",gruppe:"1",presens:"deler",preteritum:"delte",perfektum:"delt",imperativ:"",en:"Divide"},
+  {inf:"demokratisere",gruppe:"1",presens:"demokratiserer",preteritum:"demokratiserte",perfektum:"demokratisert",imperativ:"",en:"Democratize"},
+  {inf:"diskutere",gruppe:"1",presens:"diskuterer",preteritum:"diskuterte",perfektum:"diskutert",imperativ:"",en:"Discuss"},
+  {inf:"dra",gruppe:"UV",presens:"drar",preteritum:"drog",perfektum:"dradd/dratt",imperativ:"",en:"Go / Drag"},
+  {inf:"drikke",gruppe:"UV",presens:"drikker",preteritum:"drakk",perfektum:"drukket",imperativ:"drikk",en:"Drink"},
+  {inf:"drive",gruppe:"UV",presens:"driver",preteritum:"drev",perfektum:"drevet",imperativ:"",en:"Drive, Operate"},
+  {inf:"drømme",gruppe:"1",presens:"drømmer",preteritum:"drømte",perfektum:"drømt",imperativ:"",en:"Dream"},
+  {inf:"dusje",gruppe:"2",presens:"dusjer",preteritum:"dusjet",perfektum:"dusjet",imperativ:"",en:"Shower"},
+  {inf:"dyrke",gruppe:"2",presens:"dyrker",preteritum:"dyrket",perfektum:"dyrket",imperativ:"",en:"Cultivate"},
+  {inf:"dytte",gruppe:"2",presens:"dytter",preteritum:"dyttet",perfektum:"dyttet",imperativ:"dytt",en:"Push"},
+  {inf:"eie",gruppe:"3",presens:"eier",preteritum:"eide",perfektum:"eid",imperativ:"",en:"Possess"},
+  {inf:"ese",gruppe:"1",presens:"eser",preteritum:"este",perfektum:"est",imperativ:"",en:"Rise"},
+  {inf:"ete",gruppe:"UV",presens:"eter",preteritum:"åt",perfektum:"ett",imperativ:"",en:"Eat Greedily"},
+  {inf:"evangelisere",gruppe:"1",presens:"evangeliserer",preteritum:"evangeliserte",perfektum:"evangelisert",imperativ:"",en:"Evangelize"},
+  {inf:"falle",gruppe:"UV",presens:"faller",preteritum:"falt",perfektum:"falt",imperativ:"",en:"Fall"},
+  {inf:"feire",gruppe:"2",presens:"feirer",preteritum:"feiret",perfektum:"feiret",imperativ:"",en:"Celebrate"},
+  {inf:"finne",gruppe:"UV",presens:"finner",preteritum:"fant",perfektum:"funnet",imperativ:"finn",en:"Find"},
+  {inf:"fiske",gruppe:"2",presens:"fisker",preteritum:"fisket",perfektum:"fisket",imperativ:"",en:"Fish"},
+  {inf:"fleipe",gruppe:"1",presens:"fleiper",preteritum:"fleipte",perfektum:"fleipt",imperativ:"",en:"Joke"},
+  {inf:"fly",gruppe:"UV",presens:"flyr",preteritum:"fløy",perfektum:"fløyet",imperativ:"",en:"Fly"},
+  {inf:"flykte",gruppe:"2",presens:"flykter",preteritum:"flyktet",perfektum:"flyktet",imperativ:"",en:"Flee"},
+  {inf:"flyte",gruppe:"UV",presens:"flyter",preteritum:"fløt",perfektum:"flytt",imperativ:"",en:"Float"},
+  {inf:"flytte",gruppe:"2",presens:"flytter",preteritum:"flyttet",perfektum:"flyttet",imperativ:"",en:"Move"},
+  {inf:"forene",gruppe:"1",presens:"forener",preteritum:"forente",perfektum:"forent",imperativ:"",en:"Unite"},
+  {inf:"foreslå",gruppe:"UV",presens:"foreslår",preteritum:"foreslo",perfektum:"foreslått",imperativ:"",en:"Suggest"},
+  {inf:"foreta",gruppe:"UV",presens:"foretar",preteritum:"foretok",perfektum:"foretatt",imperativ:"",en:"Undertake"},
+  {inf:"forkjøle seg",gruppe:"UV",presens:"forkjøler seg",preteritum:"forkjølet seg",perfektum:"forkjølt seg",imperativ:"",en:"Catch a Cold"},
+  {inf:"forklare",gruppe:"1",presens:"forklarer",preteritum:"forklarte",perfektum:"forklart",imperativ:"",en:"Explain"},
+  {inf:"forlate",gruppe:"UV",presens:"forlater",preteritum:"forlot",perfektum:"forlatt",imperativ:"",en:"Forgive"},
+  {inf:"fornye",gruppe:"2",presens:"fornyer",preteritum:"fornyet",perfektum:"fornyet",imperativ:"",en:"Renew"},
+  {inf:"forstå",gruppe:"UV",presens:"forstår",preteritum:"forstod",perfektum:"forstått",imperativ:"",en:"Understand"},
+  {inf:"forsvinne",gruppe:"UV",presens:"forsvinner",preteritum:"forsvant",perfektum:"forsvunnet",imperativ:"",en:"Disappear"},
+  {inf:"fortelle",gruppe:"UV",presens:"forteller",preteritum:"fortalte",perfektum:"fortalt",imperativ:"",en:"Tell"},
+  {inf:"fortsette",gruppe:"UV",presens:"fortsetter",preteritum:"fortsatte",perfektum:"fortsatt",imperativ:"",en:"Continue"},
+  {inf:"fosse",gruppe:"2",presens:"fosser",preteritum:"fosset",perfektum:"fosset",imperativ:"",en:"Gush"},
+  {inf:"fotografere",gruppe:"1",presens:"fotograferer",preteritum:"fotograferte",perfektum:"fotografert",imperativ:"",en:"Photograph"},
+  {inf:"fryse",gruppe:"UV",presens:"fryser",preteritum:"frøs",perfektum:"frosset",imperativ:"",en:"Freeze"},
+  {inf:"fylle",gruppe:"1",presens:"fyller",preteritum:"fylte",perfektum:"fylt",imperativ:"",en:"Fill"},
+  {inf:"føde",gruppe:"1",presens:"føder",preteritum:"fødte",perfektum:"født",imperativ:"",en:"Bear, Give birth to"},
+  {inf:"føle seg",gruppe:"1",presens:"føler seg",preteritum:"følte seg",perfektum:"følt seg",imperativ:"",en:"Be, Feel"},
+  {inf:"følge",gruppe:"UV",presens:"følger",preteritum:"fulgte",perfektum:"fulgt",imperativ:"følg",en:"Follow"},
+  {inf:"føne",gruppe:"1",presens:"føner",preteritum:"fønte",perfektum:"fønt",imperativ:"",en:"Blow Dry"},
+  {inf:"få",gruppe:"UV",presens:"får",preteritum:"fikk",perfektum:"fått",imperativ:"få",en:"Get"},
+  {inf:"gale",gruppe:"UV",presens:"galer",preteritum:"gol",perfektum:"galt",imperativ:"",en:"Crow"},
+  {inf:"gape",gruppe:"1",presens:"gaper",preteritum:"gapte",perfektum:"gapt",imperativ:"",en:"Gape"},
+  {inf:"gi",gruppe:"UV",presens:"gir",preteritum:"gav",perfektum:"gitt",imperativ:"gi",en:"Give"},
+  {inf:"gidde",gruppe:"UV",presens:"gidder",preteritum:"gadd",perfektum:"giddet",imperativ:"",en:"Take the trouble"},
+  {inf:"gifte",gruppe:"2",presens:"gifter",preteritum:"giftet",perfektum:"giftet",imperativ:"",en:"Marry"},
+  {inf:"gjelde",gruppe:"UV",presens:"gjelder",preteritum:"gjaldt",perfektum:"gjeldt",imperativ:"",en:"To be worth"},
+  {inf:"gjenta",gruppe:"UV",presens:"gjentar",preteritum:"gjentok",perfektum:"gjentatt",imperativ:"",en:"Repeat"},
+  {inf:"gjette",gruppe:"2",presens:"gjetter",preteritum:"gjettet",perfektum:"gjettet",imperativ:"",en:"Guess"},
+  {inf:"gjøre",gruppe:"UV",presens:"gjør",preteritum:"gjorde",perfektum:"gjort",imperativ:"gjør",en:"Do"},
+  {inf:"glede seg",gruppe:"2",presens:"gleder seg",preteritum:"gledet seg",perfektum:"gledet seg",imperativ:"",en:"Look forward"},
+  {inf:"glemme",gruppe:"1",presens:"glemmer",preteritum:"glemte",perfektum:"glemt",imperativ:"glem",en:"Forget"},
+  {inf:"gli",gruppe:"UV",presens:"glir",preteritum:"glei/gled",perfektum:"glidd",imperativ:"",en:"Slide, Glide"},
+  {inf:"gnage",gruppe:"UV",presens:"gnager",preteritum:"gnog",perfektum:"gnaget",imperativ:"",en:"Gnaw"},
+  {inf:"gni",gruppe:"UV",presens:"gnir",preteritum:"gned",perfektum:"gnidd",imperativ:"",en:"Rub"},
+  {inf:"gratulere",gruppe:"1",presens:"gratulerer",preteritum:"gratulerte",perfektum:"gratulert",imperativ:"",en:"Congratulate"},
+  {inf:"grave",gruppe:"UV",presens:"graver",preteritum:"grov",perfektum:"gravd",imperativ:"",en:"Dig"},
+  {inf:"gre",gruppe:"4",presens:"grer",preteritum:"gredde",perfektum:"gredd",imperativ:"gre",en:"Comb"},
+  {inf:"greie",gruppe:"3",presens:"greier",preteritum:"greide",perfektum:"greid",imperativ:"",en:"Manage, Cope with"},
+  {inf:"grense",gruppe:"2",presens:"grenser",preteritum:"grenset",perfektum:"grenset",imperativ:"",en:"Border"},
+  {inf:"grille",gruppe:"2",presens:"griller",preteritum:"grillet",perfektum:"grillet",imperativ:"",en:"Grill"},
+  {inf:"grine",gruppe:"UV",presens:"griner",preteritum:"grein",perfektum:"grint",imperativ:"",en:"Fret"},
+  {inf:"gripe",gruppe:"UV",presens:"griper",preteritum:"grep",perfektum:"grepet",imperativ:"",en:"Grip"},
+  {inf:"grue seg",gruppe:"UV",presens:"gruer seg",preteritum:"grudde seg",perfektum:"gruet",imperativ:"",en:"Dread"},
+  {inf:"gråte",gruppe:"UV",presens:"gråter",preteritum:"gråt",perfektum:"grått",imperativ:"",en:"Cry"},
+  {inf:"gyse",gruppe:"UV",presens:"gyser",preteritum:"gjøs",perfektum:"gyst",imperativ:"",en:"Shudder"},
+  {inf:"gyte",gruppe:"UV",presens:"gyter",preteritum:"gjøt",perfektum:"gytt",imperativ:"",en:"Spawn"},
+  {inf:"gyve",gruppe:"UV",presens:"gyver",preteritum:"gjøv",perfektum:"gjøvet",imperativ:"",en:"Fly"},
+  {inf:"gå",gruppe:"UV",presens:"går",preteritum:"gikk",perfektum:"gått",imperativ:"gå",en:"Go, Walk"},
+  {inf:"ha",gruppe:"UV",presens:"har",preteritum:"hadde",perfektum:"hatt",imperativ:"ha",en:"Have"},
+  {inf:"handle",gruppe:"2",presens:"handler",preteritum:"handlet",perfektum:"handlet",imperativ:"",en:"Deal, Act"},
+  {inf:"hende",gruppe:"1",presens:"hender",preteritum:"hendte",perfektum:"hendt",imperativ:"",en:"Occur"},
+  {inf:"henge",gruppe:"UV",presens:"henger",preteritum:"hang/hengte",perfektum:"hengt",imperativ:"",en:"Hang"},
+  {inf:"hente",gruppe:"2",presens:"henter",preteritum:"hentet",perfektum:"hentet",imperativ:"hent",en:"Get"},
+  {inf:"hete",gruppe:"UV",presens:"heter",preteritum:"het",perfektum:"hett",imperativ:"",en:"Name"},
+  {inf:"hilse",gruppe:"1",presens:"hilser",preteritum:"hilste",perfektum:"hilst",imperativ:"",en:"Greet"},
+  {inf:"hindre",gruppe:"2",presens:"hindrer",preteritum:"hindret",perfektum:"hindret",imperativ:"",en:"Prevent"},
+  {inf:"hive",gruppe:"UV",presens:"hiver",preteritum:"hev",perfektum:"hevet",imperativ:"",en:"Heave"},
+  {inf:"hjelpe",gruppe:"UV",presens:"hjelper",preteritum:"hjalp",perfektum:"hjulpet",imperativ:"hjelp",en:"Help"},
+  {inf:"holde",gruppe:"UV",presens:"holder",preteritum:"holdt",perfektum:"holdt",imperativ:"",en:"Hold"},
+  {inf:"hogge",gruppe:"UV",presens:"hogger",preteritum:"hogg",perfektum:"hogd",imperativ:"",en:"Cut, Chop"},
+  {inf:"hoppe",gruppe:"2",presens:"hopper",preteritum:"hoppet",perfektum:"hoppet",imperativ:"",en:"Jump"},
+  {inf:"hoste",gruppe:"2",presens:"hoster",preteritum:"hostet",perfektum:"hostet",imperativ:"",en:"Cough"},
+  {inf:"huske",gruppe:"2",presens:"husker",preteritum:"husket",perfektum:"husket",imperativ:"",en:"Remember"},
+  {inf:"hvile",gruppe:"1",presens:"hviler",preteritum:"hvilte",perfektum:"hvilt",imperativ:"",en:"Rest"},
+  {inf:"hygge",gruppe:"2",presens:"hygger",preteritum:"hygget",perfektum:"hygget",imperativ:"",en:"Comfort"},
+  {inf:"høre",gruppe:"1",presens:"hører",preteritum:"hørte",perfektum:"hørt",imperativ:"hør",en:"Hear"},
+  {inf:"høste",gruppe:"2",presens:"høster",preteritum:"høstet",perfektum:"høstet",imperativ:"",en:"Harvest"},
+  {inf:"håpe",gruppe:"2",presens:"håper",preteritum:"håpet",perfektum:"håpet",imperativ:"",en:"Hope"},
+  {inf:"invitere",gruppe:"1",presens:"inviterer",preteritum:"inviterte",perfektum:"invitert",imperativ:"",en:"Invite"},
+  {inf:"jobbe",gruppe:"2",presens:"jobber",preteritum:"jobbet",perfektum:"jobbet",imperativ:"",en:"Work"},
+  {inf:"kalkulere",gruppe:"1",presens:"kalkulerer",preteritum:"kalkulerte",perfektum:"kalkulert",imperativ:"",en:"Calculate"},
+  {inf:"kaste",gruppe:"2",presens:"kaster",preteritum:"kastet",perfektum:"kastet",imperativ:"",en:"Cast"},
+  {inf:"kjenne",gruppe:"1",presens:"kjenner",preteritum:"kjente",perfektum:"kjent",imperativ:"",en:"Feel"},
+  {inf:"kjøpe",gruppe:"1",presens:"kjøper",preteritum:"kjøpte",perfektum:"kjøpt",imperativ:"kjøp",en:"Buy"},
+  {inf:"kjøre",gruppe:"1",presens:"kjører",preteritum:"kjørte",perfektum:"kjørt",imperativ:"kjør",en:"Drive"},
+  {inf:"klappe",gruppe:"2",presens:"klapper",preteritum:"klappet",perfektum:"klappet",imperativ:"",en:"Clap"},
+  {inf:"klare",gruppe:"1",presens:"klarer",preteritum:"klarte",perfektum:"klart",imperativ:"klar",en:"Manage"},
+  {inf:"kle",gruppe:"4",presens:"kler",preteritum:"kledde",perfektum:"kledd",imperativ:"kle",en:"Dress, Clothe"},
+  {inf:"klinge",gruppe:"1",presens:"klinger",preteritum:"klingte",perfektum:"klingt",imperativ:"",en:"Sound"},
+  {inf:"klippe",gruppe:"1",presens:"klipper",preteritum:"klipte",perfektum:"klipt",imperativ:"klipp",en:"Cut, Clip"},
+  {inf:"klype",gruppe:"UV",presens:"klyper",preteritum:"kløp",perfektum:"kløpet",imperativ:"",en:"Pinch"},
+  {inf:"klyve",gruppe:"UV",presens:"klyver",preteritum:"kløv",perfektum:"kløvet",imperativ:"",en:"Climb"},
+  {inf:"knekke",gruppe:"UV",presens:"knekker",preteritum:"knakk",perfektum:"knekt",imperativ:"",en:"Crack"},
+  {inf:"knipe",gruppe:"UV",presens:"kniper",preteritum:"knep",perfektum:"knepet",imperativ:"",en:"Pinch"},
+  {inf:"knyte",gruppe:"2",presens:"knyter",preteritum:"knytet/knøt",perfektum:"knytet/knytt",imperativ:"",en:"Tie"},
+  {inf:"koke",gruppe:"1",presens:"koker",preteritum:"kokte",perfektum:"kokt",imperativ:"kok",en:"Cook"},
+  {inf:"komme",gruppe:"UV",presens:"kommer",preteritum:"kom",perfektum:"kommet",imperativ:"kom",en:"Come"},
+  {inf:"kontaktere",gruppe:"1",presens:"kontakterer",preteritum:"kontakterte",perfektum:"kontaktert",imperativ:"",en:"Contact"},
+  {inf:"kontrollere",gruppe:"1",presens:"kontrollerer",preteritum:"kontrollerte",perfektum:"kontrollert",imperativ:"",en:"Control"},
+  {inf:"kopiere",gruppe:"1",presens:"kopierer",preteritum:"kopierte",perfektum:"kopiert",imperativ:"",en:"Copy"},
+  {inf:"korrigere",gruppe:"1",presens:"korrigerer",preteritum:"korrigerte",perfektum:"korrigert",imperativ:"",en:"Correct"},
+  {inf:"kose seg",gruppe:"1",presens:"koser seg",preteritum:"koste seg",perfektum:"kost seg",imperativ:"",en:"Enjoy yourself"},
+  {inf:"koste",gruppe:"2",presens:"koster",preteritum:"kostet",perfektum:"kostet",imperativ:"",en:"Cost"},
+  {inf:"kunne",gruppe:"UV/HV",presens:"kan",preteritum:"kunne",perfektum:"kunnet",imperativ:"",en:"Could"},
+  {inf:"krype",gruppe:"UV",presens:"kryper",preteritum:"krøp",perfektum:"krøpet",imperativ:"",en:"Creep"},
+  {inf:"kvele",gruppe:"UV",presens:"kveler",preteritum:"kvalte",perfektum:"kvalt",imperativ:"",en:"Choke, Strangle"},
+  {inf:"la",gruppe:"UV",presens:"lar",preteritum:"lot",perfektum:"latt",imperativ:"",en:"Let, Allow"},
+  {inf:"lage",gruppe:"2",presens:"lager",preteritum:"laget",perfektum:"laget",imperativ:"",en:"Prepare"},
+  {inf:"le",gruppe:"UV",presens:"ler",preteritum:"lot",perfektum:"ledd",imperativ:"le",en:"Laugh"},
+  {inf:"legge",gruppe:"UV",presens:"legger",preteritum:"la",perfektum:"lagt",imperativ:"",en:"Lay"},
+  {inf:"leie",gruppe:"3",presens:"leier",preteritum:"leide",perfektum:"leid",imperativ:"",en:"Hire"},
+  {inf:"leke",gruppe:"1",presens:"leker",preteritum:"lekte",perfektum:"lekt",imperativ:"lek",en:"Play"},
+  {inf:"lese",gruppe:"1",presens:"leser",preteritum:"leste",perfektum:"lest",imperativ:"",en:"Read"},
+  {inf:"lete",gruppe:"UV",presens:"leter",preteritum:"lette",perfektum:"lett",imperativ:"let",en:"Search"},
+  {inf:"leve",gruppe:"3",presens:"lever",preteritum:"levde",perfektum:"levd",imperativ:"",en:"Live, Be alive"},
+  {inf:"levere",gruppe:"1",presens:"leverer",preteritum:"leverte",perfektum:"levert",imperativ:"",en:"Give up"},
+  {inf:"lide",gruppe:"UV",presens:"lider",preteritum:"led",perfektum:"lidd",imperativ:"",en:"Suffer"},
+  {inf:"ligge",gruppe:"UV",presens:"ligger",preteritum:"lå",perfektum:"ligget",imperativ:"",en:"Lie"},
+  {inf:"like",gruppe:"1",presens:"liker",preteritum:"likte",perfektum:"likt",imperativ:"",en:"Like"},
+  {inf:"love",gruppe:"2",presens:"lover",preteritum:"lovet",perfektum:"lovet",imperativ:"",en:"Promise"},
+  {inf:"lufte",gruppe:"2",presens:"lufter",preteritum:"luftet",perfektum:"luftet",imperativ:"",en:"Air"},
+  {inf:"lukte",gruppe:"2",presens:"lukter",preteritum:"luktet",perfektum:"luktet",imperativ:"",en:"Smell"},
+  {inf:"lyde",gruppe:"UV",presens:"lyder",preteritum:"lød",perfektum:"lydt",imperativ:"",en:"Sound"},
+  {inf:"lyge",gruppe:"UV",presens:"lyger",preteritum:"løy",perfektum:"løyet",imperativ:"",en:"Tell a lie"},
+  {inf:"lytte",gruppe:"2",presens:"lytter",preteritum:"lyttet",perfektum:"lyttet",imperativ:"",en:"Listen"},
+  {inf:"lyve",gruppe:"UV",presens:"lyver",preteritum:"løy",perfektum:"løyet",imperativ:"",en:"Tell a lie"},
+  {inf:"lære",gruppe:"1",presens:"lærer",preteritum:"lærte",perfektum:"lært",imperativ:"",en:"Teach, Learn"},
+  {inf:"løfte",gruppe:"2",presens:"løfter",preteritum:"løftet",perfektum:"løftet",imperativ:"",en:"Lift"},
+  {inf:"løpe",gruppe:"UV",presens:"løper",preteritum:"løp",perfektum:"løpt",imperativ:"",en:"Run"},
+  {inf:"løse",gruppe:"1",presens:"løser",preteritum:"løste",perfektum:"løst",imperativ:"løs",en:"Loosen"},
+  {inf:"låne",gruppe:"1",presens:"låner",preteritum:"lånte",perfektum:"lånt",imperativ:"",en:"Loan"},
+  {inf:"låse",gruppe:"1",presens:"låser",preteritum:"låste",perfektum:"låst",imperativ:"",en:"Lock"},
+  {inf:"mase",gruppe:"1",presens:"maser",preteritum:"maste",perfektum:"mast",imperativ:"mas",en:"Bother"},
+  {inf:"merke",gruppe:"2",presens:"merker",preteritum:"merket",perfektum:"merket",imperativ:"",en:"Mark"},
+  {inf:"minke",gruppe:"2",presens:"minker",preteritum:"minket",perfektum:"minket",imperativ:"",en:"Decrease"},
+  {inf:"miste",gruppe:"2",presens:"mister",preteritum:"mistet",perfektum:"mistet",imperativ:"",en:"Lose"},
+  {inf:"møte",gruppe:"1",presens:"møter",preteritum:"møtte",perfektum:"møtt",imperativ:"",en:"Meet"},
+  {inf:"måle",gruppe:"1",presens:"måler",preteritum:"målte",perfektum:"målt",imperativ:"",en:"Measure"},
+  {inf:"måtte",gruppe:"UV/HV",presens:"må",preteritum:"måtte",perfektum:"måttet",imperativ:"",en:"Have to"},
+  {inf:"neke",gruppe:"1",presens:"neker",preteritum:"nekte",perfektum:"nekt",imperativ:"",en:""},
+  {inf:"nekte",gruppe:"2",presens:"nekter",preteritum:"nektet",perfektum:"nektet",imperativ:"",en:"Deny"},
+  {inf:"nyse",gruppe:"UV",presens:"nyser",preteritum:"nøs",perfektum:"nyst",imperativ:"",en:"Sneeze"},
+  {inf:"nyte",gruppe:"UV",presens:"nyter",preteritum:"nøt",perfektum:"nytt",imperativ:"",en:"Enjoy"},
+  {inf:"omarbeide",gruppe:"2",presens:"omarbeider",preteritum:"omarbeidet",perfektum:"omarbeidet",imperativ:"",en:"Revise"},
+  {inf:"oppsøke",gruppe:"1",presens:"oppsøker",preteritum:"oppsøkte",perfektum:"oppsøkt",imperativ:"",en:"Look up"},
+  {inf:"overdrive",gruppe:"UV",presens:"overdriver",preteritum:"overdrev",perfektum:"overdrevet",imperativ:"",en:"Exaggerate"},
+  {inf:"overnatte",gruppe:"2",presens:"overnatter",preteritum:"overnattet",perfektum:"overnattet",imperativ:"",en:"Spend the night"},
+  {inf:"overskrive",gruppe:"UV",presens:"overskriver",preteritum:"overskrev",perfektum:"overskrevet",imperativ:"",en:"Sign"},
+  {inf:"overta",gruppe:"UV",presens:"overtar",preteritum:"overtok",perfektum:"overtatt",imperativ:"",en:"Take over"},
+  {inf:"overtale",gruppe:"1",presens:"overtaler",preteritum:"overtalte",perfektum:"overtalt",imperativ:"",en:"Persuade"},
+  {inf:"pakke",gruppe:"2",presens:"pakker",preteritum:"pakket",perfektum:"pakket",imperativ:"",en:"Pack"},
+  {inf:"parkere",gruppe:"1",presens:"parkerer",preteritum:"parkerte",perfektum:"parkert",imperativ:"parker",en:"Park"},
+  {inf:"passe",gruppe:"2",presens:"passer",preteritum:"passet",perfektum:"passet",imperativ:"",en:"Fit"},
+  {inf:"peke",gruppe:"1",presens:"peker",preteritum:"pekte",perfektum:"pekt",imperativ:"",en:"Point"},
+  {inf:"pipe",gruppe:"UV",presens:"piper",preteritum:"pe(i)p",perfektum:"pepet",imperativ:"",en:"Wheeze"},
+  {inf:"pleie",gruppe:"3",presens:"pleier",preteritum:"pleide",perfektum:"pleid",imperativ:"",en:"Look after"},
+  {inf:"plombere",gruppe:"1",presens:"plomberer",preteritum:"plomberte",perfektum:"plombert",imperativ:"",en:"Stop, Seal"},
+  {inf:"plystre",gruppe:"2",presens:"plystrer",preteritum:"plystret",perfektum:"plystret",imperativ:"",en:"Whistle"},
+  {inf:"preke",gruppe:"1",presens:"preker",preteritum:"prekte",perfektum:"prekt",imperativ:"",en:"Preach"},
+  {inf:"prøve",gruppe:"3",presens:"prøver",preteritum:"prøvde",perfektum:"prøvd",imperativ:"",en:"Try, Test"},
+  {inf:"pusse",gruppe:"2",presens:"pusser",preteritum:"pusset",perfektum:"pusset",imperativ:"",en:"Clean, Polish"},
+  {inf:"putte",gruppe:"2",presens:"putter",preteritum:"puttet",perfektum:"puttet",imperativ:"",en:"Put"},
+  {inf:"pynte",gruppe:"2",presens:"pynter",preteritum:"pyntet",perfektum:"pyntet",imperativ:"",en:"Decorate, Trim"},
+  {inf:"pågripe",gruppe:"2",presens:"pågriper",preteritum:"pågripet",perfektum:"pågripet",imperativ:"",en:"Arrest"},
+  {inf:"regne",gruppe:"2",presens:"regner",preteritum:"regnet",perfektum:"renget",imperativ:"",en:"Rain"},
+  {inf:"reise",gruppe:"1",presens:"reiser",preteritum:"reiste",perfektum:"reist",imperativ:"",en:"Travel"},
+  {inf:"rekke",gruppe:"UV",presens:"rekker",preteritum:"rakk",perfektum:"rukket",imperativ:"",en:"Reach"},
+  {inf:"rekommandere",gruppe:"1",presens:"rekommanderer",preteritum:"rekommanderte",perfektum:"rekommandert",imperativ:"",en:"Register"},
+  {inf:"rense",gruppe:"2",presens:"renser",preteritum:"renset",perfektum:"renset",imperativ:"",en:"Clean"},
+  {inf:"reparere",gruppe:"1",presens:"reparerer",preteritum:"reparerte",perfektum:"reparert",imperativ:"",en:"Repair"},
+  {inf:"repetere",gruppe:"1",presens:"repeterer",preteritum:"repeterte",perfektum:"repetert",imperativ:"",en:"Repeat, Revise"},
+  {inf:"representere",gruppe:"1",presens:"representerer",preteritum:"representerte",perfektum:"representert",imperativ:"",en:"Represent"},
+  {inf:"rette",gruppe:"2",presens:"retter",preteritum:"rettet",perfektum:"rettet",imperativ:"",en:"Straighten, Align"},
+  {inf:"ri",gruppe:"UV",presens:"rir",preteritum:"red",perfektum:"ridd",imperativ:"",en:"Ride"},
+  {inf:"ringe",gruppe:"1",presens:"ringer",preteritum:"ringte",perfektum:"ringt",imperativ:"ring",en:"Ring"},
+  {inf:"rive",gruppe:"UV",presens:"river",preteritum:"rev",perfektum:"revet",imperativ:"",en:"Grate"},
+  {inf:"ro",gruppe:"4",presens:"ror",preteritum:"rodde",perfektum:"rodd",imperativ:"ro",en:"Row"},
+  {inf:"rope",gruppe:"1",presens:"roper",preteritum:"ropte",perfektum:"ropt",imperativ:"rop",en:"Call, Shout"},
+  {inf:"ruske",gruppe:"2",presens:"rusker",preteritum:"rusket",perfektum:"rusket",imperativ:"",en:"Pull"},
+  {inf:"rydde",gruppe:"2",presens:"rydder",preteritum:"ryddet",perfektum:"ryddet",imperativ:"",en:"Tidy"},
+  {inf:"rydde av",gruppe:"2",presens:"rydder av",preteritum:"ryddet av",perfektum:"ryddet av",imperativ:"",en:"Clear away, Remove"},
+  {inf:"ryke",gruppe:"UV",presens:"ryker",preteritum:"røk",perfektum:"røket",imperativ:"",en:"Smoke"},
+  {inf:"røre",gruppe:"1",presens:"rører",preteritum:"rørte",perfektum:"rørt",imperativ:"rør",en:"Stir"},
+  {inf:"røyke",gruppe:"1",presens:"røyker",preteritum:"røykte",perfektum:"røykt",imperativ:"",en:"Smoke"},
+  {inf:"råde",gruppe:"2",presens:"råder",preteritum:"rådet",perfektum:"rådet",imperativ:"",en:"Recommend"},
+  {inf:"sage",gruppe:"2",presens:"sager",preteritum:"saget",perfektum:"saget",imperativ:"sag",en:"Saw"},
+  {inf:"samarbeide",gruppe:"2",presens:"samarbeider",preteritum:"samarbeidet",perfektum:"samarbeidet",imperativ:"",en:"Work together"},
+  {inf:"sammenlikne",gruppe:"2",presens:"sammenlikner",preteritum:"sammenliknet",perfektum:"sammenliknet",imperativ:"",en:"Compare"},
+  {inf:"savne",gruppe:"2",presens:"savner",preteritum:"savnet",perfektum:"savnet",imperativ:"",en:"Lack"},
+  {inf:"se",gruppe:"UV",presens:"ser",preteritum:"så",perfektum:"sett",imperativ:"se",en:"See, Look"},
+  {inf:"selge",gruppe:"UV",presens:"selger",preteritum:"solgte",perfektum:"solgt",imperativ:"",en:"Sell"},
+  {inf:"sende",gruppe:"1",presens:"sender",preteritum:"sendte",perfektum:"sendt",imperativ:"",en:"Send"},
+  {inf:"servere",gruppe:"1",presens:"serverer",preteritum:"serverte",perfektum:"servert",imperativ:"",en:"Serve"},
+  {inf:"sette",gruppe:"UV",presens:"setter",preteritum:"satte",perfektum:"satt",imperativ:"sett",en:"Set"},
+  {inf:"si",gruppe:"UV",presens:"sier",preteritum:"sa",perfektum:"sagt",imperativ:"",en:"Say"},
+  {inf:"sige",gruppe:"UV",presens:"siger",preteritum:"seg",perfektum:"seget",imperativ:"",en:"Ooze, Seep"},
+  {inf:"sikte",gruppe:"2",presens:"sikter",preteritum:"siktet",perfektum:"siktet",imperativ:"sikt",en:"Aim"},
+  {inf:"sitte",gruppe:"UV",presens:"sitter",preteritum:"satt",perfektum:"sittet",imperativ:"",en:"Sit"},
+  {inf:"skifte",gruppe:"2",presens:"skifter",preteritum:"skiftet",perfektum:"skiftet",imperativ:"",en:"Change, Switch"},
+  {inf:"skje",gruppe:"4",presens:"skjer",preteritum:"skjedde",perfektum:"skjedd",imperativ:"",en:"Happen"},
+  {inf:"skjelve",gruppe:"UV",presens:"skjelver",preteritum:"skalv",perfektum:"skjelvet",imperativ:"",en:"Tremble"},
+  {inf:"skjære",gruppe:"UV",presens:"skjærer",preteritum:"skar",perfektum:"skåret",imperativ:"",en:"Cut"},
+  {inf:"skjønne",gruppe:"1",presens:"skjønner",preteritum:"skjønte",perfektum:"skjønt",imperativ:"",en:"Understand"},
+  {inf:"skride",gruppe:"UV",presens:"skrider",preteritum:"skred",perfektum:"skredet",imperativ:"",en:"Proceed"},
+  {inf:"skrive",gruppe:"UV",presens:"skriver",preteritum:"skrev",perfektum:"skrevet",imperativ:"skriv",en:"Write"},
+  {inf:"skru",gruppe:"4",presens:"skrur",preteritum:"skrudde",perfektum:"skrudd",imperativ:"skru",en:"Screw"},
+  {inf:"skryte",gruppe:"UV",presens:"skryter",preteritum:"skrøt",perfektum:"skrytt",imperativ:"",en:"Boast"},
+  {inf:"skulle",gruppe:"UV/HV",presens:"skal",preteritum:"skulle",perfektum:"skullet",imperativ:"",en:"Shall, Have to"},
+  {inf:"skvette",gruppe:"2",presens:"skvetter",preteritum:"skvettet",perfektum:"skvettet",imperativ:"",en:"Splash"},
+  {inf:"skylle",gruppe:"1",presens:"skyller",preteritum:"skylte",perfektum:"skylt",imperativ:"",en:"Wash"},
+  {inf:"skynde",gruppe:"UV",presens:"skynder",preteritum:"skyndte",perfektum:"skyndet",imperativ:"",en:"Hasten"},
+  {inf:"skyte",gruppe:"UV",presens:"skyter",preteritum:"skjøt",perfektum:"skutt",imperativ:"",en:"Shoot"},
+  {inf:"skyve",gruppe:"UV",presens:"skyver",preteritum:"skøv",perfektum:"skutt",imperativ:"",en:"Push, Shove"},
+  {inf:"slenge",gruppe:"1",presens:"slenger",preteritum:"slengte",perfektum:"slengt",imperativ:"",en:"Throw"},
+  {inf:"slippe",gruppe:"UV",presens:"slipper",preteritum:"slapp",perfektum:"sluppet",imperativ:"",en:"Drop"},
+  {inf:"slite",gruppe:"UV",presens:"sliter",preteritum:"slet",perfektum:"slitt",imperativ:"",en:"Toil"},
+  {inf:"slutte",gruppe:"2",presens:"slutter",preteritum:"sluttet",perfektum:"sluttet",imperativ:"",en:"End, Close"},
+  {inf:"slå",gruppe:"UV",presens:"slår",preteritum:"slo",perfektum:"slått",imperativ:"",en:"Hit"},
+  {inf:"slåss",gruppe:"UV",presens:"slåss",preteritum:"sloss",perfektum:"slåss",imperativ:"",en:"Fight"},
+  {inf:"smake",gruppe:"2",presens:"smaker",preteritum:"smaket",perfektum:"smaket",imperativ:"smak",en:"Taste"},
+  {inf:"smelle",gruppe:"1",presens:"smeller",preteritum:"smelte",perfektum:"smelt",imperativ:"",en:"Bang, Smack"},
+  {inf:"smile",gruppe:"1",presens:"smiler",preteritum:"smilte",perfektum:"smilt",imperativ:"",en:"Smile"},
+  {inf:"smitte",gruppe:"2",presens:"smitter",preteritum:"smittet",perfektum:"smittet",imperativ:"",en:"Infect"},
+  {inf:"sminke",gruppe:"2",presens:"sminker",preteritum:"sminket",perfektum:"sminket",imperativ:"",en:"Apply make up"},
+  {inf:"smøre",gruppe:"UV",presens:"smører",preteritum:"smurte",perfektum:"smurt",imperativ:"",en:"Oil, Lubricate"},
+  {inf:"snakke",gruppe:"2",presens:"snakker",preteritum:"snakket",perfektum:"snakket",imperativ:"snakk",en:"Speak, Talk"},
+  {inf:"snegle",gruppe:"2",presens:"snegler",preteritum:"sneglet",perfektum:"sneglet",imperativ:"",en:"Move slowly"},
+  {inf:"snike",gruppe:"UV",presens:"sniker",preteritum:"snek",perfektum:"sneket",imperativ:"",en:"Sneak"},
+  {inf:"snyte",gruppe:"UV",presens:"snyter",preteritum:"snøt",perfektum:"snytt",imperativ:"",en:"Cheat"},
+  {inf:"snø",gruppe:"4",presens:"snør",preteritum:"snødde",perfektum:"snødd",imperativ:"",en:"Snow"},
+  {inf:"sove",gruppe:"UV",presens:"sover",preteritum:"sov",perfektum:"sovet",imperativ:"",en:"Sleep"},
+  {inf:"sovne",gruppe:"2",presens:"sovner",preteritum:"sovnet",perfektum:"sovnet",imperativ:"",en:"Fall asleep"},
+  {inf:"spandere",gruppe:"1",presens:"spanderer",preteritum:"spanderte",perfektum:"spandert",imperativ:"spander",en:"Spend"},
+  {inf:"spare",gruppe:"1",presens:"sparer",preteritum:"sparte",perfektum:"spart",imperativ:"spar",en:"Save, Be economical"},
+  {inf:"sparke",gruppe:"2",presens:"sparker",preteritum:"sparket",perfektum:"sparket",imperativ:"spark",en:"Kick"},
+  {inf:"spikre",gruppe:"2",presens:"spikrer",preteritum:"spikret",perfektum:"spikret",imperativ:"spikre",en:"Nail"},
+  {inf:"spille",gruppe:"1",presens:"spiller",preteritum:"spilte",perfektum:"spilt",imperativ:"",en:"Play"},
+  {inf:"spinne",gruppe:"UV",presens:"spinner",preteritum:"spant",perfektum:"spunnet",imperativ:"",en:"Spin"},
+  {inf:"spise",gruppe:"1",presens:"spiser",preteritum:"spiste",perfektum:"spist",imperativ:"",en:"Eat"},
+  {inf:"sprekke",gruppe:"UV",presens:"sprekker",preteritum:"sprakk",perfektum:"sprukket",imperativ:"",en:"Crack, Burst"},
+  {inf:"sprette",gruppe:"UV",presens:"spretter",preteritum:"spratt",perfektum:"sprettet",imperativ:"",en:"Bounce"},
+  {inf:"springe",gruppe:"UV",presens:"springer",preteritum:"sprang",perfektum:"sprunget",imperativ:"",en:"Spring, Leap"},
+  {inf:"spørre",gruppe:"UV",presens:"spør",preteritum:"spurte",perfektum:"spurt",imperativ:"",en:"Ask"},
+  {inf:"starte",gruppe:"2",presens:"starter",preteritum:"startet",perfektum:"startet",imperativ:"",en:"Start"},
+  {inf:"steke",gruppe:"1",presens:"steker",preteritum:"stekte",perfektum:"stekt",imperativ:"",en:"Roast, Fry, Bake"},
+  {inf:"stelle",gruppe:"1",presens:"steller",preteritum:"stelte",perfektum:"stelt",imperativ:"",en:"Manage"},
+  {inf:"stemme",gruppe:"1",presens:"stemmer",preteritum:"stemte",perfektum:"stemt",imperativ:"",en:"Vote, Agree"},
+  {inf:"stevne",gruppe:"2",presens:"stevner",preteritum:"stevnet",perfektum:"stevnet",imperativ:"",en:"Summon"},
+  {inf:"stige",gruppe:"UV",presens:"stiger",preteritum:"steg",perfektum:"steget",imperativ:"",en:"Climb"},
+  {inf:"stikke",gruppe:"UV",presens:"stikker",preteritum:"stakk",perfektum:"stukket",imperativ:"",en:"Stick"},
+  {inf:"stille",gruppe:"1",presens:"stiller",preteritum:"stilte",perfektum:"stilt",imperativ:"",en:"Put, Place"},
+  {inf:"stjele",gruppe:"UV",presens:"stjeler",preteritum:"stjal",perfektum:"stjålet",imperativ:"",en:"Steal"},
+  {inf:"stoppe",gruppe:"2",presens:"stopper",preteritum:"stoppet",perfektum:"stoppet",imperativ:"stopp",en:"Stop"},
+  {inf:"strekke",gruppe:"UV",presens:"strekker",preteritum:"strakk",perfektum:"strukket",imperativ:"",en:"Stretch"},
+  {inf:"stri",gruppe:"UV",presens:"strir",preteritum:"stred",perfektum:"stridd",imperativ:"",en:"Struggle"},
+  {inf:"strikke",gruppe:"2",presens:"strikker",preteritum:"strikket",perfektum:"strikket",imperativ:"",en:"Knit"},
+  {inf:"stryke",gruppe:"UV",presens:"stryker",preteritum:"strøk",perfektum:"strøket",imperativ:"",en:"Stroke"},
+  {inf:"studere",gruppe:"1",presens:"studerer",preteritum:"studerte",perfektum:"studert",imperativ:"",en:"Study"},
+  {inf:"stå",gruppe:"UV",presens:"står",preteritum:"stod",perfektum:"stått",imperativ:"stå",en:"Stand"},
+  {inf:"svare",gruppe:"1",presens:"svarer",preteritum:"svarte",perfektum:"svart",imperativ:"",en:"Answer, Reply"},
+  {inf:"sverge",gruppe:"2",presens:"sverger",preteritum:"sverget",perfektum:"sverget",imperativ:"",en:"Swear"},
+  {inf:"svi",gruppe:"UV",presens:"svir",preteritum:"sved",perfektum:"svidd",imperativ:"",en:"Burn"},
+  {inf:"svike",gruppe:"UV",presens:"sviker",preteritum:"svek",perfektum:"sveket",imperativ:"",en:"Defraud, Deceive"},
+  {inf:"svinge",gruppe:"1",presens:"svinger",preteritum:"svingte",perfektum:"svingt",imperativ:"",en:"Swing, Brandish"},
+  {inf:"svømme",gruppe:"1",presens:"svømmer",preteritum:"svømte",perfektum:"svømt",imperativ:"",en:"Swim"},
+  {inf:"sy",gruppe:"4",presens:"syr",preteritum:"sydde",perfektum:"sydd",imperativ:"",en:"Sew, Make"},
+  {inf:"sykle",gruppe:"2",presens:"sykler",preteritum:"syklet",perfektum:"syklet",imperativ:"sykle",en:"Cycle"},
+  {inf:"synes",gruppe:"UV",presens:"syn(e)s",preteritum:"syntes",perfektum:"syn(e)s",imperativ:"",en:"Think"},
+  {inf:"synge",gruppe:"UV",presens:"synger",preteritum:"sang",perfektum:"sunget",imperativ:"",en:"Sing"},
+  {inf:"synke",gruppe:"UV",presens:"synker",preteritum:"sank",perfektum:"sunket",imperativ:"",en:"Sink"},
+  {inf:"søke",gruppe:"1",presens:"søker",preteritum:"søkte",perfektum:"søkt",imperativ:"",en:"Apply, Seek"},
+  {inf:"ta",gruppe:"UV",presens:"tar",preteritum:"tok",perfektum:"tatt",imperativ:"ta",en:"Take"},
+  {inf:"takke",gruppe:"2",presens:"takker",preteritum:"takket",perfektum:"takket",imperativ:"",en:"Thank"},
+  {inf:"tape",gruppe:"1",presens:"taper",preteritum:"tapte",perfektum:"tapt",imperativ:"",en:"Lose"},
+  {inf:"tappe",gruppe:"2",presens:"tapper",preteritum:"tappet",perfektum:"tappet",imperativ:"",en:"Tap, Draw"},
+  {inf:"telle",gruppe:"UV",presens:"teller",preteritum:"talte",perfektum:"talt",imperativ:"",en:"Count"},
+  {inf:"tenke",gruppe:"1",presens:"tenker",preteritum:"tenkte",perfektum:"tenkt",imperativ:"",en:"Think"},
+  {inf:"tenne",gruppe:"1",presens:"tenner",preteritum:"tente",perfektum:"tent",imperativ:"",en:"Light, Ignite"},
+  {inf:"tigge",gruppe:"UV",presens:"tigger",preteritum:"tagg",perfektum:"tigget",imperativ:"",en:"Beg"},
+  {inf:"tilby",gruppe:"UV",presens:"tilbyr",preteritum:"tilbød",perfektum:"tilbudt",imperativ:"",en:"Offer"},
+  {inf:"tjene",gruppe:"1",presens:"tjener",preteritum:"tjente",perfektum:"tjent",imperativ:"",en:"Earn"},
+  {inf:"tore",gruppe:"UV",presens:"tør",preteritum:"torde",perfektum:"tort",imperativ:"",en:"Dare"},
+  {inf:"torturere",gruppe:"1",presens:"torturerer",preteritum:"torturerte",perfektum:"torturert",imperativ:"",en:"Torture"},
+  {inf:"tre",gruppe:"UV",presens:"trer",preteritum:"trådte",perfektum:"trådt",imperativ:"",en:"Tread, Step"},
+  {inf:"treffe",gruppe:"UV",presens:"treffer",preteritum:"traff",perfektum:"truffet",imperativ:"",en:"Meet"},
+  {inf:"trene",gruppe:"1",presens:"trener",preteritum:"trente",perfektum:"trent",imperativ:"",en:"Train, Work out"},
+  {inf:"trenge",gruppe:"1",presens:"trenger",preteritum:"trengte",perfektum:"trengt",imperativ:"",en:"Need"},
+  {inf:"trive",gruppe:"UV",presens:"triver",preteritum:"treiv",perfektum:"trevet",imperativ:"",en:"Catch up, Grab"},
+  {inf:"trives",gruppe:"UV",presens:"triv(e)s",preteritum:"trivdes",perfektum:"triv(e)s",imperativ:"",en:"Thrive, Happy"},
+  {inf:"tro",gruppe:"4",presens:"tror",preteritum:"trodde",perfektum:"trodd",imperativ:"",en:"Think"},
+  {inf:"tvinge",gruppe:"UV",presens:"tvinger",preteritum:"tvang",perfektum:"tvunget",imperativ:"",en:"Force, Compel"},
+  {inf:"tørke",gruppe:"2",presens:"tørker",preteritum:"tørket",perfektum:"tørket",imperativ:"",en:"Dry"},
+  {inf:"underskrive",gruppe:"UV",presens:"underskriver",preteritum:"underskrev",perfektum:"underskrevet",imperativ:"",en:"Sign"},
+  {inf:"undersøke",gruppe:"1",presens:"undersøker",preteritum:"undersøkte",perfektum:"undersøkt",imperativ:"",en:"Examine"},
+  {inf:"unnskylde",gruppe:"1",presens:"unnskylder",preteritum:"unnskyldte",perfektum:"unnskyldt",imperativ:"",en:"Excuse"},
+  {inf:"utarbeide",gruppe:"2",presens:"utarbeider",preteritum:"utarbeidet",perfektum:"utarbeidet",imperativ:"",en:"Prepare, Work out"},
+  {inf:"utføre",gruppe:"1",presens:"utfører",preteritum:"utførte",perfektum:"utført",imperativ:"",en:"Export, Perform"},
+  {inf:"utslå",gruppe:"UV",presens:"utslår",preteritum:"utslo",perfektum:"utslått",imperativ:"",en:"Hanging down, Down"},
+  {inf:"varme",gruppe:"2",presens:"varmer",preteritum:"varmet",perfektum:"varmet",imperativ:"",en:"Warm"},
+  {inf:"vaske",gruppe:"2",presens:"vasker",preteritum:"vasket",perfektum:"vasket",imperativ:"vask",en:"Wash"},
+  {inf:"veie",gruppe:"3",presens:"veier",preteritum:"veide",perfektum:"veid",imperativ:"",en:"Weigh"},
+  {inf:"vekke",gruppe:"2",presens:"vekker",preteritum:"vekket",perfektum:"vekket",imperativ:"",en:"Wake"},
+  {inf:"velge",gruppe:"UV",presens:"velger",preteritum:"valgte",perfektum:"valgt",imperativ:"",en:"Select"},
+  {inf:"vente",gruppe:"2",presens:"venter",preteritum:"ventet",perfektum:"ventet",imperativ:"vent",en:"Wait"},
+  {inf:"verne",gruppe:"2",presens:"verner",preteritum:"vernet",perfektum:"vernet",imperativ:"",en:"Preserve, Defend"},
+  {inf:"vike",gruppe:"UV",presens:"viker",preteritum:"vekket",perfektum:"veket",imperativ:"",en:"Yield"},
+  {inf:"ville",gruppe:"UV/HV",presens:"vil",preteritum:"ville",perfektum:"villet",imperativ:"",en:"Want to, Will"},
+  {inf:"vinke",gruppe:"2",presens:"vinker",preteritum:"vinket",perfektum:"vinket",imperativ:"",en:"Wave"},
+  {inf:"vinne",gruppe:"UV",presens:"vinner",preteritum:"vant",perfektum:"vunnet",imperativ:"",en:"Win"},
+  {inf:"vise",gruppe:"1",presens:"viser",preteritum:"viste",perfektum:"vist",imperativ:"",en:"Indicate, Point out"},
+  {inf:"vite",gruppe:"UV",presens:"vet",preteritum:"visste",perfektum:"visst",imperativ:"",en:"Know"},
+  {inf:"vokse",gruppe:"1",presens:"vokser",preteritum:"vokste",perfektum:"vokst",imperativ:"",en:"Grow, Increase"},
+  {inf:"voldta",gruppe:"UV",presens:"voldtar",preteritum:"voldtok",perfektum:"voldtatt",imperativ:"",en:"Rape"},
+  {inf:"vri",gruppe:"UV",presens:"vrir",preteritum:"vred",perfektum:"vridd",imperativ:"",en:"Twist"},
+  {inf:"være",gruppe:"UV",presens:"er",preteritum:"var",perfektum:"vært",imperativ:"",en:"Be, Exist"},
+  {inf:"våkne",gruppe:"2",presens:"våkner",preteritum:"våknet",perfektum:"våknet",imperativ:"",en:"Wake, Awaken"},
+  {inf:"øke",gruppe:"1",presens:"øker",preteritum:"økte",perfektum:"økt",imperativ:"",en:"Increase"},
+  {inf:"ønske",gruppe:"2",presens:"ønsker",preteritum:"ønsket",perfektum:"ønsket",imperativ:"",en:"Wish"},
+  {inf:"øve",gruppe:"3",presens:"øver",preteritum:"øvde",perfektum:"øvd",imperativ:"",en:"Practise"},
 ];
 
 // ══════════════════════════════════════════════
@@ -1393,6 +2121,7 @@ function init() {
   buildStudyQueue();
   renderWordList();
   updateProgress();
+  nextQuizQuestion();
 }
 
 function save() {
@@ -1619,6 +2348,22 @@ function updateStudyCard() {
   document.getElementById('studyFrontBadges').innerHTML = badges;
   document.getElementById('studyBackBadges').innerHTML  = badges;
   counter.textContent = `${studyIndex + 1} / ${studyQueue.length}`;
+
+  const conjEl = document.getElementById('studyConjugation');
+  if (w.pos === 'p2') {
+    const conj = VERB_CONJUGATIONS.find(v => v.inf === w.no);
+    if (conj) {
+      const rows = [
+        ['present', conj.presens],
+        ['past', conj.preteritum],
+        ['perfect', conj.perfektum],
+        ...(conj.imperativ ? [['imperative', conj.imperativ]] : []),
+      ];
+      conjEl.innerHTML = rows.map(([l,v]) =>
+        `<span class="cl">${l}</span><span class="cv">${v}</span>`
+      ).join('');
+    } else { conjEl.innerHTML = ''; }
+  } else { conjEl.innerHTML = ''; }
 }
 
 function flipStudyCard() { document.getElementById('studyCard').classList.toggle('flipped'); }
@@ -1766,6 +2511,261 @@ function showToast(msg, color = '#2ecc71') {
   t.style.background = color;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ══════════════════════════════════════════════
+//  QUIZ MODE
+// ══════════════════════════════════════════════
+let quizMode     = 'word';    // 'word' | 'verb'
+let quizDir      = 'a';       // word: 'a'=EN→NO, 'b'=NO→EN  |  verb: 'a'=inf→form, 'b'=form→inf
+let quizType     = 'mc';      // 'mc' | 'typed'
+let quizTier     = 'active';  // 'active' | 'all' | '50'..'1000'
+let quizOrder    = 'random';  // 'random' | 'seq'
+let quizSeqPool  = [];
+let quizSeqIdx   = 0;
+let quizCurrent  = null;
+let quizAnswered = false;
+let quizAutoTimer = null;
+let qScore       = { correct: 0, wrong: 0, streak: 0 };
+
+const VERB_FORMS = [
+  { key:'presens',    label:'Present'    },
+  { key:'preteritum', label:'Past'       },
+  { key:'perfektum',  label:'Perfect'    },
+  { key:'imperativ',  label:'Imperative' },
+];
+
+function setQuizMode(mode, btn) {
+  quizMode = mode;
+  btn.closest('.filter-tabs').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const a = document.getElementById('qDirA'), b2 = document.getElementById('qDirB');
+  if (mode === 'verb') { a.textContent = 'Inf → Form'; b2.textContent = 'Form → Inf'; }
+  else                 { a.textContent = 'EN → NO';    b2.textContent = 'NO → EN';    }
+  quizSeqPool = []; quizSeqIdx = 0;
+  nextQuizQuestion();
+}
+
+function setQuizDir(dir, btn) {
+  quizDir = dir;
+  btn.closest('.filter-tabs').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  nextQuizQuestion();
+}
+
+function setQuizType(type, btn) {
+  quizType = type;
+  btn.closest('.filter-tabs').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  nextQuizQuestion();
+}
+
+function setQuizTier(val) {
+  quizTier = val;
+  quizSeqPool = []; quizSeqIdx = 0;
+  nextQuizQuestion();
+}
+
+function setQuizOrder(order, btn) {
+  quizOrder = order;
+  btn.closest('.filter-tabs').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  quizSeqPool = []; quizSeqIdx = 0;
+  nextQuizQuestion();
+}
+
+function getQuizWordPool() {
+  const base = words.filter(w => w.learned);
+  if (quizTier === 'all') return base;
+  const maxRank = quizTier === 'active' ? getActiveTier().max : Number(quizTier);
+  return base.filter(w => w.rank === null || w.rank <= maxRank);
+}
+
+function getQuizVerbPool() {
+  const base = VERB_CONJUGATIONS.filter(v => v.preteritum || v.presens);
+  if (quizTier === 'all') return base;
+  const maxRank = quizTier === 'active' ? getActiveTier().max : Number(quizTier);
+  const wordRank = new Map(words.map(w => [w.no, w.rank]));
+  return base.filter(v => {
+    const r = wordRank.get(v.inf);
+    return r === undefined || r === null || r <= maxRank;
+  });
+}
+
+function buildWordQuestion() {
+  const pool = getQuizWordPool();
+  if (!pool.length) return null;
+  let w;
+  if (quizOrder === 'seq') {
+    if (!quizSeqPool.length) {
+      quizSeqPool = [...pool].sort((a, b) => (a.rank ?? 9999) - (b.rank ?? 9999));
+    }
+    w = quizSeqPool[quizSeqIdx % quizSeqPool.length];
+    quizSeqIdx++;
+  } else {
+    if (pool.length < 2) return null;
+    w = pool[Math.floor(Math.random() * pool.length)];
+  }
+  const dir = quizDir === 'mix' ? (Math.random() < 0.5 ? 'a' : 'b') : quizDir;
+  const enToNo  = dir === 'a';
+  const prompt  = enToNo ? w.en : w.no;
+  const answer  = enToNo ? w.no : w.en;
+  const subtext = enToNo ? 'What is the Norwegian?' : 'What is the English?';
+  const decoys  = [];
+  const shuffled = [...words].filter(x => x.en !== w.en).sort(() => Math.random() - 0.5);
+  for (const d of shuffled) {
+    const v = enToNo ? d.no : d.en;
+    if (v && v !== answer && !decoys.includes(v)) { decoys.push(v); if (decoys.length >= 3) break; }
+  }
+  return { qType:'word', prompt, answer, decoys, subtext };
+}
+
+function buildVerbQuestion() {
+  const pool = getQuizVerbPool();
+  if (!pool.length) return null;
+  let conj;
+  if (quizOrder === 'seq') {
+    if (!quizSeqPool.length) {
+      quizSeqPool = [...pool].sort((a, b) => a.inf.localeCompare(b.inf));
+    }
+    conj = quizSeqPool[quizSeqIdx % quizSeqPool.length];
+    quizSeqIdx++;
+  } else {
+    conj = pool[Math.floor(Math.random() * pool.length)];
+  }
+  const dir  = quizDir === 'mix' ? (Math.random() < 0.5 ? 'a' : 'b') : quizDir;
+
+  let srcField, tgtField;
+  if (dir === 'a') {
+    srcField = { key:'inf', label:'Infinitive' };
+    const avail = VERB_FORMS.filter(f => conj[f.key]);
+    if (!avail.length) return null;
+    tgtField = avail[Math.floor(Math.random() * avail.length)];
+  } else {
+    tgtField = { key:'inf', label:'Infinitive' };
+    const avail = VERB_FORMS.filter(f => conj[f.key]);
+    if (!avail.length) return null;
+    srcField = avail[Math.floor(Math.random() * avail.length)];
+  }
+
+  const srcVal = srcField.key === 'inf' ? `å ${conj.inf}` : conj[srcField.key];
+  const tgtVal = tgtField.key === 'inf' ? conj.inf        : conj[tgtField.key];
+
+  // Decoys are the other conjugated forms of the same verb (not a different verb)
+  const allForms = [conj.inf, conj.presens, conj.preteritum, conj.perfektum, conj.imperativ]
+    .filter(Boolean);
+  const uniqueForms = [...new Set(allForms)];
+  let decoys = uniqueForms.filter(v => v !== tgtVal).sort(() => Math.random() - 0.5).slice(0, 3);
+
+  // Only fall back to other verbs if this verb genuinely has fewer than 4 distinct forms
+  if (decoys.length < 3) {
+    const others = pool.filter(v => v.inf !== conj.inf).sort(() => Math.random() - 0.5);
+    for (const d of others) {
+      const v = tgtField.key === 'inf' ? d.inf : d[tgtField.key];
+      if (v && v !== tgtVal && !decoys.includes(v)) { decoys.push(v); if (decoys.length >= 3) break; }
+    }
+  }
+
+  return {
+    qType:'verb', prompt: srcVal, answer: tgtVal, decoys,
+    subtext: `${srcField.label} · "${conj.en}" · What is the ${tgtField.label.toLowerCase()}?`,
+  };
+}
+
+function nextQuizQuestion() {
+  clearTimeout(quizAutoTimer);
+  quizAnswered = false;
+  quizCurrent  = quizMode === 'word' ? buildWordQuestion() : buildVerbQuestion();
+  renderQuiz();
+}
+
+function renderQuiz() {
+  const qEl  = document.getElementById('quizQuestion');
+  const stEl = document.getElementById('quizSubtext');
+  const fbEl = document.getElementById('quizFeedback');
+  const aaEl = document.getElementById('quizAnswerArea');
+  fbEl.textContent = '';
+  fbEl.className   = 'quiz-feedback';
+
+  if (!quizCurrent) {
+    const learned = words.filter(w => w.learned).length;
+    qEl.textContent  = quizMode === 'word'
+      ? `Mark at least 4 words as learned to unlock Word Quiz (${learned}/4)`
+      : 'No verb data';
+    stEl.textContent = '';
+    aaEl.innerHTML   = '';
+    return;
+  }
+
+  qEl.textContent  = quizCurrent.prompt;
+  stEl.textContent = quizCurrent.subtext;
+  quizType === 'mc' ? renderMC() : renderTyped();
+}
+
+function renderMC() {
+  const opts = [quizCurrent.answer, ...quizCurrent.decoys].sort(() => Math.random() - 0.5);
+  document.getElementById('quizAnswerArea').innerHTML =
+    `<div class="mc-options">${opts.map(o =>
+      `<button class='mc-btn' onclick='checkMC(${JSON.stringify(o)},this)'>${o}</button>`
+    ).join('')}</div>`;
+}
+
+function renderTyped() {
+  document.getElementById('quizAnswerArea').innerHTML =
+    `<div class="quiz-typed-row">
+      <input class="quiz-input" id="quizInput" placeholder="Type your answer…"
+             autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <button class="btn btn-primary" onclick="checkTyped()">Check</button>
+    </div>`;
+  const inp = document.getElementById('quizInput');
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { quizAnswered ? nextQuizQuestion() : checkTyped(); }
+  });
+  setTimeout(() => inp && inp.focus(), 30);
+}
+
+function checkMC(chosen, btn) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const correct = chosen === quizCurrent.answer;
+  document.querySelectorAll('.mc-btn').forEach(b => {
+    b.disabled = true;
+    if (b.textContent === quizCurrent.answer) b.classList.add('correct');
+  });
+  if (!correct) btn.classList.add('wrong');
+  recordResult(correct);
+}
+
+function checkTyped() {
+  if (quizAnswered) return;
+  const inp = document.getElementById('quizInput');
+  if (!inp) return;
+  const val = inp.value.trim().toLowerCase();
+  const alts = quizCurrent.answer.toLowerCase().split('/').map(s => s.trim());
+  const correct = alts.includes(val);
+  quizAnswered = true;
+  inp.disabled = true;
+  inp.classList.add(correct ? 'correct' : 'wrong');
+  recordResult(correct);
+}
+
+function recordResult(correct) {
+  if (correct) { qScore.correct++; qScore.streak++; }
+  else         { qScore.wrong++;   qScore.streak = 0; }
+  document.getElementById('qScoreCorrect').textContent = qScore.correct;
+  document.getElementById('qScoreWrong').textContent   = qScore.wrong;
+  document.getElementById('qScoreStreak').textContent  = qScore.streak;
+  const fbEl = document.getElementById('quizFeedback');
+  fbEl.textContent = correct ? '✅ Correct!' : `❌ Answer: ${quizCurrent.answer}`;
+  fbEl.className   = `quiz-feedback ${correct ? 'correct' : 'wrong'}`;
+  quizAutoTimer = setTimeout(nextQuizQuestion, 1000);
+}
+
+function resetQuizScore() {
+  qScore = { correct:0, wrong:0, streak:0 };
+  ['qScoreCorrect','qScoreWrong','qScoreStreak'].forEach(id =>
+    document.getElementById(id).textContent = 0);
+  nextQuizQuestion();
 }
 
 // ── Kick off ──
