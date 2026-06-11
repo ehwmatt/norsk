@@ -2639,7 +2639,8 @@ function buildWordQuestion() {
   const answer  = enToNo ? w.no : w.en;
   const subtext = enToNo ? 'What is the Norwegian?' : 'What is the English?';
   const decoys  = [];
-  const shuffled = [...words].filter(x => x.en !== w.en).sort(() => Math.random() - 0.5);
+  const decoySrc = quizPos === 'all' ? words : words.filter(x => x.pos === quizPos);
+  const shuffled = [...decoySrc].filter(x => x.en !== w.en).sort(() => Math.random() - 0.5);
   for (const d of shuffled) {
     const v = enToNo ? d.no : d.en;
     if (v && v !== answer && !decoys.includes(v)) { decoys.push(v); if (decoys.length >= 3) break; }
@@ -2730,8 +2731,11 @@ function renderQuiz() {
 }
 
 function renderMC() {
+  const aaEl = document.getElementById('quizAnswerArea');
+  aaEl.innerHTML = '';
+  if (document.activeElement) document.activeElement.blur();
   const opts = [quizCurrent.answer, ...quizCurrent.decoys].sort(() => Math.random() - 0.5);
-  document.getElementById('quizAnswerArea').innerHTML =
+  aaEl.innerHTML =
     `<div class="mc-options">${opts.map(o =>
       `<button class='mc-btn' onclick='checkMC(${JSON.stringify(o)},this)'>${o}</button>`
     ).join('')}</div>`;
